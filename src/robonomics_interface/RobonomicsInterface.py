@@ -147,7 +147,7 @@ class RobonomicsInterface:
 
         @param call_module: Call module from extrinsic tab
         @param call_function: Call function from extrinsic tab
-        @param params: Call parameters as a dictionary. None of no parameters
+        @param params: Call parameters as a dictionary. None for no parameters
 
         @return: Extrinsic hash or None if failed
         """
@@ -181,7 +181,7 @@ class RobonomicsInterface:
             logging.error(f"Error while creating a call, creating or submitting extrinsic: {e}")
             return None
 
-    def write_datalog(self, data: str) -> str or None:
+    def record_datalog(self, data: str) -> str or None:
         """
         Write any string to datalog
 
