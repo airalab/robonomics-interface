@@ -1,13 +1,29 @@
 import logging
 import typing as tp
 
-from substrateinterface import SubstrateInterface, Keypair
+import substrateinterface as substrate
+
+from scalecodec.types import GenericCall, GenericExtrinsic
+
+from .constants import REMOTE_WS, TYPE_REGISTRY
+from .classes import NoPrivateKey, InvalidCommand
+
+Datalog = tp.Dict[str, tp.Union[int, str]]
+NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, dict]]]
 
 
 class RobonomicsInterface:
+    """
+    A class for establishing connection to the Robonomics nodes and interacting with them.
+    Fetch chainstate, submit extrinsics, custom calls.
+    """
 
-    def __init__(self, seed: str or None = None, remote_ws: str = 'wss://main.frontier.rpc.robonomics.network',
-                 type_registry: tp.Dict or None = None):
+    def __init__(
+        self,
+        seed: tp.Optional[str] = None,
+        remote_ws: tp.Optional[str] = None,
+        type_registry: tp.Optional[NodeTypes] = None,
+    ):
         """
         Instance of a class is an interface with a node. Here this interface is initialized.
 
@@ -17,74 +33,56 @@ class RobonomicsInterface:
         @param type_registry: types used in the chain. Defaults are the most frequently used in Robonomics
         """
 
-        self.seed = seed
-        if not self.seed:
+        self.interface: substrate.SubstrateInterface
+        self.keypair: tp.Optional[substrate.Keypair] = self._create_keypair(seed) if seed else None
+
+        if not self.keypair:
             logging.warning("No seed specified, you won't be able to sign extrinsics, fetching chainstate only.")
-            self.keypair = None
-        else:
-            try:
-                if '0x' in self.seed:
-                    self.keypair = Keypair.create_from_seed(
-                        seed_hex=hex(int(self.seed, 16)),
-                        ss58_format=32)
-                else:
-                    self.keypair = Keypair.create_from_mnemonic(self.seed, ss58_format=32)
-            except Exception as e:
-                logging.error(f"Failed to create keypair. Check if seed valid. "
-                              f"You won't be able to sign extrinsics, only fetching chainstate. "
-                              f"Error: {e}")
-                self.keypair = None
 
         if type_registry:
             logging.warning(f"Using custom type registry for the node")
+
+        logging.info("Establishing connection with Robonomics node")
+        self.interface = self._establish_connection(remote_ws or REMOTE_WS, type_registry or TYPE_REGISTRY)
+
+        logging.info("Successfully established connection to Robonomics node")
+
+    @staticmethod
+    def _create_keypair(seed: str) -> substrate.Keypair:
+        """
+        Create a keypair for further use
+
+        @param seed: user seed as a key to sign transactions
+
+        @return: a Keypair instance used by substrate to sign transactions
+        """
+
+        if seed.startswith("0x"):
+            return substrate.Keypair.create_from_seed(seed_hex=hex(int(seed, 16)), ss58_format=32)
         else:
-            type_registry = {
-                "types": {
-                    "Record": "Vec<u8>",
-                    "Parameter": "Bool",
-                    "<T as frame_system::Config>::AccountId": "AccountId",
-                    "RingBufferItem": {
-                        "type": "struct",
-                        "type_mapping": [
-                            [
-                                "timestamp",
-                                "Compact<u64>"
-                            ],
-                            [
-                                "payload",
-                                "Vec<u8>"
-                            ]
-                        ]
-                    },
-                    "RingBufferIndex": {
-                        "type": "struct",
-                        "type_mapping": [
-                            [
-                                "start",
-                                "Compact<u64>"
-                            ],
-                            [
-                                "end",
-                                "Compact<u64>"
-                            ]
-                        ]
-                    }
-                }
-            }
+            return substrate.Keypair.create_from_mnemonic(seed, ss58_format=32)
 
-        try:
-            logging.info("Establishing connection to Robonomics node")
-            self.interface = SubstrateInterface(
-                url=remote_ws,
-                ss58_format=32,
-                type_registry_preset="substrate-node-template",
-                type_registry=type_registry,
-            )
-            logging.info("Successfully established connection to Robonomics node")
-        except Exception as e:
-            logging.error(f"Failed to connect to Robonomics node: {e}")
+    @staticmethod
+    def _establish_connection(url: str, types: NodeTypes) -> substrate.SubstrateInterface:
+        """
+        Create a substrate interface for interacting wit Robonomics node
 
-    def custom_chainstate(self, module: str, storage_function: str, params: tp.List or str or None = None) -> tp.Any:
+        @param url: node endpoint
+        @param types: json types used by pallets
+
+        @return: interface of a Robonomics node connection
+        """
+
+        return substrate.SubstrateInterface(
+            url=url,
+            ss58_format=32,
+            type_registry_preset="substrate-node-template",
+            type_registry=types,
+        )
+
+    def custom_chainstate(
+        self, module: str, storage_function: str, params: tp.Optional[tp.Union[tp.List[str], str]] = None
+    ) -> tp.Any:
         """
         Create custom queries to fetch data from the Chainstate. Module names and storage functions, as well as required
         parameters are available at https://parachain.robonomics.network/#/chainstate
@@ -97,18 +95,9 @@ class RobonomicsInterface:
         """
 
         logging.info("Performing query")
-        try:
-            if params:
-                resp = self.interface.query(module, storage_function, [params])
-                return resp
-            else:
-                resp = self.interface.query(module, storage_function)
-                return resp
-        except Exception as e:
-            logging.error(f"Failed to perform query: {e}")
-            return None
+        return self.interface.query(module, storage_function, [params] if params else None)
 
-    def fetch_datalog(self, addr: str, index: int or None = None) -> tp.Dict or None:
+    def fetch_datalog(self, addr: str, index: tp.Optional[int] = None) -> tp.Optional[Datalog]:
         """
         Fetch datalog record of a provided account.
 
@@ -119,28 +108,24 @@ class RobonomicsInterface:
         @return: Dictionary. Datalog of the account with a timestamp, None if no records.
         """
 
-        logging.info(f"Fetching {'latest datalog record' if not index else 'datalog record #' + str(index)}"
-                     f" of {addr}.")
-        try:
-            if index:
-                record = self.custom_chainstate("Datalog", "DatalogItem", [addr, index])
-                if record.value['timestamp'] == 0:
-                    logging.error(f"No datalog with index {index} found")
-                    record = None
-                return record
-            else:
-                index = self.custom_chainstate("Datalog", "DatalogIndex", addr).value['end'] - 1
-                if index == -1:
-                    logging.error(f"No datalogs from {addr}")
-                    return None
-                else:
-                    record = self.custom_chainstate("Datalog", "DatalogItem", [addr, index])
-                    return record
-        except Exception as e:
-            logging.error(f"Error fetching datalog:\n{e}")
-            return None
+        logging.info(
+            f"Fetching {'latest datalog record' if not index else 'datalog record #' + str(index)}" f" of {addr}."
+        )
 
-    def custom_extrinsic(self, call_module: str, call_function: str, params: tp.Dict or None = None) -> str or None:
+        if index:
+            _record: Datalog = self.custom_chainstate("Datalog", "DatalogItem", [addr, index]).value
+            return _record if _record["timestamp"] != 0 else None
+        else:
+            _index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", addr).value["end"] - 1
+            return (
+                self.custom_chainstate("Datalog", "DatalogItem", [addr, _index_latest]).value
+                if _index_latest != -1
+                else None
+            )
+
+    def custom_extrinsic(
+        self, call_module: str, call_function: str, params: tp.Optional[tp.Dict[str, str]] = None
+    ) -> str:
         """
         Create an extrinsic, sign&submit it. Module names and functions, as well as required parameters are available
         at https://parachain.robonomics.network/#/extrinsics
@@ -152,36 +137,27 @@ class RobonomicsInterface:
         @return: Extrinsic hash or None if failed
         """
 
-        try:
-            if not self.keypair:
-                raise NoPrivateKey("No seed was provided, unable to use extrinsics.")
+        if not self.keypair:
+            raise NoPrivateKey("No seed was provided, unable to use extrinsics.")
 
-            logging.info(f"Creating a call {call_module}:{call_function}")
-            if params:
-                call = self.interface.compose_call(
-                    call_module=call_module,
-                    call_function=call_function,
-                    call_params=params
-                )
-            else:
-                call = self.interface.compose_call(
-                    call_module=call_module,
-                    call_function=call_function
-                )
+        logging.info(f"Creating a call {call_module}:{call_function}")
+        _call: GenericCall = self.interface.compose_call(
+            call_module=call_module, call_function=call_function, call_params=params or None
+        )
 
-            logging.info("Creating extrinsic")
-            extrinsic = self.interface.create_signed_extrinsic(call=call, keypair=self.keypair)
+        logging.info("Creating extrinsic")
+        _extrinsic: GenericExtrinsic = self.interface.create_signed_extrinsic(call=_call, keypair=self.keypair)
 
-            logging.info("Submitting extrinsic")
-            receipt = self.interface.submit_extrinsic(extrinsic, wait_for_inclusion=True)
-            logging.info(f"Extrinsic {receipt.extrinsic_hash} for RPC {call_module}:{call_function} submitted and "
-                         f"included in block {receipt.block_hash}")
-            return receipt.extrinsic_hash
-        except Exception as e:
-            logging.error(f"Error while creating a call, creating or submitting extrinsic: {e}")
-            return None
+        logging.info("Submitting extrinsic")
+        _receipt: substrate.ExtrinsicReceipt = self.interface.submit_extrinsic(_extrinsic, wait_for_inclusion=True)
+        logging.info(
+            f"Extrinsic {_receipt.extrinsic_hash} for RPC {call_module}:{call_function} submitted and "
+            f"included in block {_receipt.block_hash}"
+        )
 
-    def record_datalog(self, data: str) -> str or None:
+        return _receipt.extrinsic_hash
+
+    def record_datalog(self, data: str) -> str:
         """
         Write any string to datalog
 
@@ -191,28 +167,22 @@ class RobonomicsInterface:
         """
 
         logging.info(f"Writing datalog {data}")
-        r = self.custom_extrinsic("Datalog", "record", {'record': data})
-        return r
+        return self.custom_extrinsic("Datalog", "record", {"record": data})
 
-    def send_launch(self, target_address: str, on_off: bool) -> str or None:
+    def send_launch(self, target_address: str, command: str) -> str or None:
         """
         Send Launch command to device
 
         @param target_address: device to be triggered with launch
-        @param on_off: (true == on, false == off)
+        @param command: whether send ON or OFF command
 
-        @return: Hash of the launch transaction if success
+        @return: Hash of the launch transaction
         """
 
-        logging.info(f"Sending launch command {on_off} to {target_address}")
-        r = self.custom_extrinsic("Launch", "launch", {'robot': target_address,
-                                                       'param': True if on_off else False})
-        return r
+        if command != "ON" and command != "OFF":
+            raise InvalidCommand('Invalid launch command provided. Use "ON" or "OFF".')
 
-
-class NoPrivateKey(Exception):
-    pass
-
-
-if __name__ == "__main__":
-    pass
+        logging.info(f"Sending launch command '{command}' to {target_address}")
+        return self.custom_extrinsic(
+            "Launch", "launch", {"robot": target_address, "param": True if command == "ON" else False}
+        )
