@@ -9,7 +9,7 @@ from .constants import REMOTE_WS, TYPE_REGISTRY
 from .classes import NoPrivateKey, InvalidCommand
 
 Datalog = tp.Dict[str, tp.Union[int, str]]
-NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, dict]]]
+NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
 
 
 class RobonomicsInterface:
@@ -40,7 +40,7 @@ class RobonomicsInterface:
             logging.warning("No seed specified, you won't be able to sign extrinsics, fetching chainstate only.")
 
         if type_registry:
-            logging.warning(f"Using custom type registry for the node")
+            logging.warning("Using custom type registry for the node")
 
         logging.info("Establishing connection with Robonomics node")
         self.interface = self._establish_connection(remote_ws or REMOTE_WS, type_registry or TYPE_REGISTRY)
@@ -81,7 +81,10 @@ class RobonomicsInterface:
         )
 
     def custom_chainstate(
-        self, module: str, storage_function: str, params: tp.Optional[tp.Union[tp.List[str], str]] = None
+        self,
+        module: str,
+        storage_function: str,
+        params: tp.Optional[tp.Union[tp.List[tp.Union[str, int]], str, int]] = None,
     ) -> tp.Any:
         """
         Create custom queries to fetch data from the Chainstate. Module names and storage functions, as well as required
@@ -124,7 +127,7 @@ class RobonomicsInterface:
             )
 
     def custom_extrinsic(
-        self, call_module: str, call_function: str, params: tp.Optional[tp.Dict[str, str]] = None
+        self, call_module: str, call_function: str, params: tp.Optional[tp.Dict[str, tp.Any]] = None
     ) -> str:
         """
         Create an extrinsic, sign&submit it. Module names and functions, as well as required parameters are available
@@ -155,7 +158,7 @@ class RobonomicsInterface:
             f"included in block {_receipt.block_hash}"
         )
 
-        return _receipt.extrinsic_hash
+        return str(_receipt.extrinsic_hash)
 
     def record_datalog(self, data: str) -> str:
         """
@@ -169,7 +172,7 @@ class RobonomicsInterface:
         logging.info(f"Writing datalog {data}")
         return self.custom_extrinsic("Datalog", "record", {"record": data})
 
-    def send_launch(self, target_address: str, command: str) -> str or None:
+    def send_launch(self, target_address: str, command: str) -> str:
         """
         Send Launch command to device
 
