@@ -50,7 +50,7 @@ hash is the transaction hash of the succeeded extrinsic. You can also specify ar
 There are dedicated functions for recording datalog and sending launch commands:
 ```python
 interface.record_datalaog("Hello, Robonomics")
-interface.send_launch(<ss58_address>:str, "ON")
+interface.send_launch(<ss58_address>:str, True)
 ```
 
 This is an evolving package, it may have errors and lack of functionality, fixes are coming.
