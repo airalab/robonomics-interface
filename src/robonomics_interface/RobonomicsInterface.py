@@ -6,7 +6,7 @@ import substrateinterface as substrate
 from scalecodec.types import GenericCall, GenericExtrinsic
 
 from .constants import REMOTE_WS, TYPE_REGISTRY
-from .classes import NoPrivateKey, InvalidCommand
+from .exceptions import NoPrivateKey
 
 Datalog = tp.Dict[str, tp.Union[int, str]]
 NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
@@ -23,7 +23,7 @@ class RobonomicsInterface:
         seed: tp.Optional[str] = None,
         remote_ws: tp.Optional[str] = None,
         type_registry: tp.Optional[NodeTypes] = None,
-    ):
+    ) -> None:
         """
         Instance of a class is an interface with a node. Here this interface is initialized.
 
@@ -172,20 +172,15 @@ class RobonomicsInterface:
         logging.info(f"Writing datalog {data}")
         return self.custom_extrinsic("Datalog", "record", {"record": data})
 
-    def send_launch(self, target_address: str, command: str) -> str:
+    def send_launch(self, target_address: str, toggle: bool) -> str:
         """
         Send Launch command to device
 
         @param target_address: device to be triggered with launch
-        @param command: whether send ON or OFF command
+        @param toggle: whether send ON or OFF command. ON == True, OFF == False
 
         @return: Hash of the launch transaction
         """
 
-        if command != "ON" and command != "OFF":
-            raise InvalidCommand('Invalid launch command provided. Use "ON" or "OFF".')
-
-        logging.info(f"Sending launch command '{command}' to {target_address}")
-        return self.custom_extrinsic(
-            "Launch", "launch", {"robot": target_address, "param": True if command == "ON" else False}
-        )
+        logging.info(f"Sending {'ON' if toggle else 'OFF'} launch command to {target_address}")
+        return self.custom_extrinsic("Launch", "launch", {"robot": target_address, "param": toggle})

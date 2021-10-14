@@ -1,0 +1,2 @@
+class NoPrivateKey(Exception):
+    pass
