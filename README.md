@@ -7,12 +7,12 @@ Robonomics parachain dapp: https://parachain.robonomics.network/
 _______
 # Installation 
 ```bash
-pip3 install robonomics-interface-patara
+pip3 install robonomics-interface
 ```
 # Usage
 *More info may be found in docstrings in the source code*
 ```python
-import robonomics_interface as RI
+import robonomicsinterface as RI
 ```
 ## Initialization
 ```python
@@ -37,7 +37,7 @@ There is a dedicated function to obtain **Datalog**:
 ```python
 record = interface.fetch_datalog(<ss58_address>:str)
 ```
-This will give you the latest datalog record of the specified account with its timestamp. You may pass an index argument to fetch specific record.
+This will give you the latest datalog record of the specified account with its timestamp. You may pass an index argument to fetch specific record. If you create an interface with a provided seed, you'll be able to fetch self-datalog calling `fetch_datalog` with no arguments (or just the `index` argument). 
 
 ## Extrinsics
 **Providing seed** (any raw or mnemonic) while initializing **will let you create and submit extrinsics**:

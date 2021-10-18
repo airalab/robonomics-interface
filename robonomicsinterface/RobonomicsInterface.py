@@ -34,9 +34,9 @@ class RobonomicsInterface:
         """
 
         self.interface: substrate.SubstrateInterface
-        self.keypair: tp.Optional[substrate.Keypair] = self._create_keypair(seed) if seed else None
+        self._keypair: tp.Optional[substrate.Keypair] = self._create_keypair(seed) if seed else None
 
-        if not self.keypair:
+        if not self._keypair:
             logging.warning("No seed specified, you won't be able to sign extrinsics, fetching chainstate only.")
 
         if type_registry:
@@ -100,28 +100,43 @@ class RobonomicsInterface:
         logging.info("Performing query")
         return self.interface.query(module, storage_function, [params] if params else None)
 
-    def fetch_datalog(self, addr: str, index: tp.Optional[int] = None) -> tp.Optional[Datalog]:
+    def _define_address(self) -> str:
         """
-        Fetch datalog record of a provided account.
+        define ss58_address of an account, which seed was provided while initializing an interface
 
-        @param addr: ss58 type 32 address of an account which datalog is to be fetched.
+        @return: ss58_address of an account
+        """
+
+        if not self._keypair:
+            raise NoPrivateKey("No private key was provided, unable to determine self address")
+        return str(self._keypair.ss58_address)
+
+    def fetch_datalog(self, addr: tp.Optional[str] = None, index: tp.Optional[int] = None) -> tp.Optional[Datalog]:
+        """
+        Fetch datalog record of a provided account. Fetch self datalog if no address provided and interface was
+        initialized with a seed.
+
+        @param addr: ss58 type 32 address of an account which datalog is to be fetched. If None, tries to fetch self
+        datalog if keypair was created, else raises NoPrivateKey
         @param index: record index. case int: fetch datalog by specified index
                                     case None: fetch latest datalog
 
         @return: Dictionary. Datalog of the account with a timestamp, None if no records.
         """
 
+        _address: str = addr or self._define_address()
+
         logging.info(
-            f"Fetching {'latest datalog record' if not index else 'datalog record #' + str(index)}" f" of {addr}."
+            f"Fetching {'latest datalog record' if not index else 'datalog record #' + str(index)}" f" of {_address}."
         )
 
         if index:
-            _record: Datalog = self.custom_chainstate("Datalog", "DatalogItem", [addr, index]).value
+            _record: Datalog = self.custom_chainstate("Datalog", "DatalogItem", [_address, index]).value
             return _record if _record["timestamp"] != 0 else None
         else:
-            _index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", addr).value["end"] - 1
+            _index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", _address).value["end"] - 1
             return (
-                self.custom_chainstate("Datalog", "DatalogItem", [addr, _index_latest]).value
+                self.custom_chainstate("Datalog", "DatalogItem", [_address, _index_latest]).value
                 if _index_latest != -1
                 else None
             )
@@ -140,7 +155,7 @@ class RobonomicsInterface:
         @return: Extrinsic hash or None if failed
         """
 
-        if not self.keypair:
+        if not self._keypair:
             raise NoPrivateKey("No seed was provided, unable to use extrinsics.")
 
         logging.info(f"Creating a call {call_module}:{call_function}")
@@ -149,7 +164,7 @@ class RobonomicsInterface:
         )
 
         logging.info("Creating extrinsic")
-        _extrinsic: GenericExtrinsic = self.interface.create_signed_extrinsic(call=_call, keypair=self.keypair)
+        _extrinsic: GenericExtrinsic = self.interface.create_signed_extrinsic(call=_call, keypair=self._keypair)
 
         logging.info("Submitting extrinsic")
         _receipt: substrate.ExtrinsicReceipt = self.interface.submit_extrinsic(_extrinsic, wait_for_inclusion=True)
