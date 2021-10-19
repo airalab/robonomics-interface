@@ -5,9 +5,9 @@ name: Python application
 
 on:
   push:
-    branches: [ development ]
+    branches: [ main ]
   pull_request:
-    branches: [ development ]
+    branches: [ main ]
 
 jobs:
   build:
@@ -30,3 +30,6 @@ jobs:
       run: |
         poetry --version
         poetry build
+    - name: Publish package
+      run: |
+        poetry publish -u "__token__" -p ${{ secrets.PYPI_API_TOKEN }} 
