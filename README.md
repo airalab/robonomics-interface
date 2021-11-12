@@ -52,6 +52,7 @@ There are dedicated functions for recording datalog and sending launch commands:
 interface.record_datalaog("Hello, Robonomics")
 interface.send_launch(<ss58_address>:str, True)
 ```
+Current nonce definition amd manual nonce setting is also possible.
 
 This is an evolving package, it may have errors and lack of functionality, fixes are coming.
 Feel free to open issues when faced a problem.

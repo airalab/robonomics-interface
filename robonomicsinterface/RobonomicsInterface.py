@@ -142,7 +142,11 @@ class RobonomicsInterface:
             )
 
     def custom_extrinsic(
-        self, call_module: str, call_function: str, params: tp.Optional[tp.Dict[str, tp.Any]] = None
+        self,
+        call_module: str,
+        call_function: str,
+        params: tp.Optional[tp.Dict[str, tp.Any]] = None,
+        nonce: tp.Optional[int] = None,
     ) -> str:
         """
         Create an extrinsic, sign&submit it. Module names and functions, as well as required parameters are available
@@ -151,6 +155,10 @@ class RobonomicsInterface:
         @param call_module: Call module from extrinsic tab
         @param call_function: Call function from extrinsic tab
         @param params: Call parameters as a dictionary. None for no parameters
+        @param nonce: transaction nonce, defined automatically if None. Due to e feature of substrate-interface lib,
+        to create an extrinsic with incremented nonce, pass account's current nonce. See
+        https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
+        for example.
 
         @return: Extrinsic hash or None if failed
         """
@@ -160,11 +168,15 @@ class RobonomicsInterface:
 
         logging.info(f"Creating a call {call_module}:{call_function}")
         _call: GenericCall = self.interface.compose_call(
-            call_module=call_module, call_function=call_function, call_params=params or None
+            call_module=call_module,
+            call_function=call_function,
+            call_params=params or None,
         )
 
         logging.info("Creating extrinsic")
-        _extrinsic: GenericExtrinsic = self.interface.create_signed_extrinsic(call=_call, keypair=self._keypair)
+        _extrinsic: GenericExtrinsic = self.interface.create_signed_extrinsic(
+            call=_call, keypair=self._keypair, nonce=nonce
+        )
 
         logging.info("Submitting extrinsic")
         _receipt: substrate.ExtrinsicReceipt = self.interface.submit_extrinsic(_extrinsic, wait_for_inclusion=True)
@@ -175,27 +187,49 @@ class RobonomicsInterface:
 
         return str(_receipt.extrinsic_hash)
 
-    def record_datalog(self, data: str) -> str:
+    def record_datalog(self, data: str, nonce: tp.Optional[int] = None) -> str:
         """
         Write any string to datalog
 
         @param data: string to be stored in datalog
+        @param nonce: nonce of the transaction. Due to e feature of substrate-interface lib,
+        to create an extrinsic with incremented nonce, pass account's current nonce. See
+        https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
+        for example.
 
         @return: Hash of the datalog transaction
         """
 
         logging.info(f"Writing datalog {data}")
-        return self.custom_extrinsic("Datalog", "record", {"record": data})
+        return self.custom_extrinsic("Datalog", "record", {"record": data}, nonce)
 
-    def send_launch(self, target_address: str, toggle: bool) -> str:
+    def send_launch(self, target_address: str, toggle: bool, nonce: tp.Optional[int] = None) -> str:
         """
         Send Launch command to device
 
         @param target_address: device to be triggered with launch
         @param toggle: whether send ON or OFF command. ON == True, OFF == False
+        @param nonce: account nonce. Due to e feature of substrate-interface lib,
+        to create an extrinsic with incremented nonce, pass account's current nonce. See
+        https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
+        for example.
 
         @return: Hash of the launch transaction
         """
 
         logging.info(f"Sending {'ON' if toggle else 'OFF'} launch command to {target_address}")
-        return self.custom_extrinsic("Launch", "launch", {"robot": target_address, "param": toggle})
+        return self.custom_extrinsic("Launch", "launch", {"robot": target_address, "param": toggle}, nonce)
+
+    def get_account_nonce(self, account_address: tp.Optional[str] = None) -> int:
+        """
+        Get current account nonce
+
+        @param account_address: account ss58_address. Self address via private key is obtained if not passed.
+
+        @return account nonce. Due to e feature of substrate-interface lib,
+        to create an extrinsic with incremented nonce, pass account's current nonce. See
+        https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
+        for example.
+        """
+
+        return self.interface.get_account_nonce(account_address=account_address or self._define_address())
