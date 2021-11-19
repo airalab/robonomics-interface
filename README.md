@@ -56,3 +56,12 @@ Current nonce definition amd manual nonce setting is also possible.
 
 This is an evolving package, it may have errors and lack of functionality, fixes are coming.
 Feel free to open issues when faced a problem.
+
+## JSON RPC
+There is a way to implement robonomics pubsub rpc calls:
+
+```python3
+interface = RI.RobonomicsInterface()
+pubsub = PubSub(interface)
+pubsub.peer()
+```

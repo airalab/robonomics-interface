@@ -233,3 +233,118 @@ class RobonomicsInterface:
         """
 
         return self.interface.get_account_nonce(account_address=account_address or self._define_address())
+
+    def r_rpc_request(
+        self, method: str, params: tp.Optional[tp.List[str]], result_handler: tp.Optional[tp.Callable]
+    ) -> tp.Any:
+        """
+        Method that handles the actual RPC request to the Substrate node. The other implemented functions eventually
+        use this method to perform the request.
+
+        @param method: method of the JSONRPC request
+        @param params: a list containing the parameters of the JSONRPC request
+        @param result_handler: Callback function that processes the result received from the node
+
+        @return: result of the request
+        """
+
+        return self.interface.rpc_request(method, params, result_handler)
+
+
+class PubSub:
+    """
+    Class for handling Robonomics pubsub rpc requests
+    """
+
+    def __init__(self, interface: RobonomicsInterface) -> None:
+        """
+        Initiate an instance for further use.
+
+        @param interface: RobonomicsInterface instance
+        """
+
+        self.p_interface = interface
+
+    def connect(
+        self, address: str, result_handler: tp.Optional[tp.Callable] = None
+    ) -> tp.Dict[str, tp.Union[str, bool, int]]:
+        """
+        Connect to peer and add it into swarm.
+
+        @param address: Multiaddr address of the peer to connect to
+        @param result_handler: Callback function that processes the result received from the node
+
+        @return: success flag in JSON message
+        """
+
+        return self.p_interface.r_rpc_request("pubsub_connect", [address], result_handler)
+
+    def listen(
+        self, address: str, result_handler: tp.Optional[tp.Callable] = None
+    ) -> tp.Dict[str, tp.Union[str, bool, int]]:
+        """
+        Listen address for incoming connections.
+
+        @param address: Multiaddr address of the peer to connect to
+        @param result_handler: Callback function that processes the result received from the node
+
+        @return: success flag in JSON message
+        """
+
+        return self.p_interface.r_rpc_request("pubsub_listen", [address], result_handler)
+
+    def listeners(
+        self, result_handler: tp.Optional[tp.Callable] = None
+    ) -> tp.Dict[str, tp.Union[str, tp.List[str], int]]:
+        """
+        Returns a list of node addresses.
+
+        @param result_handler: Callback function that processes the result received from the node
+
+        @return: list of node addresses in JSON message
+        """
+
+        return self.p_interface.r_rpc_request("pubsub_listeners", None, result_handler)
+
+    def peer(self, result_handler: tp.Optional[tp.Callable] = None) -> tp.Dict[str, tp.Union[str, int]]:
+        """
+        Returns local peer ID.
+
+        @return: local peer ID in JSON message
+        """
+
+        return self.p_interface.r_rpc_request("pubsub_peer", None, result_handler)
+
+    def publish(self, topic_name: str, message: str, result_handler: tp.Optional[tp.Callable] = None) -> tp.Any:
+        """
+        Publish message into the topic by name.
+
+        @param topic_name: topic name
+        @param message: message to be published
+        @param result_handler: Callback function that processes the result received from the node
+
+        @return: TODO
+        """
+
+        return self.p_interface.r_rpc_request("pubsub_publish", [topic_name, message], result_handler)
+
+    def subscribe(self, topic_name: str, result_handler: tp.Optional[tp.Callable] = None) -> tp.Any:
+        """
+        Listen address for incoming connections.
+
+        @param topic_name: topic name
+        @param result_handler: Callback function that processes the result received from the node
+
+        @return: TODO
+        """
+
+        return self.p_interface.r_rpc_request("pubsub_subscribe", [topic_name], result_handler)
+
+    def unsubscribe(self, result_handler: tp.Optional[tp.Callable] = None) -> tp.Dict[str, tp.Union[str, bool, int]]:
+        """
+        Unsubscribe for incoming messages from topic.
+
+        @return: success flag in JSON message
+        """
+
+        return self.p_interface.r_rpc_request("pubsub_unsubscribe", None, result_handler)
