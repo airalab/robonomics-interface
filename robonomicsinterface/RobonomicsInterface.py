@@ -1,8 +1,10 @@
+import asyncio
 import logging
-import typing as tp
 
 import substrateinterface as substrate
+import typing as tp
 
+from threading import Thread
 from scalecodec.types import GenericCall, GenericExtrinsic
 
 from .constants import REMOTE_WS, TYPE_REGISTRY
@@ -23,6 +25,7 @@ class RobonomicsInterface:
         seed: tp.Optional[str] = None,
         remote_ws: tp.Optional[str] = None,
         type_registry: tp.Optional[NodeTypes] = None,
+        keep_alive: bool = False,
     ) -> None:
         """
         Instance of a class is an interface with a node. Here this interface is initialized.
@@ -31,6 +34,7 @@ class RobonomicsInterface:
         @param remote_ws: node url. Default node address is "wss://main.frontier.rpc.robonomics.network".
         Another address may be specified (e.g. "ws://127.0.0.1:9944" for local node).
         @param type_registry: types used in the chain. Defaults are the most frequently used in Robonomics
+        @param keep_alive: whether send ping calls each 200 secs to keep interface opened or not
         """
 
         self.interface: substrate.SubstrateInterface
@@ -45,7 +49,50 @@ class RobonomicsInterface:
         logging.info("Establishing connection with Robonomics node")
         self.interface = self._establish_connection(remote_ws or REMOTE_WS, type_registry or TYPE_REGISTRY)
 
+        if keep_alive:
+            self._keep_alive_pinger()
+
         logging.info("Successfully established connection to Robonomics node")
+
+    def _keep_alive_pinger(self) -> None:
+        """
+        It uses main thread event_loop running in another thread to add keep_alive coroutines of each interface there.
+        !Be careful using asyncio, since main thread event_loop is already running (main thread is not locked though).!
+        You are to add new coroutines to a main thread event_loop, not to run it. Also using this flag while creating an
+        interface NOT in the main thread will throw RuntimeError.
+
+        This was made so because of a simple way to add new interfaces' keep_alive tasks to the same event_loop (to the
+        main one) without blocking main execution thread (since main thread event_loop runs in a separate thread).
+
+        That's so with 1, 2, 3 or 18 interfaces with a keep_alive option you will still have only one dedicated thread
+        for all keep_alive tasks.
+        """
+
+        _loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
+        if _loop.is_running():
+            asyncio.run_coroutine_threadsafe(self._keep_alive(), loop=_loop)
+        else:
+            _keep_alive_thread = Thread(target=self._keep_alive_loop_in_thread, args=(_loop,))
+            _keep_alive_thread.start()
+
+    async def _keep_alive(self) -> None:
+        """
+        Keep the connection alive by sending websocket ping each 200 seconds.
+        """
+
+        while True:
+            await asyncio.sleep(200)
+            self.interface.websocket.ping()
+
+    def _keep_alive_loop_in_thread(self, loop: asyncio.AbstractEventLoop) -> None:
+        """
+        Run a keep_alive coroutine in the passed loop. If selected loop is already running, add a coroutine to it, else
+        run a new loop with a keep_alive coroutine.
+
+        @param loop: AbstractEventLoop passed from class __init__ function
+        """
+
+        loop.run_until_complete(self._keep_alive())
 
     @staticmethod
     def _create_keypair(seed: str) -> substrate.Keypair:
@@ -254,6 +301,8 @@ class RobonomicsInterface:
 class PubSub:
     """
     Class for handling Robonomics pubsub rpc requests
+
+    WARNING: THIS MODULE IS UNDER CONSTRUCTION, USE AT YOUR OWN RISK! TO BE UPDATED SOON
     """
 
     def __init__(self, interface: RobonomicsInterface) -> None:
@@ -328,23 +377,30 @@ class PubSub:
 
         return self.p_interface.r_rpc_request("pubsub_publish", [topic_name, message], result_handler)
 
-    def subscribe(self, topic_name: str, result_handler: tp.Optional[tp.Callable] = None) -> tp.Any:
+    def subscribe(
+        self, topic_name: str, result_handler: tp.Optional[tp.Callable] = None
+    ) -> tp.Dict[str, tp.Union[str, int]]:
         """
         Listen address for incoming connections.
 
-        @param topic_name: topic name
+        @param topic_name: topic name to subscribe to
         @param result_handler: Callback function that processes the result received from the node
 
-        @return: TODO
+        @return: subscription ID in JSON message
         """
 
         return self.p_interface.r_rpc_request("pubsub_subscribe", [topic_name], result_handler)
 
-    def unsubscribe(self, result_handler: tp.Optional[tp.Callable] = None) -> tp.Dict[str, tp.Union[str, bool, int]]:
+    def unsubscribe(
+        self, subscription_id: str, result_handler: tp.Optional[tp.Callable] = None
+    ) -> tp.Dict[str, tp.Union[str, bool, int]]:
         """
         Unsubscribe for incoming messages from topic.
+
+        @param subscription_id: subscription ID obtained when subscribed
+        @param result_handler: Callback function that processes the result received from the node
 
         @return: success flag in JSON message
         """
 
-        return self.p_interface.r_rpc_request("pubsub_unsubscribe", None, result_handler)
+        return self.p_interface.r_rpc_request("pubsub_unsubscribe", [subscription_id], result_handler)
