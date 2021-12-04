@@ -42,7 +42,7 @@ you can also specify an argument for the query. Several arguments should be put 
 
 There is a dedicated function to obtain **Datalog**:
 ```python
-record = interface.fetch_datalog(<ss58_address>:str)
+record = interface.fetch_datalog(ss58_addr)
 ```
 This will give you the latest datalog record of the specified account with its timestamp. You may pass an index argument to fetch specific record. If you create an interface with a provided seed, you'll be able to fetch self-datalog calling `fetch_datalog` with no arguments (or just the `index` argument). 
 
@@ -56,8 +56,8 @@ hash = interface.custom_extrinsic("DigitalTwin", "create")
 
 There are dedicated functions for recording datalog and sending launch commands:
 ```python
-interface.record_datalaog("Hello, Robonomics")
-interface.send_launch(<ss58_address>:str, True)
+interface.record_datalog("Hello, Robonomics")
+interface.send_launch(ss58_addr, True)
 ```
 Current nonce definition and manual nonce setting is also possible.
 
