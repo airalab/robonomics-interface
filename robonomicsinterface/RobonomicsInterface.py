@@ -37,7 +37,7 @@ class RobonomicsInterface:
         @param keep_alive: whether send ping calls each 200 secs to keep interface opened or not
         """
 
-        self.interface: substrate.SubstrateInterface
+        self._interface: substrate.SubstrateInterface
         self._keypair: tp.Optional[substrate.Keypair] = self._create_keypair(seed) if seed else None
 
         if not self._keypair:
@@ -47,7 +47,7 @@ class RobonomicsInterface:
             logging.warning("Using custom type registry for the node")
 
         logging.info("Establishing connection with Robonomics node")
-        self.interface = self._establish_connection(remote_ws or REMOTE_WS, type_registry or TYPE_REGISTRY)
+        self._interface = self._establish_connection(remote_ws or REMOTE_WS, type_registry or TYPE_REGISTRY)
 
         if keep_alive:
             self._keep_alive_pinger()
@@ -68,12 +68,12 @@ class RobonomicsInterface:
         for all keep_alive tasks.
         """
 
-        _loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-        if _loop.is_running():
-            asyncio.run_coroutine_threadsafe(self._keep_alive(), loop=_loop)
+        loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
+        if loop.is_running():
+            asyncio.run_coroutine_threadsafe(self._keep_alive(), loop=loop)
         else:
-            _keep_alive_thread = Thread(target=self._keep_alive_loop_in_thread, args=(_loop,))
-            _keep_alive_thread.start()
+            keep_alive_thread = Thread(target=self._keep_alive_loop_in_thread, args=(loop,))
+            keep_alive_thread.start()
 
     async def _keep_alive(self) -> None:
         """
@@ -82,7 +82,7 @@ class RobonomicsInterface:
 
         while True:
             await asyncio.sleep(200)
-            self.interface.websocket.ping()
+            self._interface.websocket.ping()
 
     def _keep_alive_loop_in_thread(self, loop: asyncio.AbstractEventLoop) -> None:
         """
@@ -145,7 +145,7 @@ class RobonomicsInterface:
         """
 
         logging.info("Performing query")
-        return self.interface.query(module, storage_function, [params] if params else None)
+        return self._interface.query(module, storage_function, [params] if params else None)
 
     def _define_address(self) -> str:
         """
@@ -171,20 +171,20 @@ class RobonomicsInterface:
         @return: Dictionary. Datalog of the account with a timestamp, None if no records.
         """
 
-        _address: str = addr or self._define_address()
+        address: str = addr or self._define_address()
 
         logging.info(
-            f"Fetching {'latest datalog record' if not index else 'datalog record #' + str(index)}" f" of {_address}."
+            f"Fetching {'latest datalog record' if not index else 'datalog record #' + str(index)}" f" of {address}."
         )
 
         if index:
-            _record: Datalog = self.custom_chainstate("Datalog", "DatalogItem", [_address, index]).value
-            return _record if _record["timestamp"] != 0 else None
+            record: Datalog = self.custom_chainstate("Datalog", "DatalogItem", [address, index]).value
+            return record if record["timestamp"] != 0 else None
         else:
-            _index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", _address).value["end"] - 1
+            index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", address).value["end"] - 1
             return (
-                self.custom_chainstate("Datalog", "DatalogItem", [_address, _index_latest]).value
-                if _index_latest != -1
+                self.custom_chainstate("Datalog", "DatalogItem", [address, index_latest]).value
+                if index_latest != -1
                 else None
             )
 
@@ -214,25 +214,25 @@ class RobonomicsInterface:
             raise NoPrivateKey("No seed was provided, unable to use extrinsics.")
 
         logging.info(f"Creating a call {call_module}:{call_function}")
-        _call: GenericCall = self.interface.compose_call(
+        call: GenericCall = self._interface.compose_call(
             call_module=call_module,
             call_function=call_function,
             call_params=params or None,
         )
 
         logging.info("Creating extrinsic")
-        _extrinsic: GenericExtrinsic = self.interface.create_signed_extrinsic(
-            call=_call, keypair=self._keypair, nonce=nonce
+        extrinsic: GenericExtrinsic = self._interface.create_signed_extrinsic(
+            call=call, keypair=self._keypair, nonce=nonce
         )
 
         logging.info("Submitting extrinsic")
-        _receipt: substrate.ExtrinsicReceipt = self.interface.submit_extrinsic(_extrinsic, wait_for_inclusion=True)
+        receipt: substrate.ExtrinsicReceipt = self._interface.submit_extrinsic(extrinsic, wait_for_inclusion=True)
         logging.info(
-            f"Extrinsic {_receipt.extrinsic_hash} for RPC {call_module}:{call_function} submitted and "
-            f"included in block {_receipt.block_hash}"
+            f"Extrinsic {receipt.extrinsic_hash} for RPC {call_module}:{call_function} submitted and "
+            f"included in block {receipt.block_hash}"
         )
 
-        return str(_receipt.extrinsic_hash)
+        return str(receipt.extrinsic_hash)
 
     def record_datalog(self, data: str, nonce: tp.Optional[int] = None) -> str:
         """
@@ -279,9 +279,9 @@ class RobonomicsInterface:
         for example.
         """
 
-        return self.interface.get_account_nonce(account_address=account_address or self._define_address())
+        return self._interface.get_account_nonce(account_address=account_address or self._define_address())
 
-    def r_rpc_request(
+    def custom_rpc_request(
         self, method: str, params: tp.Optional[tp.List[str]], result_handler: tp.Optional[tp.Callable]
     ) -> tp.Any:
         """
@@ -295,7 +295,7 @@ class RobonomicsInterface:
         @return: result of the request
         """
 
-        return self.interface.rpc_request(method, params, result_handler)
+        return self._interface.rpc_request(method, params, result_handler)
 
 
 class PubSub:
@@ -312,7 +312,7 @@ class PubSub:
         @param interface: RobonomicsInterface instance
         """
 
-        self.p_interface = interface
+        self._pubsub_interface = interface
 
     def connect(
         self, address: str, result_handler: tp.Optional[tp.Callable] = None
@@ -326,7 +326,7 @@ class PubSub:
         @return: success flag in JSON message
         """
 
-        return self.p_interface.r_rpc_request("pubsub_connect", [address], result_handler)
+        return self._pubsub_interface.custom_rpc_request("pubsub_connect", [address], result_handler)
 
     def listen(
         self, address: str, result_handler: tp.Optional[tp.Callable] = None
@@ -340,7 +340,7 @@ class PubSub:
         @return: success flag in JSON message
         """
 
-        return self.p_interface.r_rpc_request("pubsub_listen", [address], result_handler)
+        return self._pubsub_interface.custom_rpc_request("pubsub_listen", [address], result_handler)
 
     def listeners(
         self, result_handler: tp.Optional[tp.Callable] = None
@@ -353,7 +353,7 @@ class PubSub:
         @return: list of node addresses in JSON message
         """
 
-        return self.p_interface.r_rpc_request("pubsub_listeners", None, result_handler)
+        return self._pubsub_interface.custom_rpc_request("pubsub_listeners", None, result_handler)
 
     def peer(self, result_handler: tp.Optional[tp.Callable] = None) -> tp.Dict[str, tp.Union[str, int]]:
         """
@@ -362,7 +362,7 @@ class PubSub:
         @return: local peer ID in JSON message
         """
 
-        return self.p_interface.r_rpc_request("pubsub_peer", None, result_handler)
+        return self._pubsub_interface.custom_rpc_request("pubsub_peer", None, result_handler)
 
     def publish(self, topic_name: str, message: str, result_handler: tp.Optional[tp.Callable] = None) -> tp.Any:
         """
@@ -375,7 +375,7 @@ class PubSub:
         @return: TODO
         """
 
-        return self.p_interface.r_rpc_request("pubsub_publish", [topic_name, message], result_handler)
+        return self._pubsub_interface.custom_rpc_request("pubsub_publish", [topic_name, message], result_handler)
 
     def subscribe(
         self, topic_name: str, result_handler: tp.Optional[tp.Callable] = None
@@ -389,7 +389,7 @@ class PubSub:
         @return: subscription ID in JSON message
         """
 
-        return self.p_interface.r_rpc_request("pubsub_subscribe", [topic_name], result_handler)
+        return self._pubsub_interface.custom_rpc_request("pubsub_subscribe", [topic_name], result_handler)
 
     def unsubscribe(
         self, subscription_id: str, result_handler: tp.Optional[tp.Callable] = None
@@ -403,4 +403,4 @@ class PubSub:
         @return: success flag in JSON message
         """
 
-        return self.p_interface.r_rpc_request("pubsub_unsubscribe", [subscription_id], result_handler)
+        return self._pubsub_interface.custom_rpc_request("pubsub_unsubscribe", [subscription_id], result_handler)
