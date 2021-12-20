@@ -8,7 +8,7 @@ from threading import Thread
 from scalecodec.types import GenericCall, GenericExtrinsic
 
 from .constants import REMOTE_WS, TYPE_REGISTRY
-from .exceptions import NoPrivateKey
+from .exceptions import NoPrivateKey, NoDataInStorage
 
 Datalog = tp.Dict[str, tp.Union[int, str]]
 NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
@@ -132,6 +132,7 @@ class RobonomicsInterface:
         module: str,
         storage_function: str,
         params: tp.Optional[tp.Union[tp.List[tp.Union[str, int]], str, int]] = None,
+        subscription_handler: tp.Optional[callable] = None,
     ) -> tp.Any:
         """
         Create custom queries to fetch data from the Chainstate. Module names and storage functions, as well as required
@@ -140,14 +141,29 @@ class RobonomicsInterface:
         @param module: chainstate module
         @param storage_function: storage function
         @param params: query parameters. None if no parameters. Include in list, if several
-
+        @param subscription_handler: Callback function that processes the updates of the storage query subscription.
+        The workflow is the same as in substrateinterface lib. Calling method with this parameter blocks current thread!
+                Example of subscription handler:
+        ```
+        def subscription_handler(obj, update_nr, subscription_id):
+            if update_nr == 0:
+                print('Initial data:', obj.value)
+            if update_nr > 0:
+                # Do something with the update.
+                print('data changed:', obj.value)
+            # The execution will block until an arbitrary value is returned, which will be the result of the `query`
+            if update_nr > 1:
+                return obj
+        ```
         @return: output of the query in any form
         """
 
         logging.info("Performing query")
-        return self._interface.query(module, storage_function, [params] if params else None)
+        return self._interface.query(
+            module, storage_function, [params] if params else None, subscription_handler=subscription_handler
+        )
 
-    def _define_address(self) -> str:
+    def define_address(self) -> str:
         """
         define ss58_address of an account, which seed was provided while initializing an interface
 
@@ -171,7 +187,7 @@ class RobonomicsInterface:
         @return: Dictionary. Datalog of the account with a timestamp, None if no records.
         """
 
-        address: str = addr or self._define_address()
+        address: str = addr or self.define_address()
 
         logging.info(
             f"Fetching {'latest datalog record' if not index else 'datalog record #' + str(index)}" f" of {address}."
@@ -279,7 +295,7 @@ class RobonomicsInterface:
         for example.
         """
 
-        return self._interface.get_account_nonce(account_address=account_address or self._define_address())
+        return self._interface.get_account_nonce(account_address=account_address or self.define_address())
 
     def custom_rpc_request(
         self, method: str, params: tp.Optional[tp.List[str]], result_handler: tp.Optional[tp.Callable]
@@ -404,3 +420,64 @@ class PubSub:
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_unsubscribe", [subscription_id], result_handler)
+
+
+class Subscriber:
+    """
+    Class intended for use in cases when needed to subscribe on chainstate updates/events
+    """
+
+    def __init__(self, interface: RobonomicsInterface) -> None:
+        """
+        Initiate an instance for further use.
+
+        @param interface: RobonomicsInterface instance
+        """
+
+        self._subscriber_interface: RobonomicsInterface = interface
+
+        self._tracked_address: tp.Optional[str] = None
+        self._datalog_callback: tp.Optional[callable] = None
+
+    def subscribe_new_datalogs(self, subscription_handler: callable, addr: tp.Optional[str] = None) -> None:
+        """
+        Subscribe to new datalog updates of a certain account. Call subscription_handler when updated
+
+        @param subscription_handler: Callback function that processes the updates of the storage query subscription.
+        The workflow is the same as in substrateinterface lib. Calling method with this parameter blocks current thread!
+        THIS FUNCTION IS MEANT TO ACCEPT ONE ONLY INE ARGUMENT (THE NEW DATALOG DICT).
+        @param addr: ss58 type 32 address of an account which datalog is to be fetched. If None, tries to fetch self
+        datalog if keypair was created, else raises NoPrivateKey
+        """
+
+        self._tracked_address = addr or self._subscriber_interface.define_address()
+        self._datalog_callback = subscription_handler
+
+        # check if there is initial data in storage
+        default_index: tp.Dict[str, int] = {"start": 0, "end": 0}
+        if (
+            self._subscriber_interface.custom_chainstate("Datalog", "DatalogIndex", self._tracked_address)
+            == default_index
+        ):
+            raise NoDataInStorage("No data is in storage right now, unable to subscribe, please add some data first")
+
+        self._subscriber_interface.custom_chainstate(
+            "Datalog", "DatalogIndex", self._tracked_address, subscription_handler=self._datalog_index_callback
+        )
+
+    def _datalog_index_callback(self, index_obj: tp.Any, update_nr: int, subscription_id: int) -> None:
+        """
+        Function, processing updates in account storage index. When update, fetches DatalogItem by the obtained index
+        and passes the datalog to the user-provided callback.
+
+        @param index_obj: the newly added datalog object
+        @param update_nr: update counter. Increments every new datalog added. Starts with 0
+        @param subscription_id: subscription ID
+        """
+
+        if update_nr != 0:
+            index_latest: int = index_obj.value["end"] - 1
+            new_datalog_record: tp.Optional[Datalog] = self._subscriber_interface.custom_chainstate(
+                "Datalog", "DatalogItem", [self._tracked_address, index_latest]
+            ).value
+            self._datalog_callback(new_datalog_record)
