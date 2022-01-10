@@ -1,4 +1,4 @@
-REMOTE_WS = "wss://main.frontier.rpc.robonomics.network"
+REMOTE_WS = "wss://kusama.rpc.robonomics.network"
 TYPE_REGISTRY = {
     "types": {
         "Record": "Vec<u8>",

@@ -10,7 +10,7 @@ from scalecodec.types import GenericCall, GenericExtrinsic
 from .constants import REMOTE_WS, TYPE_REGISTRY
 from .exceptions import NoPrivateKey
 
-Datalog = tp.Dict[str, tp.Union[int, str]]
+Datalog = tp.Tuple[int, tp.Union[int, str]]
 NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
 
 
@@ -31,7 +31,7 @@ class RobonomicsInterface:
         Instance of a class is an interface with a node. Here this interface is initialized.
 
         @param seed: account seed in mnemonic/raw form. When not passed, no extrinsics functionality
-        @param remote_ws: node url. Default node address is "wss://main.frontier.rpc.robonomics.network".
+        @param remote_ws: node url. Default node address is "wss://kusama.rpc.robonomics.network".
         Another address may be specified (e.g. "ws://127.0.0.1:9944" for local node).
         @param type_registry: types used in the chain. Defaults are the most frequently used in Robonomics
         @param keep_alive: whether send ping calls each 200 secs to keep interface opened or not
@@ -81,7 +81,7 @@ class RobonomicsInterface:
         """
 
         while True:
-            await asyncio.sleep(200)
+            await asyncio.sleep(25)
             self._interface.websocket.ping()
 
     def _keep_alive_loop_in_thread(self, loop: asyncio.AbstractEventLoop) -> None:
@@ -179,7 +179,7 @@ class RobonomicsInterface:
 
         if index:
             record: Datalog = self.custom_chainstate("Datalog", "DatalogItem", [address, index]).value
-            return record if record["timestamp"] != 0 else None
+            return record if record[0] != 0 else None
         else:
             index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", address).value["end"] - 1
             return (
