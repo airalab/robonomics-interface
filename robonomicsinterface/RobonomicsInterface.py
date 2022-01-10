@@ -8,7 +8,7 @@ from threading import Thread
 from scalecodec.types import GenericCall, GenericExtrinsic
 
 from .constants import REMOTE_WS, TYPE_REGISTRY
-from .exceptions import NoPrivateKey, NoDataInStorage
+from .exceptions import NoPrivateKey
 
 Datalog = tp.Tuple[int, tp.Union[int, str]]
 NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
@@ -452,14 +452,6 @@ class Subscriber:
 
         self._tracked_address = addr or self._subscriber_interface.define_address()
         self._datalog_callback = subscription_handler
-
-        # check if there is initial data in storage
-        default_index: tp.Dict[str, int] = {"start": 0, "end": 0}
-        if (
-            self._subscriber_interface.custom_chainstate("Datalog", "DatalogIndex", self._tracked_address)
-            == default_index
-        ):
-            raise NoDataInStorage("No data is in storage right now, unable to subscribe, please add some data first")
 
         self._subscriber_interface.custom_chainstate(
             "Datalog", "DatalogIndex", self._tracked_address, subscription_handler=self._datalog_index_callback
