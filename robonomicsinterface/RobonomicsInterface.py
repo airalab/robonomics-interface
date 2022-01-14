@@ -145,9 +145,9 @@ class RobonomicsInterface:
         """
 
         logging.info("Performing query")
-        return self._interface.query(module, storage_function, [params] if params else None)
+        return self._interface.query(module, storage_function, [params] if params is not None else None)
 
-    def _define_address(self) -> str:
+    def define_address(self) -> str:
         """
         define ss58_address of an account, which seed was provided while initializing an interface
 
@@ -171,7 +171,7 @@ class RobonomicsInterface:
         @return: Dictionary. Datalog of the account with a timestamp, None if no records.
         """
 
-        address: str = addr or self._define_address()
+        address: str = addr or self.define_address()
 
         logging.info(
             f"Fetching {'latest datalog record' if not index else 'datalog record #' + str(index)}" f" of {address}."
@@ -199,8 +199,8 @@ class RobonomicsInterface:
         Create an extrinsic, sign&submit it. Module names and functions, as well as required parameters are available
         at https://parachain.robonomics.network/#/extrinsics
 
-        @param call_module: Call module from extrinsic tab
-        @param call_function: Call function from extrinsic tab
+        @param call_module: Call module from extrinsic tab on portal
+        @param call_function: Call function from extrinsic tab on portal
         @param params: Call parameters as a dictionary. None for no parameters
         @param nonce: transaction nonce, defined automatically if None. Due to e feature of substrate-interface lib,
         to create an extrinsic with incremented nonce, pass account's current nonce. See
@@ -279,11 +279,11 @@ class RobonomicsInterface:
         for example.
         """
 
-        return self._interface.get_account_nonce(account_address=account_address or self._define_address())
+        return self._interface.get_account_nonce(account_address=account_address or self.define_address())
 
     def custom_rpc_request(
         self, method: str, params: tp.Optional[tp.List[str]], result_handler: tp.Optional[tp.Callable]
-    ) -> tp.Any:
+    ) -> dict:
         """
         Method that handles the actual RPC request to the Substrate node. The other implemented functions eventually
         use this method to perform the request.
