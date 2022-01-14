@@ -147,7 +147,7 @@ class RobonomicsInterface:
         logging.info("Performing query")
         return self._interface.query(module, storage_function, [params] if params else None)
 
-    def _define_address(self) -> str:
+    def define_address(self) -> str:
         """
         define ss58_address of an account, which seed was provided while initializing an interface
 
