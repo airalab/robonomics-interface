@@ -61,7 +61,7 @@ interface.send_launch(<target_addr>, True)
 ```
 Current nonce definition and manual nonce setting is also possible.
 
-##Robonomics Web Services (RWS)
+## Robonomics Web Services (RWS)
 There are as well dedicated methods for convenient usage of RWS.
 - Chainstate functions `auctionQueue`, `auction` to examine subscriptions auctions:
 ```python
