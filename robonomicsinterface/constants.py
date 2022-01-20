@@ -14,3 +14,4 @@ TYPE_REGISTRY = {
         },
     }
 }
+LIST_EVENTS = ["NewRecord", "NewLaunch", "Transfer"]

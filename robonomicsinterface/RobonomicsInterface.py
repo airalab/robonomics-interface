@@ -7,8 +7,8 @@ import typing as tp
 from threading import Thread
 from scalecodec.types import GenericCall, GenericExtrinsic
 
-from .constants import REMOTE_WS, TYPE_REGISTRY
-from .exceptions import NoPrivateKey
+from .constants import REMOTE_WS, TYPE_REGISTRY, LIST_EVENTS
+from .exceptions import NoPrivateKey, NotInSubscriptionList
 
 Datalog = tp.Tuple[int, tp.Union[int, str]]
 NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
@@ -526,52 +526,57 @@ class PubSub:
 
 class Subscriber:
     """
-    Class intended for use in cases when needed to subscribe on chainstate updates/events
+    Class intended for use in cases when needed to subscribe on chainstate updates/events. Blocks current thread!
     """
 
-    def __init__(self, interface: RobonomicsInterface) -> None:
+    def __init__(
+        self, interface: RobonomicsInterface, subscribed_event: str, subscription_handler: callable, addr: str
+    ) -> None:
         """
-        Initiate an instance for further use.
+        Initiates an instance for further use and starts a subscription for a selected action
 
         @param interface: RobonomicsInterface instance
+        @param subscribed_event: Event in substrate chain to be awaited. Choose from [NewRecord, NewLaunch, Transfer]
+        @param subscription_handler: Callback function that processes the updates of the storage.
+        THIS FUNCTION IS MEANT TO ACCEPT ONLY ONE ARGUMENT (THE NEW EVENT DESCRIPTION TUPLE).
+        @param addr: ss58 type 32 address of an account which is meant to be event target. If None, tries to fetch self
+        address if keypair was created, else raises NoPrivateKey
         """
+
+        if subscribed_event not in LIST_EVENTS:
+            raise NotInSubscriptionList("Selected subscription is not yet implemented!")
 
         self._subscriber_interface: RobonomicsInterface = interface
 
-        self._tracked_address: tp.Optional[str] = None
-        self._datalog_callback: tp.Optional[callable] = None
+        self._event: str = subscribed_event
+        self._callback: callable = subscription_handler
+        self._target_address: str = addr or self._subscriber_interface.define_address()
 
-    def subscribe_new_datalogs(self, subscription_handler: callable, addr: tp.Optional[str] = None) -> None:
+        self.subscribe_event()
+
+    def subscribe_event(self) -> None:
         """
-        Subscribe to new datalog updates of a certain account. Call subscription_handler when updated
-
-        @param subscription_handler: Callback function that processes the updates of the storage query subscription.
-        The workflow is the same as in substrateinterface lib. Calling method with this parameter blocks current thread!
-        THIS FUNCTION IS MEANT TO ACCEPT ONE ONLY INE ARGUMENT (THE NEW DATALOG DICT).
-        @param addr: ss58 type 32 address of an account which datalog is to be fetched. If None, tries to fetch self
-        datalog if keypair was created, else raises NoPrivateKey
+        Subscribe to events targeted to a certain account (launch, transfer). Call subscription_handler when updated
         """
 
-        self._tracked_address = addr or self._subscriber_interface.define_address()
-        self._datalog_callback = subscription_handler
+        self._subscriber_interface.custom_chainstate("System", "Events", subscription_handler=self._event_callback)
 
-        self._subscriber_interface.custom_chainstate(
-            "Datalog", "DatalogIndex", self._tracked_address, subscription_handler=self._datalog_index_callback
-        )
-
-    def _datalog_index_callback(self, index_obj: tp.Any, update_nr: int, subscription_id: int) -> None:
+    def _event_callback(self, index_obj: tp.Any, update_nr: int, subscription_id: int) -> None:
         """
-        Function, processing updates in account storage index. When update, fetches DatalogItem by the obtained index
-        and passes the datalog to the user-provided callback.
+        Function, processing updates in event list storage. When update, filters events to a desired account
+        and passes the event description to the user-provided callback method.
 
-        @param index_obj: the newly added datalog object
-        @param update_nr: update counter. Increments every new datalog added. Starts with 0
+        @param index_obj: updated event list
+        @param update_nr: update counter. Increments every new update added. Starts with 0
         @param subscription_id: subscription ID
         """
 
         if update_nr != 0:
-            index_latest: int = index_obj.value["end"] - 1
-            new_datalog_record: tp.Optional[Datalog] = self._subscriber_interface.custom_chainstate(
-                "Datalog", "DatalogItem", [self._tracked_address, index_latest]
-            ).value
-            self._datalog_callback(new_datalog_record)
+            for events in index_obj:
+                if (
+                    events.value["event_id"] == self._event
+                    and events.value["event"]["attributes"][0 if self._event == LIST_EVENTS[0] else 1]
+                    == self._target_address
+                ):
+                    # In datalog event source address comes first, in others target address comes second
+                    self._callback(events.value["event"]["attributes"])
