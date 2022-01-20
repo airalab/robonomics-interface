@@ -160,7 +160,10 @@ class RobonomicsInterface:
 
         logging.info("Performing query")
         return self._interface.query(
-            module, storage_function, [params] if params else None, subscription_handler=subscription_handler
+            module,
+            storage_function,
+            [params] if params is not None else None,
+            subscription_handler=subscription_handler,
         )
 
     def define_address(self) -> str:
@@ -204,6 +207,26 @@ class RobonomicsInterface:
                 else None
             )
 
+    def rws_auction_queue(self) -> tp.List[tp.Optional[int]]:
+        """
+        Get an auction queue of Robonomics Web Services subscriptions
+
+        @return: Auction queue of Robonomics Web Services subscriptions
+        """
+
+        logging.info("Fetching auctions queue list")
+        return self.custom_chainstate("RWS", "AuctionQueue")
+
+    def rws_auction(self, index: int) -> tp.Dict[str, tp.Union[str, int, dict]]:
+        """
+        Get to now information about subscription auction
+
+        @param index: Auction index
+        """
+
+        logging.info(f"Fetching auction {index} information")
+        return self.custom_chainstate("RWS", "Auction", index)
+
     def custom_extrinsic(
         self,
         call_module: str,
@@ -215,8 +238,8 @@ class RobonomicsInterface:
         Create an extrinsic, sign&submit it. Module names and functions, as well as required parameters are available
         at https://parachain.robonomics.network/#/extrinsics
 
-        @param call_module: Call module from extrinsic tab
-        @param call_function: Call function from extrinsic tab
+        @param call_module: Call module from extrinsic tab on portal
+        @param call_function: Call function from extrinsic tab on portal
         @param params: Call parameters as a dictionary. None for no parameters
         @param nonce: transaction nonce, defined automatically if None. Due to e feature of substrate-interface lib,
         to create an extrinsic with incremented nonce, pass account's current nonce. See
@@ -297,9 +320,88 @@ class RobonomicsInterface:
 
         return self._interface.get_account_nonce(account_address=account_address or self.define_address())
 
+    def rws_bid(self, index: int, amount: int) -> str:
+        """
+        Bid to win a subscription!
+
+
+        @param index: Auction index
+        @param amount: Your bid in Weiners (!)
+        """
+
+        logging.info(f"Bidding on auction {index} with {amount} Weiners (appx. {round(amount / 10 ** 9, 2)} XRT)")
+        return self.custom_extrinsic("RWS", "bid", {"index": index, "amount": amount})
+
+    def rws_set_devices(self, devices: tp.List[str]) -> str:
+        """
+        Set devices which are authorized to use RWS subscriptions held by the extrinsic author
+
+        @param devices: Devices authorized to use RWS subscriptions. Include in list.
+
+        @return: transaction hash
+        """
+
+        logging.info(f"Allowing {devices} to use {self.define_address()} subscription")
+        return self.custom_extrinsic("RWS", "set_devices", {"devices": devices})
+
+    def rws_custom_call(
+        self,
+        subscription_owner_addr: str,
+        call_module: str,
+        call_function: str,
+        params: tp.Optional[tp.Dict[str, tp.Any]] = None,
+    ) -> str:
+        """
+        Send transaction from a device given a RWS subscription
+
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
+        @param call_module: Call module from extrinsic tab on portal
+        @param call_function: Call function from extrinsic tab on portal
+        @param params: Call parameters as a dictionary. None for no parameters
+
+        @return: Transaction hash
+        """
+
+        logging.info("Sending transaction using subscription")
+        return self.custom_extrinsic(
+            "RWS",
+            "call",
+            {
+                "subscription_id": subscription_owner_addr,
+                "call": {"call_module": call_module, "call_function": call_function, "call_args": params},
+            },
+        )
+
+    def rws_record_datalog(self, subscription_owner_addr: str, data: str) -> str:
+        """
+        Write any string to datalog from a device which was granted a subscription.
+
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
+        @param data: string to be stored in datalog
+
+        @return: Hash of the datalog transaction
+        """
+
+        return self.rws_custom_call(subscription_owner_addr, "Datalog", "record", {"record": data})
+
+    def rws_send_launch(self, subscription_owner_addr: str, target_address: str, toggle: bool) -> str:
+        """
+        Send Launch command to device from another device which was granted a subscription.
+
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
+        @param target_address: device to be triggered with launch
+        @param toggle: whether send ON or OFF command. ON == True, OFF == False
+
+        @return: Hash of the launch transaction
+        """
+
+        return self.rws_custom_call(
+            subscription_owner_addr, "Launch", "launch", {"robot": target_address, "param": toggle}
+        )
+
     def custom_rpc_request(
         self, method: str, params: tp.Optional[tp.List[str]], result_handler: tp.Optional[tp.Callable]
-    ) -> tp.Any:
+    ) -> dict:
         """
         Method that handles the actual RPC request to the Substrate node. The other implemented functions eventually
         use this method to perform the request.
