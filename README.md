@@ -42,7 +42,7 @@ you can also specify an argument for the query. Several arguments should be put 
 
 There is a dedicated function to obtain **Datalog**:
 ```python
-record = interface.fetch_datalog(ss58_addr)
+record = interface.fetch_datalog(<ss58_addr>)
 ```
 This will give you the latest datalog record of the specified account with its timestamp. You may pass an index argument to fetch specific record. If you create an interface with a provided seed, you'll be able to fetch self-datalog calling `fetch_datalog` with no arguments (or just the `index` argument). 
 
@@ -57,12 +57,43 @@ hash = interface.custom_extrinsic("DigitalTwin", "create")
 There are dedicated functions for recording datalog and sending launch commands:
 ```python
 interface.record_datalog("Hello, Robonomics")
-interface.send_launch(ss58_addr, True)
+interface.send_launch(<target_addr>, True)
 ```
 Current nonce definition and manual nonce setting is also possible.
 
-This is an evolving package, it may have errors and lack of functionality, fixes are coming.
-Feel free to open issues when faced a problem.
+## Robonomics Web Services (RWS)
+There are as well dedicated methods for convenient usage of RWS.
+- Chainstate functions `auctionQueue`, `auction` to examine subscriptions auctions:
+```python
+interface.rws_auction_queue()
+inteface.rws_auction(<auction_index>)
+```
+- Extrinsincs: `bid`, `set_devices` and, the most important, `call`
+```python
+interface.rws_bid(<auction_index>, <amount_weiners>)
+interface.rws_set_devices([<ss58_addr>, <ss58_addr>])
+interface.rws_custom_call(<subscription_owner_addr>,
+                           <call_module>,
+                           <call_function>,
+                           <params_dict>)
+```
+There are as well dedicated `datalog` and `launch` functions for RWS-based transactions.
+```python
+interface.rws_record_datalog(<subscription_owner_addr>, <data>)
+interface.rws_send_launch(<subscription_owner_addr>, <target_addr>, True)
+```
+
+## Subscriptions
+There is a subscriptions functional implemented. When initiated, blocks thread and processes new events with a user-passed 
+callback function. Pay attention that this callback may only accept one argument - the event data. Up to now, the only supported 
+events are `NewRecord`, `NewLaunch`, `Transfer`
+```python
+def callback(data):
+    print(data)
+
+interface = RobonomicsInterface()
+subscriber = Subscriber(interface, "NewRecord", callback, <ss58_addr>)
+```
 
 ## JSON RPC
 *WARNING: THIS MODULE IS UNDER CONSTRUCTIONS, USE AT YOUR OWN RISK! TO BE UPDATED SOON.*  
@@ -73,3 +104,6 @@ interface = RI.RobonomicsInterface()
 pubsub = PubSub(interface)
 pubsub.peer()
 ```
+
+This is an evolving package, it may have errors and lack of functionality, fixes are coming.
+Feel free to open issues when faced a problem.

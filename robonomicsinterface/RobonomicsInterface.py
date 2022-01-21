@@ -7,10 +7,10 @@ import typing as tp
 from threading import Thread
 from scalecodec.types import GenericCall, GenericExtrinsic
 
-from .constants import REMOTE_WS, TYPE_REGISTRY
-from .exceptions import NoPrivateKey
+from .constants import REMOTE_WS, TYPE_REGISTRY, LIST_EVENTS
+from .exceptions import NoPrivateKey, NotInSubscriptionList
 
-Datalog = tp.Dict[str, tp.Union[int, str]]
+Datalog = tp.Tuple[int, tp.Union[int, str]]
 NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
 
 
@@ -31,7 +31,7 @@ class RobonomicsInterface:
         Instance of a class is an interface with a node. Here this interface is initialized.
 
         @param seed: account seed in mnemonic/raw form. When not passed, no extrinsics functionality
-        @param remote_ws: node url. Default node address is "wss://main.frontier.rpc.robonomics.network".
+        @param remote_ws: node url. Default node address is "wss://kusama.rpc.robonomics.network".
         Another address may be specified (e.g. "ws://127.0.0.1:9944" for local node).
         @param type_registry: types used in the chain. Defaults are the most frequently used in Robonomics
         @param keep_alive: whether send ping calls each 200 secs to keep interface opened or not
@@ -81,7 +81,7 @@ class RobonomicsInterface:
         """
 
         while True:
-            await asyncio.sleep(200)
+            await asyncio.sleep(25)
             self._interface.websocket.ping()
 
     def _keep_alive_loop_in_thread(self, loop: asyncio.AbstractEventLoop) -> None:
@@ -132,6 +132,7 @@ class RobonomicsInterface:
         module: str,
         storage_function: str,
         params: tp.Optional[tp.Union[tp.List[tp.Union[str, int]], str, int]] = None,
+        subscription_handler: tp.Optional[callable] = None,
     ) -> tp.Any:
         """
         Create custom queries to fetch data from the Chainstate. Module names and storage functions, as well as required
@@ -140,12 +141,30 @@ class RobonomicsInterface:
         @param module: chainstate module
         @param storage_function: storage function
         @param params: query parameters. None if no parameters. Include in list, if several
-
+        @param subscription_handler: Callback function that processes the updates of the storage query subscription.
+        The workflow is the same as in substrateinterface lib. Calling method with this parameter blocks current thread!
+                Example of subscription handler:
+        ```
+        def subscription_handler(obj, update_nr, subscription_id):
+            if update_nr == 0:
+                print('Initial data:', obj.value)
+            if update_nr > 0:
+                # Do something with the update.
+                print('data changed:', obj.value)
+            # The execution will block until an arbitrary value is returned, which will be the result of the `query`
+            if update_nr > 1:
+                return obj
+        ```
         @return: output of the query in any form
         """
 
         logging.info("Performing query")
-        return self._interface.query(module, storage_function, [params] if params else None)
+        return self._interface.query(
+            module,
+            storage_function,
+            [params] if params is not None else None,
+            subscription_handler=subscription_handler,
+        )
 
     def define_address(self) -> str:
         """
@@ -171,7 +190,7 @@ class RobonomicsInterface:
         @return: Dictionary. Datalog of the account with a timestamp, None if no records.
         """
 
-        address: str = addr or self._define_address()
+        address: str = addr or self.define_address()
 
         logging.info(
             f"Fetching {'latest datalog record' if not index else 'datalog record #' + str(index)}" f" of {address}."
@@ -179,7 +198,7 @@ class RobonomicsInterface:
 
         if index:
             record: Datalog = self.custom_chainstate("Datalog", "DatalogItem", [address, index]).value
-            return record if record["timestamp"] != 0 else None
+            return record if record[0] != 0 else None
         else:
             index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", address).value["end"] - 1
             return (
@@ -187,6 +206,26 @@ class RobonomicsInterface:
                 if index_latest != -1
                 else None
             )
+
+    def rws_auction_queue(self) -> tp.List[tp.Optional[int]]:
+        """
+        Get an auction queue of Robonomics Web Services subscriptions
+
+        @return: Auction queue of Robonomics Web Services subscriptions
+        """
+
+        logging.info("Fetching auctions queue list")
+        return self.custom_chainstate("RWS", "AuctionQueue")
+
+    def rws_auction(self, index: int) -> tp.Dict[str, tp.Union[str, int, dict]]:
+        """
+        Get to now information about subscription auction
+
+        @param index: Auction index
+        """
+
+        logging.info(f"Fetching auction {index} information")
+        return self.custom_chainstate("RWS", "Auction", index)
 
     def custom_extrinsic(
         self,
@@ -199,8 +238,8 @@ class RobonomicsInterface:
         Create an extrinsic, sign&submit it. Module names and functions, as well as required parameters are available
         at https://parachain.robonomics.network/#/extrinsics
 
-        @param call_module: Call module from extrinsic tab
-        @param call_function: Call function from extrinsic tab
+        @param call_module: Call module from extrinsic tab on portal
+        @param call_function: Call function from extrinsic tab on portal
         @param params: Call parameters as a dictionary. None for no parameters
         @param nonce: transaction nonce, defined automatically if None. Due to e feature of substrate-interface lib,
         to create an extrinsic with incremented nonce, pass account's current nonce. See
@@ -279,11 +318,90 @@ class RobonomicsInterface:
         for example.
         """
 
-        return self._interface.get_account_nonce(account_address=account_address or self._define_address())
+        return self._interface.get_account_nonce(account_address=account_address or self.define_address())
+
+    def rws_bid(self, index: int, amount: int) -> str:
+        """
+        Bid to win a subscription!
+
+
+        @param index: Auction index
+        @param amount: Your bid in Weiners (!)
+        """
+
+        logging.info(f"Bidding on auction {index} with {amount} Weiners (appx. {round(amount / 10 ** 9, 2)} XRT)")
+        return self.custom_extrinsic("RWS", "bid", {"index": index, "amount": amount})
+
+    def rws_set_devices(self, devices: tp.List[str]) -> str:
+        """
+        Set devices which are authorized to use RWS subscriptions held by the extrinsic author
+
+        @param devices: Devices authorized to use RWS subscriptions. Include in list.
+
+        @return: transaction hash
+        """
+
+        logging.info(f"Allowing {devices} to use {self.define_address()} subscription")
+        return self.custom_extrinsic("RWS", "set_devices", {"devices": devices})
+
+    def rws_custom_call(
+        self,
+        subscription_owner_addr: str,
+        call_module: str,
+        call_function: str,
+        params: tp.Optional[tp.Dict[str, tp.Any]] = None,
+    ) -> str:
+        """
+        Send transaction from a device given a RWS subscription
+
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
+        @param call_module: Call module from extrinsic tab on portal
+        @param call_function: Call function from extrinsic tab on portal
+        @param params: Call parameters as a dictionary. None for no parameters
+
+        @return: Transaction hash
+        """
+
+        logging.info("Sending transaction using subscription")
+        return self.custom_extrinsic(
+            "RWS",
+            "call",
+            {
+                "subscription_id": subscription_owner_addr,
+                "call": {"call_module": call_module, "call_function": call_function, "call_args": params},
+            },
+        )
+
+    def rws_record_datalog(self, subscription_owner_addr: str, data: str) -> str:
+        """
+        Write any string to datalog from a device which was granted a subscription.
+
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
+        @param data: string to be stored in datalog
+
+        @return: Hash of the datalog transaction
+        """
+
+        return self.rws_custom_call(subscription_owner_addr, "Datalog", "record", {"record": data})
+
+    def rws_send_launch(self, subscription_owner_addr: str, target_address: str, toggle: bool) -> str:
+        """
+        Send Launch command to device from another device which was granted a subscription.
+
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
+        @param target_address: device to be triggered with launch
+        @param toggle: whether send ON or OFF command. ON == True, OFF == False
+
+        @return: Hash of the launch transaction
+        """
+
+        return self.rws_custom_call(
+            subscription_owner_addr, "Launch", "launch", {"robot": target_address, "param": toggle}
+        )
 
     def custom_rpc_request(
         self, method: str, params: tp.Optional[tp.List[str]], result_handler: tp.Optional[tp.Callable]
-    ) -> tp.Any:
+    ) -> dict:
         """
         Method that handles the actual RPC request to the Substrate node. The other implemented functions eventually
         use this method to perform the request.
@@ -404,3 +522,61 @@ class PubSub:
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_unsubscribe", [subscription_id], result_handler)
+
+
+class Subscriber:
+    """
+    Class intended for use in cases when needed to subscribe on chainstate updates/events. Blocks current thread!
+    """
+
+    def __init__(
+        self, interface: RobonomicsInterface, subscribed_event: str, subscription_handler: callable, addr: str
+    ) -> None:
+        """
+        Initiates an instance for further use and starts a subscription for a selected action
+
+        @param interface: RobonomicsInterface instance
+        @param subscribed_event: Event in substrate chain to be awaited. Choose from [NewRecord, NewLaunch, Transfer]
+        @param subscription_handler: Callback function that processes the updates of the storage.
+        THIS FUNCTION IS MEANT TO ACCEPT ONLY ONE ARGUMENT (THE NEW EVENT DESCRIPTION TUPLE).
+        @param addr: ss58 type 32 address of an account which is meant to be event target. If None, tries to fetch self
+        address if keypair was created, else raises NoPrivateKey
+        """
+
+        if subscribed_event not in LIST_EVENTS:
+            raise NotInSubscriptionList("Selected subscription is not yet implemented!")
+
+        self._subscriber_interface: RobonomicsInterface = interface
+
+        self._event: str = subscribed_event
+        self._callback: callable = subscription_handler
+        self._target_address: str = addr or self._subscriber_interface.define_address()
+
+        self.subscribe_event()
+
+    def subscribe_event(self) -> None:
+        """
+        Subscribe to events targeted to a certain account (launch, transfer). Call subscription_handler when updated
+        """
+
+        self._subscriber_interface.custom_chainstate("System", "Events", subscription_handler=self._event_callback)
+
+    def _event_callback(self, index_obj: tp.Any, update_nr: int, subscription_id: int) -> None:
+        """
+        Function, processing updates in event list storage. When update, filters events to a desired account
+        and passes the event description to the user-provided callback method.
+
+        @param index_obj: updated event list
+        @param update_nr: update counter. Increments every new update added. Starts with 0
+        @param subscription_id: subscription ID
+        """
+
+        if update_nr != 0:
+            for events in index_obj:
+                if (
+                    events.value["event_id"] == self._event
+                    and events.value["event"]["attributes"][0 if self._event == LIST_EVENTS[0] else 1]
+                    == self._target_address
+                ):
+                    # In datalog event source address comes first, in others target address comes second
+                    self._callback(events.value["event"]["attributes"])
