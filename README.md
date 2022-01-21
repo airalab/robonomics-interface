@@ -82,6 +82,21 @@ There are as well dedicated `datalog` and `launch` functions for RWS-based trans
 interface.rws_record_datalog(<subscription_owner_addr>, <data>)
 interface.rws_send_launch(<subscription_owner_addr>, <target_addr>, True)
 ```
+
+## Subscriptions
+There is a subscriptions functional implemented. When initiated, blocks thread and processes new events with a user-passed 
+callback function. Pay attention that this callback may only accept one argument - the event data. Up to now, the only supported 
+events are `NewRecord`, `NewLaunch`, `Transfer`
+```python
+from robonomicsinterface import RobonomicsInterface, Subscriber, SubEvent
+
+def callback(data):
+    print(data)
+
+interface = RobonomicsInterface()
+subscriber = Subscriber(interface, SubEvent.NewLaunch, callback, <ss58_addr>)
+```
+
 ## JSON RPC
 *WARNING: THIS MODULE IS UNDER CONSTRUCTIONS, USE AT YOUR OWN RISK! TO BE UPDATED SOON.*  
 There is a way to implement robonomics pubsub rpc calls:

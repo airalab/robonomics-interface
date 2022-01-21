@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from enum import Enum
 
 import substrateinterface as substrate
 import typing as tp
@@ -132,6 +133,7 @@ class RobonomicsInterface:
         module: str,
         storage_function: str,
         params: tp.Optional[tp.Union[tp.List[tp.Union[str, int]], str, int]] = None,
+        subscription_handler: tp.Optional[callable] = None,
     ) -> tp.Any:
         """
         Create custom queries to fetch data from the Chainstate. Module names and storage functions, as well as required
@@ -140,12 +142,30 @@ class RobonomicsInterface:
         @param module: chainstate module
         @param storage_function: storage function
         @param params: query parameters. None if no parameters. Include in list, if several
-
+        @param subscription_handler: Callback function that processes the updates of the storage query subscription.
+        The workflow is the same as in substrateinterface lib. Calling method with this parameter blocks current thread!
+                Example of subscription handler:
+        ```
+        def subscription_handler(obj, update_nr, subscription_id):
+            if update_nr == 0:
+                print('Initial data:', obj.value)
+            if update_nr > 0:
+                # Do something with the update.
+                print('data changed:', obj.value)
+            # The execution will block until an arbitrary value is returned, which will be the result of the `query`
+            if update_nr > 1:
+                return obj
+        ```
         @return: output of the query in any form
         """
 
         logging.info("Performing query")
-        return self._interface.query(module, storage_function, [params] if params is not None else None)
+        return self._interface.query(
+            module,
+            storage_function,
+            [params] if params is not None else None,
+            subscription_handler=subscription_handler,
+        )
 
     def define_address(self) -> str:
         """
@@ -503,3 +523,69 @@ class PubSub:
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_unsubscribe", [subscription_id], result_handler)
+
+
+class SubEvent(Enum):
+    NewRecord = "NewRecord"
+    NewLaunch = "NewLaunch"
+    Transfer = "Transfer"
+
+
+class Subscriber:
+    """
+    Class intended for use in cases when needed to subscribe on chainstate updates/events. Blocks current thread!
+    """
+
+    def __init__(
+        self,
+        interface: RobonomicsInterface,
+        subscribed_event: SubEvent,
+        subscription_handler: callable,
+        addr: tp.Optional[str] = None,
+    ) -> None:
+        """
+        Initiates an instance for further use and starts a subscription for a selected action
+
+        @param interface: RobonomicsInterface instance
+        @param subscribed_event: Event in substrate chain to be awaited. Choose from [NewRecord, NewLaunch, Transfer]
+        This parameter should be a SubEvent class attribute. This also requires importing this class.
+        @param subscription_handler: Callback function that processes the updates of the storage.
+        THIS FUNCTION IS MEANT TO ACCEPT ONLY ONE ARGUMENT (THE NEW EVENT DESCRIPTION TUPLE).
+        @param addr: ss58 type 32 address of an account which is meant to be event target. If None, tries to fetch self
+        address if keypair was created, else raises NoPrivateKey
+        """
+
+        self._subscriber_interface: RobonomicsInterface = interface
+
+        self._event: SubEvent = subscribed_event
+        self._callback: callable = subscription_handler
+        self._target_address: str = addr or self._subscriber_interface.define_address()
+
+        self._subscribe_event()
+
+    def _subscribe_event(self) -> None:
+        """
+        Subscribe to events targeted to a certain account (launch, transfer). Call subscription_handler when updated
+        """
+
+        self._subscriber_interface.custom_chainstate("System", "Events", subscription_handler=self._event_callback)
+
+    def _event_callback(self, index_obj: tp.Any, update_nr: int, subscription_id: int) -> None:
+        """
+        Function, processing updates in event list storage. When update, filters events to a desired account
+        and passes the event description to the user-provided callback method.
+
+        @param index_obj: updated event list
+        @param update_nr: update counter. Increments every new update added. Starts with 0
+        @param subscription_id: subscription ID
+        """
+
+        if update_nr != 0:
+            for events in index_obj:
+                if (
+                    events.value["event_id"] == self._event.value
+                    and events.value["event"]["attributes"][0 if self._event == SubEvent.NewRecord else 1]
+                    == self._target_address
+                ):
+                    # In datalog event source address comes first, in others target address comes second
+                    self._callback(events.value["event"]["attributes"])
