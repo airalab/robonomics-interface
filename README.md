@@ -21,7 +21,10 @@ interface = RI.RobonomicsInterface()
 By default, you will only be able to fetch Chainstate info from Frontier parachain and use PubSub pattern.  
 
 You can specify another `node address` (e.g. local), `seed` to sign extrinsics (more on that [later](#extrinsics)) 
-and custom `registry types`. 
+and custom `registry types`.
+
+Address of the device may be obtained using `define_address` method. If the interface was initialed with a seed/private key
+this method will return `<ss58_addr>` of the device whose seed/private key was passed.
 
 By default, in the Frontier parachain there is a 10 minutes timeout, after which connection becomes broken.
 But there is also a `keep_alive` option that keeps websocket opened with `ping()` calls in an

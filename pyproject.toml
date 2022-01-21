@@ -37,6 +37,9 @@ exclude = [
     ".gitignore",
     ]
 
+[tool.poetry.scripts]
+robonomics_interface = 'robonomicsinterface.robonomics_interface_io:cli'
+
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/Multi-Agent-io/robonomics-interface/issues"
 
