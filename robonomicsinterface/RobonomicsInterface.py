@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from enum import Enum
 
 import substrateinterface as substrate
 import typing as tp
@@ -7,8 +8,8 @@ import typing as tp
 from threading import Thread
 from scalecodec.types import GenericCall, GenericExtrinsic
 
-from .constants import REMOTE_WS, TYPE_REGISTRY, LIST_EVENTS
-from .exceptions import NoPrivateKey, NotInSubscriptionList
+from .constants import REMOTE_WS, TYPE_REGISTRY
+from .exceptions import NoPrivateKey
 
 Datalog = tp.Tuple[int, tp.Union[int, str]]
 NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
@@ -524,37 +525,45 @@ class PubSub:
         return self._pubsub_interface.custom_rpc_request("pubsub_unsubscribe", [subscription_id], result_handler)
 
 
+class SubEvent(Enum):
+    NewRecord = "NewRecord"
+    NewLaunch = "NewLaunch"
+    Transfer = "Transfer"
+
+
 class Subscriber:
     """
     Class intended for use in cases when needed to subscribe on chainstate updates/events. Blocks current thread!
     """
 
     def __init__(
-        self, interface: RobonomicsInterface, subscribed_event: str, subscription_handler: callable, addr: str
+        self,
+        interface: RobonomicsInterface,
+        subscribed_event: SubEvent,
+        subscription_handler: callable,
+        addr: tp.Optional[str] = None,
     ) -> None:
         """
         Initiates an instance for further use and starts a subscription for a selected action
 
         @param interface: RobonomicsInterface instance
         @param subscribed_event: Event in substrate chain to be awaited. Choose from [NewRecord, NewLaunch, Transfer]
+        This parameter should be a SubEvent class attribute. This also requires importing this class.
         @param subscription_handler: Callback function that processes the updates of the storage.
         THIS FUNCTION IS MEANT TO ACCEPT ONLY ONE ARGUMENT (THE NEW EVENT DESCRIPTION TUPLE).
         @param addr: ss58 type 32 address of an account which is meant to be event target. If None, tries to fetch self
         address if keypair was created, else raises NoPrivateKey
         """
 
-        if subscribed_event not in LIST_EVENTS:
-            raise NotInSubscriptionList("Selected subscription is not yet implemented!")
-
         self._subscriber_interface: RobonomicsInterface = interface
 
-        self._event: str = subscribed_event
+        self._event: SubEvent = subscribed_event
         self._callback: callable = subscription_handler
         self._target_address: str = addr or self._subscriber_interface.define_address()
 
-        self.subscribe_event()
+        self._subscribe_event()
 
-    def subscribe_event(self) -> None:
+    def _subscribe_event(self) -> None:
         """
         Subscribe to events targeted to a certain account (launch, transfer). Call subscription_handler when updated
         """
@@ -574,8 +583,8 @@ class Subscriber:
         if update_nr != 0:
             for events in index_obj:
                 if (
-                    events.value["event_id"] == self._event
-                    and events.value["event"]["attributes"][0 if self._event == LIST_EVENTS[0] else 1]
+                    events.value["event_id"] == self._event.value
+                    and events.value["event"]["attributes"][0 if self._event == SubEvent.NewRecord else 1]
                     == self._target_address
                 ):
                     # In datalog event source address comes first, in others target address comes second

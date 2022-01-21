@@ -88,11 +88,13 @@ There is a subscriptions functional implemented. When initiated, blocks thread a
 callback function. Pay attention that this callback may only accept one argument - the event data. Up to now, the only supported 
 events are `NewRecord`, `NewLaunch`, `Transfer`
 ```python
+from robonomicsinterface import RobonomicsInterface, Subscriber, SubEvent
+
 def callback(data):
     print(data)
 
 interface = RobonomicsInterface()
-subscriber = Subscriber(interface, "NewRecord", callback, <ss58_addr>)
+subscriber = Subscriber(interface, SubEvent.NewLaunch, callback, <ss58_addr>)
 ```
 
 ## JSON RPC
