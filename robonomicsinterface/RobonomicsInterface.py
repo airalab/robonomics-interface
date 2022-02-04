@@ -416,6 +416,15 @@ class RobonomicsInterface:
 
         return self._interface.rpc_request(method, params, result_handler)
 
+    def subscribe_block_headers(self, callback: callable) -> dict:
+        """
+        Get chain head block headers
+
+        @return: Chain head block headers
+        """
+
+        return self._interface.subscribe_block_headers(subscription_handler=callback)
+
 
 class PubSub:
     """
@@ -551,15 +560,15 @@ class Subscriber:
         This parameter should be a SubEvent class attribute. This also requires importing this class.
         @param subscription_handler: Callback function that processes the updates of the storage.
         THIS FUNCTION IS MEANT TO ACCEPT ONLY ONE ARGUMENT (THE NEW EVENT DESCRIPTION TUPLE).
-        @param addr: ss58 type 32 address of an account which is meant to be event target. If None, tries to fetch self
-        address if keypair was created, else raises NoPrivateKey
+        @param addr: ss58 type 32 address of an account which is meant to be event target. If None, will subscribe to
+        all such events nevermind target address.
         """
 
         self._subscriber_interface: RobonomicsInterface = interface
 
         self._event: SubEvent = subscribed_event
         self._callback: callable = subscription_handler
-        self._target_address: str = addr or self._subscriber_interface.define_address()
+        self._target_address: tp.Optional[str] = addr
 
         self._subscribe_event()
 
@@ -568,7 +577,7 @@ class Subscriber:
         Subscribe to events targeted to a certain account (launch, transfer). Call subscription_handler when updated
         """
 
-        self._subscriber_interface.custom_chainstate("System", "Events", subscription_handler=self._event_callback)
+        self._subscriber_interface.subscribe_block_headers(self._event_callback)
 
     def _event_callback(self, index_obj: tp.Any, update_nr: int, subscription_id: int) -> None:
         """
@@ -581,11 +590,13 @@ class Subscriber:
         """
 
         if update_nr != 0:
-            for events in index_obj:
-                if (
-                    events.value["event_id"] == self._event.value
-                    and events.value["event"]["attributes"][0 if self._event == SubEvent.NewRecord else 1]
-                    == self._target_address
-                ):
-                    # In datalog event source address comes first, in others target address comes second
-                    self._callback(events.value["event"]["attributes"])
+            chain_events = self._subscriber_interface.custom_chainstate("System", "Events")
+            for events in chain_events:
+                if events.value["event_id"] == self._event.value:
+                    if self._target_address is None:
+                        self._callback(events.value["event"]["attributes"])  # All events
+                    elif (
+                        events.value["event"]["attributes"][0 if self._event == SubEvent.NewRecord else 1]
+                        == self._target_address
+                    ):
+                        self._callback(events.value["event"]["attributes"])  # address-targeted
