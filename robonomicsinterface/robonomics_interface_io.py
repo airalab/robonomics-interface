@@ -1,7 +1,16 @@
 import click
 import sys
 
-from robonomicsinterface import RobonomicsInterface as RI, constants
+from robonomicsinterface import RobonomicsInterface as RI, constants, Subscriber, SubEvent
+
+
+def callback(data):
+    """
+    callback executed when subscription event triggered. Simply outputs incoming info to console
+
+    @param data: data to be output
+    """
+    click.echo(data)
 
 
 @click.group()
@@ -32,7 +41,7 @@ def read():
     type=str,
     default=constants.REMOTE_WS,
     help="Node websocket address used to connect to any node. E.g. local is ws://127.0.0.1:9944. Default is "
-    "wss://main.frontier.rpc.robonomics.network",
+    "wss://kusama.rpc.robonomics.network",
 )
 @click.option("-s", type=str, required=True, help="Account seed in mnemonic/raw form.")
 def datalog(input_string: sys.stdin, remote_ws: str, s: str) -> None:
@@ -58,7 +67,7 @@ def datalog(input_string: sys.stdin, remote_ws: str, s: str) -> None:
     type=str,
     default=constants.REMOTE_WS,
     help="Node websocket address used to connect to any node. E.g. local is ws://127.0.0.1:9944. Default is "
-    "wss://main.frontier.rpc.robonomics.network",
+    "wss://kusama.rpc.robonomics.network",
 )
 @click.option("-s", type=str, required=True, help="Account seed in mnemonic/raw form.")
 @click.option("-r", type=str, required=True, help="Target account ss58_address.")
@@ -82,10 +91,15 @@ def launch(command, remote_ws, s, r) -> None:
     type=str,
     default=constants.REMOTE_WS,
     help="Node websocket address used to connect to any node. E.g. local is ws://127.0.0.1:9944. Default is "
-    "wss://main.frontier.rpc.robonomics.network",
+    "wss://kusama.rpc.robonomics.network",
 )
 @click.option("-r", type=str, help="Target account ss58_address.")
 def datalog(remote_ws: str, r: str):
+    """
+    Listen to datalogs in the chain whether address-specified or all of them
+    """
+    interface: RI = RI(remote_ws=remote_ws)
+    subscriber: Subscriber = Subscriber(interface, SubEvent.NewRecord, subscription_handler=callback, addr=r)
     pass
 
 
