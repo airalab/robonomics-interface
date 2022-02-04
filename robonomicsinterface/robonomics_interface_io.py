@@ -18,12 +18,12 @@ def cli():
     pass
 
 
-@cli.group()
+@cli.group(help="Send various extrinsics (launch commands or record datalogs)")
 def write():
     pass
 
 
-@cli.group()
+@cli.group(help="Subscribe to datalog/launch events in the chain")
 def read():
     pass
 

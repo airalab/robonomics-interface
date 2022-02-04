@@ -100,6 +100,20 @@ interface = RobonomicsInterface()
 subscriber = Subscriber(interface, SubEvent.NewLaunch, callback, <ss58_addr>)
 ```
 
+## IO
+This package provides console prototyping tool such as [robonomics io](https://wiki.robonomics.network/docs/en/rio-overview/)
+with slight differences:
+```bash
+$ robonomics_interface read datalog
+$ echo "Hello, Robonomics" | robonomics_interface write datalog -s <seed>
+$ robonomics_interface read launch
+$ echo "ON" | robonomics_interface write launch -s <seed> -r <target_addr>
+```
+More info may be found with 
+```bash
+$ robonomics_interface --help
+```
+
 ## JSON RPC
 *WARNING: THIS MODULE IS UNDER CONSTRUCTIONS, USE AT YOUR OWN RISK! TO BE UPDATED SOON.*  
 There is a way to implement robonomics pubsub rpc calls:
