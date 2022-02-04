@@ -78,11 +78,11 @@ def launch(command, remote_ws, s, r) -> None:
     """
     interface: RI = RI(remote_ws=remote_ws, seed=s)
     if command.readline()[:-1] == "ON":
-        interface.send_launch(r, True)
-        click.echo(f"{interface.define_address()} -> {r}: true")
+        transaction_hash: str = interface.send_launch(r, True)
+        click.echo((transaction_hash, f"{interface.define_address()} -> {r}: true"))
     else:
-        interface.send_launch(r, False)
-        click.echo(f"{interface.define_address()} -> {r}: false")
+        transaction_hash: str = interface.send_launch(r, False)
+        click.echo((transaction_hash, f"{interface.define_address()} -> {r}: false"))
 
 
 @read.command()
@@ -100,6 +100,24 @@ def datalog(remote_ws: str, r: str):
     """
     interface: RI = RI(remote_ws=remote_ws)
     subscriber: Subscriber = Subscriber(interface, SubEvent.NewRecord, subscription_handler=callback, addr=r)
+    pass
+
+
+@read.command()
+@click.option(
+    "--remote_ws",
+    type=str,
+    default=constants.REMOTE_WS,
+    help="Node websocket address used to connect to any node. E.g. local is ws://127.0.0.1:9944. Default is "
+    "wss://kusama.rpc.robonomics.network",
+)
+@click.option("-r", type=str, help="Target account ss58_address.")
+def launch(remote_ws: str, r: str):
+    """
+    Listen to datalogs in the chain whether address-specified or all of them
+    """
+    interface: RI = RI(remote_ws=remote_ws)
+    subscriber: Subscriber = Subscriber(interface, SubEvent.NewLaunch, subscription_handler=callback, addr=r)
     pass
 
 
