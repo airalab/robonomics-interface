@@ -1,15 +1,14 @@
-import asyncio
 import logging
-from enum import Enum
 
 import substrateinterface as substrate
 import typing as tp
 
-from threading import Thread
+from enum import Enum
 from scalecodec.types import GenericCall, GenericExtrinsic
 
 from .constants import REMOTE_WS, TYPE_REGISTRY
 from .exceptions import NoPrivateKey
+from .decorators import connect_close_substrate_node
 
 Datalog = tp.Tuple[int, tp.Union[int, str]]
 NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
@@ -25,8 +24,7 @@ class RobonomicsInterface:
         self,
         seed: tp.Optional[str] = None,
         remote_ws: tp.Optional[str] = None,
-        type_registry: tp.Optional[NodeTypes] = None,
-        keep_alive: bool = False,
+        type_registry: tp.Optional[NodeTypes] = None
     ) -> None:
         """
         Instance of a class is an interface with a node. Here this interface is initialized.
@@ -35,65 +33,13 @@ class RobonomicsInterface:
         @param remote_ws: node url. Default node address is "wss://kusama.rpc.robonomics.network".
         Another address may be specified (e.g. "ws://127.0.0.1:9944" for local node).
         @param type_registry: types used in the chain. Defaults are the most frequently used in Robonomics
-        @param keep_alive: whether send ping calls each 200 secs to keep interface opened or not
         """
 
-        self._interface: substrate.SubstrateInterface
         self._keypair: tp.Optional[substrate.Keypair] = self._create_keypair(seed) if seed else None
-
-        if not self._keypair:
-            logging.warning("No seed specified, you won't be able to sign extrinsics, fetching chainstate only.")
-
-        if type_registry:
-            logging.warning("Using custom type registry for the node")
-
-        logging.info("Establishing connection with Robonomics node")
-        self._interface = self._establish_connection(remote_ws or REMOTE_WS, type_registry or TYPE_REGISTRY)
-
-        if keep_alive:
-            self._keep_alive_pinger()
-
-        logging.info("Successfully established connection to Robonomics node")
-
-    def _keep_alive_pinger(self) -> None:
-        """
-        It uses main thread event_loop running in another thread to add keep_alive coroutines of each interface there.
-        !Be careful using asyncio, since main thread event_loop is already running (main thread is not locked though).!
-        You are to add new coroutines to a main thread event_loop, not to run it. Also using this flag while creating an
-        interface NOT in the main thread will throw RuntimeError.
-
-        This was made so because of a simple way to add new interfaces' keep_alive tasks to the same event_loop (to the
-        main one) without blocking main execution thread (since main thread event_loop runs in a separate thread).
-
-        That's so with 1, 2, 3 or 18 interfaces with a keep_alive option you will still have only one dedicated thread
-        for all keep_alive tasks.
-        """
-
-        loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-        if loop.is_running():
-            asyncio.run_coroutine_threadsafe(self._keep_alive(), loop=loop)
-        else:
-            keep_alive_thread = Thread(target=self._keep_alive_loop_in_thread, args=(loop,))
-            keep_alive_thread.start()
-
-    async def _keep_alive(self) -> None:
-        """
-        Keep the connection alive by sending websocket ping each 200 seconds.
-        """
-
-        while True:
-            await asyncio.sleep(25)
-            self._interface.websocket.ping()
-
-    def _keep_alive_loop_in_thread(self, loop: asyncio.AbstractEventLoop) -> None:
-        """
-        Run a keep_alive coroutine in the passed loop. If selected loop is already running, add a coroutine to it, else
-        run a new loop with a keep_alive coroutine.
-
-        @param loop: AbstractEventLoop passed from class __init__ function
-        """
-
-        loop.run_until_complete(self._keep_alive())
+        self.remote_ws = remote_ws or REMOTE_WS
+        self.type_registry = type_registry or TYPE_REGISTRY
+        self.interface: tp.Optional[substrate.SubstrateInterface] = None
+        # This is a dummy since interface is opened-closed every time it's needed
 
     @staticmethod
     def _create_keypair(seed: str) -> substrate.Keypair:
@@ -110,24 +56,7 @@ class RobonomicsInterface:
         else:
             return substrate.Keypair.create_from_mnemonic(seed, ss58_format=32)
 
-    @staticmethod
-    def _establish_connection(url: str, types: NodeTypes) -> substrate.SubstrateInterface:
-        """
-        Create a substrate interface for interacting wit Robonomics node
-
-        @param url: node endpoint
-        @param types: json types used by pallets
-
-        @return: interface of a Robonomics node connection
-        """
-
-        return substrate.SubstrateInterface(
-            url=url,
-            ss58_format=32,
-            type_registry_preset="substrate-node-template",
-            type_registry=types,
-        )
-
+    @connect_close_substrate_node
     def custom_chainstate(
         self,
         module: str,
@@ -160,7 +89,7 @@ class RobonomicsInterface:
         """
 
         logging.info("Performing query")
-        return self._interface.query(
+        return self.interface.query(
             module,
             storage_function,
             [params] if params is not None else None,
@@ -228,6 +157,7 @@ class RobonomicsInterface:
         logging.info(f"Fetching auction {index} information")
         return self.custom_chainstate("RWS", "Auction", index)
 
+    @connect_close_substrate_node
     def custom_extrinsic(
         self,
         call_module: str,
@@ -254,19 +184,19 @@ class RobonomicsInterface:
             raise NoPrivateKey("No seed was provided, unable to use extrinsics.")
 
         logging.info(f"Creating a call {call_module}:{call_function}")
-        call: GenericCall = self._interface.compose_call(
+        call: GenericCall = self.interface.compose_call(
             call_module=call_module,
             call_function=call_function,
             call_params=params or None,
         )
 
         logging.info("Creating extrinsic")
-        extrinsic: GenericExtrinsic = self._interface.create_signed_extrinsic(
+        extrinsic: GenericExtrinsic = self.interface.create_signed_extrinsic(
             call=call, keypair=self._keypair, nonce=nonce
         )
 
         logging.info("Submitting extrinsic")
-        receipt: substrate.ExtrinsicReceipt = self._interface.submit_extrinsic(extrinsic, wait_for_inclusion=True)
+        receipt: substrate.ExtrinsicReceipt = self.interface.submit_extrinsic(extrinsic, wait_for_inclusion=True)
         logging.info(
             f"Extrinsic {receipt.extrinsic_hash} for RPC {call_module}:{call_function} submitted and "
             f"included in block {receipt.block_hash}"
@@ -307,6 +237,7 @@ class RobonomicsInterface:
         logging.info(f"Sending {'ON' if toggle else 'OFF'} launch command to {target_address}")
         return self.custom_extrinsic("Launch", "launch", {"robot": target_address, "param": toggle}, nonce)
 
+    @connect_close_substrate_node
     def get_account_nonce(self, account_address: tp.Optional[str] = None) -> int:
         """
         Get current account nonce
@@ -319,7 +250,7 @@ class RobonomicsInterface:
         for example.
         """
 
-        return self._interface.get_account_nonce(account_address=account_address or self.define_address())
+        return self.interface.get_account_nonce(account_address=account_address or self.define_address())
 
     def rws_bid(self, index: int, amount: int) -> str:
         """
@@ -400,6 +331,7 @@ class RobonomicsInterface:
             subscription_owner_addr, "Launch", "launch", {"robot": target_address, "param": toggle}
         )
 
+    @connect_close_substrate_node
     def custom_rpc_request(
         self, method: str, params: tp.Optional[tp.List[str]], result_handler: tp.Optional[tp.Callable]
     ) -> dict:
@@ -414,8 +346,9 @@ class RobonomicsInterface:
         @return: result of the request
         """
 
-        return self._interface.rpc_request(method, params, result_handler)
+        return self.interface.rpc_request(method, params, result_handler)
 
+    @connect_close_substrate_node
     def subscribe_block_headers(self, callback: callable) -> dict:
         """
         Get chain head block headers
@@ -423,7 +356,7 @@ class RobonomicsInterface:
         @return: Chain head block headers
         """
 
-        return self._interface.subscribe_block_headers(subscription_handler=callback)
+        return self.interface.subscribe_block_headers(subscription_handler=callback)
 
 
 class PubSub:
