@@ -26,12 +26,6 @@ and custom `registry types`.
 Address of the device may be obtained using `define_address` method. If the interface was initialed with a seed/private key
 this method will return `<ss58_addr>` of the device whose seed/private key was passed.
 
-By default, in the Frontier parachain there is a 10 minutes timeout, after which connection becomes broken.
-But there is also a `keep_alive` option that keeps websocket opened with `ping()` calls in an
-asynchronous event loop. Watch out using `asyncio` with this option since `keep_alive` tasks are added to main thread
-event loop, **which is running in another thread.** More on that in a docstring of the method.
-
-
 ## Simple case: fetch Chainstate
 Here, no need to pass any arguments, by
 ```python
