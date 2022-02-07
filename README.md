@@ -21,13 +21,10 @@ interface = RI.RobonomicsInterface()
 By default, you will only be able to fetch Chainstate info from Frontier parachain and use PubSub pattern.  
 
 You can specify another `node address` (e.g. local), `seed` to sign extrinsics (more on that [later](#extrinsics)) 
-and custom `registry types`. 
+and custom `registry types`.
 
-By default, in the Frontier parachain there is a 10 minutes timeout, after which connection becomes broken.
-But there is also a `keep_alive` option that keeps websocket opened with `ping()` calls in an
-asynchronous event loop. Watch out using `asyncio` with this option since `keep_alive` tasks are added to main thread
-event loop, **which is running in another thread.** More on that in a docstring of the method.
-
+Address of the device may be obtained using `define_address` method. If the interface was initialed with a seed/private key
+this method will return `<ss58_addr>` of the device whose seed/private key was passed.
 
 ## Simple case: fetch Chainstate
 Here, no need to pass any arguments, by
@@ -95,6 +92,20 @@ def callback(data):
 
 interface = RobonomicsInterface()
 subscriber = Subscriber(interface, SubEvent.NewLaunch, callback, <ss58_addr>)
+```
+
+## IO
+This package provides console prototyping tool such as [robonomics io](https://wiki.robonomics.network/docs/en/rio-overview/)
+with slight differences:
+```bash
+$ robonomics_interface read datalog
+$ echo "Hello, Robonomics" | robonomics_interface write datalog -s <seed>
+$ robonomics_interface read launch
+$ echo "ON" | robonomics_interface write launch -s <seed> -r <target_addr>
+```
+More info may be found with 
+```bash
+$ robonomics_interface --help
 ```
 
 ## JSON RPC
