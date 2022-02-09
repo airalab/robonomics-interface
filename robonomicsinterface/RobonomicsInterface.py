@@ -13,6 +13,8 @@ from .decorators import connect_close_substrate_node
 Datalog = tp.Tuple[int, tp.Union[int, str]]
 NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
 
+logger = logging.getLogger(__name__)
+
 
 class RobonomicsInterface:
     """
@@ -90,7 +92,7 @@ class RobonomicsInterface:
         @return: output of the query in any form
         """
 
-        logging.info("Performing query")
+        logger.info("Performing query")
         return self.interface.query(
             module,
             storage_function,
@@ -128,7 +130,7 @@ class RobonomicsInterface:
 
         address: str = addr or self.define_address()
 
-        logging.info(
+        logger.info(
             f"Fetching {'latest datalog record' if not index else 'datalog record #' + str(index)}" f" of {address}."
         )
 
@@ -156,7 +158,7 @@ class RobonomicsInterface:
         @return: Auction queue of Robonomics Web Services subscriptions
         """
 
-        logging.info("Fetching auctions queue list")
+        logger.info("Fetching auctions queue list")
         return self.custom_chainstate("RWS", "AuctionQueue", block_hash=block_hash)
 
     def rws_auction(self, index: int, block_hash: tp.Optional[str] = None) -> tp.Dict[str, tp.Union[str, int, dict]]:
@@ -169,7 +171,7 @@ class RobonomicsInterface:
         @return: Auction info
         """
 
-        logging.info(f"Fetching auction {index} information")
+        logger.info(f"Fetching auction {index} information")
         return self.custom_chainstate("RWS", "Auction", index, block_hash=block_hash)
 
     @connect_close_substrate_node
@@ -198,19 +200,19 @@ class RobonomicsInterface:
         if not self._keypair:
             raise NoPrivateKey("No seed was provided, unable to use extrinsics.")
 
-        logging.info(f"Creating a call {call_module}:{call_function}")
+        logger.info(f"Creating a call {call_module}:{call_function}")
         call: GenericCall = self.interface.compose_call(
             call_module=call_module, call_function=call_function, call_params=params or None
         )
 
-        logging.info("Creating extrinsic")
+        logger.info("Creating extrinsic")
         extrinsic: GenericExtrinsic = self.interface.create_signed_extrinsic(
             call=call, keypair=self._keypair, nonce=nonce
         )
 
-        logging.info("Submitting extrinsic")
+        logger.info("Submitting extrinsic")
         receipt: substrate.ExtrinsicReceipt = self.interface.submit_extrinsic(extrinsic, wait_for_inclusion=True)
-        logging.info(
+        logger.info(
             f"Extrinsic {receipt.extrinsic_hash} for RPC {call_module}:{call_function} submitted and "
             f"included in block {receipt.block_hash}"
         )
@@ -230,7 +232,7 @@ class RobonomicsInterface:
         @return: Hash of the datalog transaction
         """
 
-        logging.info(f"Writing datalog {data}")
+        logger.info(f"Writing datalog {data}")
         return self.custom_extrinsic("Datalog", "record", {"record": data}, nonce)
 
     def send_launch(self, target_address: str, toggle: bool, nonce: tp.Optional[int] = None) -> str:
@@ -247,7 +249,7 @@ class RobonomicsInterface:
         @return: Hash of the launch transaction
         """
 
-        logging.info(f"Sending {'ON' if toggle else 'OFF'} launch command to {target_address}")
+        logger.info(f"Sending {'ON' if toggle else 'OFF'} launch command to {target_address}")
         return self.custom_extrinsic("Launch", "launch", {"robot": target_address, "param": toggle}, nonce)
 
     @connect_close_substrate_node
@@ -274,7 +276,7 @@ class RobonomicsInterface:
         @param amount: Your bid in Weiners (!)
         """
 
-        logging.info(f"Bidding on auction {index} with {amount} Weiners (appx. {round(amount / 10 ** 9, 2)} XRT)")
+        logger.info(f"Bidding on auction {index} with {amount} Weiners (appx. {round(amount / 10 ** 9, 2)} XRT)")
         return self.custom_extrinsic("RWS", "bid", {"index": index, "amount": amount})
 
     def rws_set_devices(self, devices: tp.List[str]) -> str:
@@ -286,7 +288,7 @@ class RobonomicsInterface:
         @return: transaction hash
         """
 
-        logging.info(f"Allowing {devices} to use {self.define_address()} subscription")
+        logger.info(f"Allowing {devices} to use {self.define_address()} subscription")
         return self.custom_extrinsic("RWS", "set_devices", {"devices": devices})
 
     def rws_custom_call(
@@ -307,7 +309,7 @@ class RobonomicsInterface:
         @return: Transaction hash
         """
 
-        logging.info("Sending transaction using subscription")
+        logger.info("Sending transaction using subscription")
         return self.custom_extrinsic(
             "RWS",
             "call",
