@@ -35,7 +35,8 @@ you will be able to read any Chainstate info from the Frontier parachain:
 ```python
 num_dt = interface.custom_chainstate("DigitalTwin", "Total")
 ```
-you can also specify an argument for the query. Several arguments should be put in a list.
+you can also specify an argument for the query. Several arguments should be put in a list. Block hash parameter is 
+also available via `block_hash` argument if you want to make a query as of a specified block.
 
 There is a dedicated function to obtain **Datalog**:
 ```python

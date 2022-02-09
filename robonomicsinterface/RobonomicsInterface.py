@@ -24,7 +24,7 @@ class RobonomicsInterface:
         self,
         seed: tp.Optional[str] = None,
         remote_ws: tp.Optional[str] = None,
-        type_registry: tp.Optional[NodeTypes] = None
+        type_registry: tp.Optional[NodeTypes] = None,
     ) -> None:
         """
         Instance of a class is an interface with a node. Here this interface is initialized.
@@ -62,6 +62,7 @@ class RobonomicsInterface:
         module: str,
         storage_function: str,
         params: tp.Optional[tp.Union[tp.List[tp.Union[str, int]], str, int]] = None,
+        block_hash: tp.Optional[str] = None,
         subscription_handler: tp.Optional[callable] = None,
     ) -> tp.Any:
         """
@@ -71,6 +72,7 @@ class RobonomicsInterface:
         @param module: chainstate module
         @param storage_function: storage function
         @param params: query parameters. None if no parameters. Include in list, if several
+        @param block_hash: Retrieves data as of passed block hash
         @param subscription_handler: Callback function that processes the updates of the storage query subscription.
         The workflow is the same as in substrateinterface lib. Calling method with this parameter blocks current thread!
                 Example of subscription handler:
@@ -93,6 +95,7 @@ class RobonomicsInterface:
             module,
             storage_function,
             [params] if params is not None else None,
+            block_hash=block_hash,
             subscription_handler=subscription_handler,
         )
 
@@ -107,7 +110,9 @@ class RobonomicsInterface:
             raise NoPrivateKey("No private key was provided, unable to determine self address")
         return str(self._keypair.ss58_address)
 
-    def fetch_datalog(self, addr: tp.Optional[str] = None, index: tp.Optional[int] = None) -> tp.Optional[Datalog]:
+    def fetch_datalog(
+        self, addr: tp.Optional[str] = None, index: tp.Optional[int] = None, block_hash: tp.Optional[str] = None
+    ) -> tp.Optional[Datalog]:
         """
         Fetch datalog record of a provided account. Fetch self datalog if no address provided and interface was
         initialized with a seed.
@@ -116,6 +121,7 @@ class RobonomicsInterface:
         datalog if keypair was created, else raises NoPrivateKey
         @param index: record index. case int: fetch datalog by specified index
                                     case None: fetch latest datalog
+        @param block_hash: Retrieves data as of passed block hash
 
         @return: Dictionary. Datalog of the account with a timestamp, None if no records.
         """
@@ -127,35 +133,44 @@ class RobonomicsInterface:
         )
 
         if index:
-            record: Datalog = self.custom_chainstate("Datalog", "DatalogItem", [address, index]).value
+            record: Datalog = self.custom_chainstate(
+                "Datalog", "DatalogItem", [address, index], block_hash=block_hash
+            ).value
             return record if record[0] != 0 else None
         else:
-            index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", address).value["end"] - 1
+            index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", address, block_hash=block_hash).value[
+                "end"
+            ] - 1
             return (
-                self.custom_chainstate("Datalog", "DatalogItem", [address, index_latest]).value
+                self.custom_chainstate("Datalog", "DatalogItem", [address, index_latest], block_hash=block_hash).value
                 if index_latest != -1
                 else None
             )
 
-    def rws_auction_queue(self) -> tp.List[tp.Optional[int]]:
+    def rws_auction_queue(self, block_hash: tp.Optional[str] = None) -> tp.List[tp.Optional[int]]:
         """
         Get an auction queue of Robonomics Web Services subscriptions
+
+        @param block_hash: Retrieves data as of passed block hash
 
         @return: Auction queue of Robonomics Web Services subscriptions
         """
 
         logging.info("Fetching auctions queue list")
-        return self.custom_chainstate("RWS", "AuctionQueue")
+        return self.custom_chainstate("RWS", "AuctionQueue", block_hash=block_hash)
 
-    def rws_auction(self, index: int) -> tp.Dict[str, tp.Union[str, int, dict]]:
+    def rws_auction(self, index: int, block_hash: tp.Optional[str] = None) -> tp.Dict[str, tp.Union[str, int, dict]]:
         """
         Get to now information about subscription auction
 
         @param index: Auction index
+        @param block_hash: Retrieves data as of passed block hash
+
+        @return: Auction info
         """
 
         logging.info(f"Fetching auction {index} information")
-        return self.custom_chainstate("RWS", "Auction", index)
+        return self.custom_chainstate("RWS", "Auction", index, block_hash=block_hash)
 
     @connect_close_substrate_node
     def custom_extrinsic(
@@ -185,9 +200,7 @@ class RobonomicsInterface:
 
         logging.info(f"Creating a call {call_module}:{call_function}")
         call: GenericCall = self.interface.compose_call(
-            call_module=call_module,
-            call_function=call_function,
-            call_params=params or None,
+            call_module=call_module, call_function=call_function, call_params=params or None
         )
 
         logging.info("Creating extrinsic")
@@ -494,7 +507,7 @@ class Subscriber:
         @param subscription_handler: Callback function that processes the updates of the storage.
         THIS FUNCTION IS MEANT TO ACCEPT ONLY ONE ARGUMENT (THE NEW EVENT DESCRIPTION TUPLE).
         @param addr: ss58 type 32 address of an account which is meant to be event target. If None, will subscribe to
-        all such events nevermind target address.
+        all such events never-mind target address.
         """
 
         self._subscriber_interface: RobonomicsInterface = interface
