@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "robonomics-interface"
-version = "0.5.2"
+version = "0.5.3"
 description = "Robonomics wrapper over https://github.com/polkascan/py-substrate-interface created to facilitate programming with Robonomics"
 authors = ["Pavel Tarasov <p040399@outlook.com>"]
 license = "Apache-2.0"
@@ -46,6 +46,7 @@ robonomics_interface = 'robonomicsinterface.robonomics_interface_io:cli'
 [tool.poetry.dependencies]
 python = ">3.6, <4.0"
 substrate-interface = "^1.1.7"
+click = "^8.0.3"
 
 [tool.poetry.dev-dependencies]
 
