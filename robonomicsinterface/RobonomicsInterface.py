@@ -125,7 +125,7 @@ class RobonomicsInterface:
                                     case None: fetch latest datalog
         @param block_hash: Retrieves data as of passed block hash
 
-        @return: Dictionary. Datalog of the account with a timestamp, None if no records.
+        @return: Tuple. Datalog of the account with a timestamp, None if no records.
         """
 
         address: str = addr or self.define_address()
@@ -173,6 +173,20 @@ class RobonomicsInterface:
 
         logger.info(f"Fetching auction {index} information")
         return self.custom_chainstate("RWS", "Auction", index, block_hash=block_hash)
+
+    def rws_list_devices(self, addr: str, block_hash: tp.Optional[str] = None) -> tp.List[tp.Optional[str]]:
+        """
+        Fetch list of RWS added devices
+
+        @param addr: Subscription owner
+        @param block_hash: Retrieves data as of passed block hash
+
+        @return: List of added devices. Empty if none
+        """
+
+        logging.info(f"Fetching list of RWS devices set by owner {addr}")
+
+        return self.custom_chainstate("RWS", "Devices", addr, block_hash=block_hash)
 
     @connect_close_substrate_node
     def custom_extrinsic(
@@ -498,7 +512,7 @@ class Subscriber:
         interface: RobonomicsInterface,
         subscribed_event: SubEvent,
         subscription_handler: callable,
-        addr: tp.Optional[str] = None,
+        addr: tp.Optional[tp.Union[tp.List[str], str]] = None,
     ) -> None:
         """
         Initiates an instance for further use and starts a subscription for a selected action
@@ -508,15 +522,15 @@ class Subscriber:
         This parameter should be a SubEvent class attribute. This also requires importing this class.
         @param subscription_handler: Callback function that processes the updates of the storage.
         THIS FUNCTION IS MEANT TO ACCEPT ONLY ONE ARGUMENT (THE NEW EVENT DESCRIPTION TUPLE).
-        @param addr: ss58 type 32 address of an account which is meant to be event target. If None, will subscribe to
-        all such events never-mind target address.
+        @param addr: ss58 type 32 address(-es) of an account(-s) which is(are) meant to be event target. If None, will
+        subscribe to all such events never-mind target address(-es).
         """
 
         self._subscriber_interface: RobonomicsInterface = interface
 
         self._event: SubEvent = subscribed_event
         self._callback: callable = subscription_handler
-        self._target_address: tp.Optional[str] = addr
+        self._target_address: tp.Optional[tp.Union[tp.List[str], str]] = addr
 
         self._subscribe_event()
 
@@ -545,6 +559,6 @@ class Subscriber:
                         self._callback(events.value["event"]["attributes"])  # All events
                     elif (
                         events.value["event"]["attributes"][0 if self._event == SubEvent.NewRecord else 1]
-                        == self._target_address
+                        in self._target_address
                     ):
                         self._callback(events.value["event"]["attributes"])  # address-targeted
