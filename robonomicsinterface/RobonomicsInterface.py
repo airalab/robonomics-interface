@@ -125,7 +125,7 @@ class RobonomicsInterface:
                                     case None: fetch latest datalog
         @param block_hash: Retrieves data as of passed block hash
 
-        @return: Dictionary. Datalog of the account with a timestamp, None if no records.
+        @return: Tuple. Datalog of the account with a timestamp, None if no records.
         """
 
         address: str = addr or self.define_address()
@@ -173,6 +173,20 @@ class RobonomicsInterface:
 
         logger.info(f"Fetching auction {index} information")
         return self.custom_chainstate("RWS", "Auction", index, block_hash=block_hash)
+
+    def rws_list_devices(self, addr: str, block_hash: tp.Optional[str] = None) -> tp.List[tp.Optional[str]]:
+        """
+        Fetch list of RWS added devices
+
+        @param addr: Subscription owner
+        @param block_hash: Retrieves data as of passed block hash
+
+        @return: List of added devices. Empty if none
+        """
+
+        logging.info(f"Fetching list of RWS devices set by owner {addr}")
+
+        return self.custom_chainstate("RWS", "Devices", addr, block_hash=block_hash)
 
     @connect_close_substrate_node
     def custom_extrinsic(

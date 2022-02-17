@@ -61,10 +61,11 @@ Current nonce definition and manual nonce setting is also possible.
 
 ## Robonomics Web Services (RWS)
 There are as well dedicated methods for convenient usage of RWS.
-- Chainstate functions `auctionQueue`, `auction` to examine subscriptions auctions:
+- Chainstate functions `auctionQueue`, `auction`, `devices` to examine subscriptions auctions:
 ```python
 interface.rws_auction_queue()
 inteface.rws_auction(<auction_index>)
+interface.rws_list_devices(<subscription_owner_addr>)
 ```
 - Extrinsincs: `bid`, `set_devices` and, the most important, `call`
 ```python
