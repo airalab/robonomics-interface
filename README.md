@@ -94,6 +94,7 @@ def callback(data):
 interface = RobonomicsInterface()
 subscriber = Subscriber(interface, SubEvent.NewLaunch, callback, <ss58_addr>)
 ```
+One may also pass a list of addresses.
 
 ## IO
 This package provides console prototyping tool such as [robonomics io](https://wiki.robonomics.network/docs/en/rio-overview/)

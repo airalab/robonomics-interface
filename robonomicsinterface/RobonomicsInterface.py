@@ -498,7 +498,7 @@ class Subscriber:
         interface: RobonomicsInterface,
         subscribed_event: SubEvent,
         subscription_handler: callable,
-        addr: tp.Optional[str] = None,
+        addr: tp.Optional[tp.Union[tp.List[str], str]] = None,
     ) -> None:
         """
         Initiates an instance for further use and starts a subscription for a selected action
@@ -508,15 +508,15 @@ class Subscriber:
         This parameter should be a SubEvent class attribute. This also requires importing this class.
         @param subscription_handler: Callback function that processes the updates of the storage.
         THIS FUNCTION IS MEANT TO ACCEPT ONLY ONE ARGUMENT (THE NEW EVENT DESCRIPTION TUPLE).
-        @param addr: ss58 type 32 address of an account which is meant to be event target. If None, will subscribe to
-        all such events never-mind target address.
+        @param addr: ss58 type 32 address(-es) of an account(-s) which is(are) meant to be event target. If None, will
+        subscribe to all such events never-mind target address(-es).
         """
 
         self._subscriber_interface: RobonomicsInterface = interface
 
         self._event: SubEvent = subscribed_event
         self._callback: callable = subscription_handler
-        self._target_address: tp.Optional[str] = addr
+        self._target_address: tp.Optional[tp.Union[tp.List[str], str]] = addr
 
         self._subscribe_event()
 
@@ -545,6 +545,6 @@ class Subscriber:
                         self._callback(events.value["event"]["attributes"])  # All events
                     elif (
                         events.value["event"]["attributes"][0 if self._event == SubEvent.NewRecord else 1]
-                        == self._target_address
+                        in self._target_address
                     ):
                         self._callback(events.value["event"]["attributes"])  # address-targeted
