@@ -8,8 +8,8 @@ from enum import Enum
 from scalecodec.types import GenericCall, GenericExtrinsic
 
 from .constants import REMOTE_WS, TYPE_REGISTRY
-from .exceptions import NoPrivateKey
 from .decorators import connect_close_substrate_node
+from .exceptions import NoPrivateKey, ExtrinsicFailed
 
 Datalog = tp.Tuple[int, tp.Union[int, str]]
 NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
@@ -263,6 +263,8 @@ class RobonomicsInterface:
 
         logger.info("Submitting extrinsic")
         receipt: substrate.ExtrinsicReceipt = self.interface.submit_extrinsic(extrinsic, wait_for_inclusion=True)
+        if not receipt.is_success:
+            raise ExtrinsicFailed("Extrinsic failed")
         logger.info(
             f"Extrinsic {receipt.extrinsic_hash} for RPC {call_module}:{call_function} submitted and "
             f"included in block {receipt.block_hash}"
@@ -631,7 +633,7 @@ class Subscriber:
         """
 
         if update_nr != 0:
-            chain_events = self._subscriber_interface.custom_chainstate("System", "Events")
+            chain_events: list = self._subscriber_interface.custom_chainstate("System", "Events")
             for events in chain_events:
                 if events["event_id"] == self._event.value:
                     if self._target_address is None:
