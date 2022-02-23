@@ -97,6 +97,16 @@ subscriber = Subscriber(interface, SubEvent.NewLaunch, callback, <ss58_addr>)
 ```
 One may also pass a list of addresses.
 
+## Digital Twins
+[Digital Twins](https://wiki.robonomics.network/docs/en/digital-twins/) functionality is also supported.
+```python
+dt_it, tr_hash = interface.dt_create()
+topic_hashed, source_tr_hash = interface.dt_set_source(dt_id, <topic_name>, <ss58_source_addr>)
+interface.dt_info(dt_id)
+interface.dt_owner(dt_id)
+interface.dt_total()
+```
+
 ## IO
 This package provides console prototyping tool such as [robonomics io](https://wiki.robonomics.network/docs/en/rio-overview/)
 with slight differences:

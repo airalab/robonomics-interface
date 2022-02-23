@@ -1,3 +1,4 @@
+import hashlib
 import logging
 
 import substrateinterface as substrate
@@ -23,10 +24,10 @@ class RobonomicsInterface:
     """
 
     def __init__(
-            self,
-            seed: tp.Optional[str] = None,
-            remote_ws: tp.Optional[str] = None,
-            type_registry: tp.Optional[NodeTypes] = None,
+        self,
+        seed: tp.Optional[str] = None,
+        remote_ws: tp.Optional[str] = None,
+        type_registry: tp.Optional[NodeTypes] = None,
     ) -> None:
         """
         Instance of a class is an interface with a node. Here this interface is initialized.
@@ -60,12 +61,12 @@ class RobonomicsInterface:
 
     @connect_close_substrate_node
     def custom_chainstate(
-            self,
-            module: str,
-            storage_function: str,
-            params: tp.Optional[tp.Union[tp.List[tp.Union[str, int]], str, int]] = None,
-            block_hash: tp.Optional[str] = None,
-            subscription_handler: tp.Optional[callable] = None,
+        self,
+        module: str,
+        storage_function: str,
+        params: tp.Optional[tp.Union[tp.List[tp.Union[str, int]], str, int]] = None,
+        block_hash: tp.Optional[str] = None,
+        subscription_handler: tp.Optional[callable] = None,
     ) -> tp.Any:
         """
         Create custom queries to fetch data from the Chainstate. Module names and storage functions, as well as required
@@ -99,7 +100,7 @@ class RobonomicsInterface:
             [params] if params is not None else None,
             block_hash=block_hash,
             subscription_handler=subscription_handler,
-        )
+        ).value
 
     def define_address(self) -> str:
         """
@@ -113,7 +114,7 @@ class RobonomicsInterface:
         return str(self._keypair.ss58_address)
 
     def fetch_datalog(
-            self, addr: tp.Optional[str] = None, index: tp.Optional[int] = None, block_hash: tp.Optional[str] = None
+        self, addr: tp.Optional[str] = None, index: tp.Optional[int] = None, block_hash: tp.Optional[str] = None
     ) -> tp.Optional[Datalog]:
         """
         Fetch datalog record of a provided account. Fetch self datalog if no address provided and interface was
@@ -135,16 +136,14 @@ class RobonomicsInterface:
         )
 
         if index:
-            record: Datalog = self.custom_chainstate(
-                "Datalog", "DatalogItem", [address, index], block_hash=block_hash
-            ).value
+            record: Datalog = self.custom_chainstate("Datalog", "DatalogItem", [address, index], block_hash=block_hash)
             return record if record[0] != 0 else None
         else:
-            index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", address, block_hash=block_hash).value[
-                                    "end"
-                                ] - 1
+            index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", address, block_hash=block_hash)[
+                "end"
+            ] - 1
             return (
-                self.custom_chainstate("Datalog", "DatalogItem", [address, index_latest], block_hash=block_hash).value
+                self.custom_chainstate("Datalog", "DatalogItem", [address, index_latest], block_hash=block_hash)
                 if index_latest != -1
                 else None
             )
@@ -344,11 +343,11 @@ class RobonomicsInterface:
         return self.custom_extrinsic("RWS", "set_devices", {"devices": devices})
 
     def rws_custom_call(
-            self,
-            subscription_owner_addr: str,
-            call_module: str,
-            call_function: str,
-            params: tp.Optional[tp.Dict[str, tp.Any]] = None,
+        self,
+        subscription_owner_addr: str,
+        call_module: str,
+        call_function: str,
+        params: tp.Optional[tp.Dict[str, tp.Any]] = None,
     ) -> str:
         """
         Send transaction from a device given a RWS subscription
@@ -398,9 +397,51 @@ class RobonomicsInterface:
             subscription_owner_addr, "Launch", "launch", {"robot": target_address, "param": toggle}
         )
 
+    def dt_create(self) -> tp.Tuple[int, str]:
+        """
+        Create a new digital twin.
+
+        @return: Tuple of newly created Digital Twin ID and hash of the creation transaction.
+        """
+
+        tr_hash: str = self.custom_extrinsic("DigitalTwin", "create")
+        dt_id: int = self.dt_total() - 1
+        return dt_id, tr_hash
+
+    @staticmethod
+    def dt_get_topic_encoded(topic: str) -> str:
+        """
+        Encode any string to be accepted by Digital Twin setSource. Use byte encoding and sha256-hashing
+
+        @param topic: topic name to be encoded.
+
+        @return: Hashed-encoded topic name
+        """
+
+        return f"0x{hashlib.sha256(topic.encode('utf-8')).hexdigest()}"
+
+    def dt_set_source(self, dt_id: int, topic: str, source: str) -> tp.Tuple[str, str]:
+        """
+        Set DT topics and their sources. Since topic_name is byte encoded and then sha256-hashed, it's considered as
+        good practice saving the map of digital twin in human-readable format in the very first DT topic. Still there is
+        a dt_get_topic_encoded function which transforms given string to the format as saved in the chain for comparing.
+
+        @param dt_id: Digital Twin ID, which should have been created by this function calling account.
+        @param topic: Topic to add. The string is sha256 hashed and stored in blockchain.
+        @param source: Source address in ss58 format.
+
+        @return: Tuple of hashed topic and transaction hash
+        """
+
+        topic_hashed = self.dt_get_topic_encoded(topic)
+        return (
+            topic_hashed,
+            self.custom_extrinsic("DigitalTwin", "set_source", {"id": dt_id, "topic": topic_hashed, "source": source}),
+        )
+
     @connect_close_substrate_node
     def custom_rpc_request(
-            self, method: str, params: tp.Optional[tp.List[str]], result_handler: tp.Optional[tp.Callable]
+        self, method: str, params: tp.Optional[tp.List[str]], result_handler: tp.Optional[tp.Callable]
     ) -> dict:
         """
         Method that handles the actual RPC request to the Substrate node. The other implemented functions eventually
@@ -443,7 +484,7 @@ class PubSub:
         self._pubsub_interface = interface
 
     def connect(
-            self, address: str, result_handler: tp.Optional[tp.Callable] = None
+        self, address: str, result_handler: tp.Optional[tp.Callable] = None
     ) -> tp.Dict[str, tp.Union[str, bool, int]]:
         """
         Connect to peer and add it into swarm.
@@ -457,7 +498,7 @@ class PubSub:
         return self._pubsub_interface.custom_rpc_request("pubsub_connect", [address], result_handler)
 
     def listen(
-            self, address: str, result_handler: tp.Optional[tp.Callable] = None
+        self, address: str, result_handler: tp.Optional[tp.Callable] = None
     ) -> tp.Dict[str, tp.Union[str, bool, int]]:
         """
         Listen address for incoming connections.
@@ -471,7 +512,7 @@ class PubSub:
         return self._pubsub_interface.custom_rpc_request("pubsub_listen", [address], result_handler)
 
     def listeners(
-            self, result_handler: tp.Optional[tp.Callable] = None
+        self, result_handler: tp.Optional[tp.Callable] = None
     ) -> tp.Dict[str, tp.Union[str, tp.List[str], int]]:
         """
         Returns a list of node addresses.
@@ -506,7 +547,7 @@ class PubSub:
         return self._pubsub_interface.custom_rpc_request("pubsub_publish", [topic_name, message], result_handler)
 
     def subscribe(
-            self, topic_name: str, result_handler: tp.Optional[tp.Callable] = None
+        self, topic_name: str, result_handler: tp.Optional[tp.Callable] = None
     ) -> tp.Dict[str, tp.Union[str, int]]:
         """
         Listen address for incoming connections.
@@ -520,7 +561,7 @@ class PubSub:
         return self._pubsub_interface.custom_rpc_request("pubsub_subscribe", [topic_name], result_handler)
 
     def unsubscribe(
-            self, subscription_id: str, result_handler: tp.Optional[tp.Callable] = None
+        self, subscription_id: str, result_handler: tp.Optional[tp.Callable] = None
     ) -> tp.Dict[str, tp.Union[str, bool, int]]:
         """
         Unsubscribe for incoming messages from topic.
@@ -546,11 +587,11 @@ class Subscriber:
     """
 
     def __init__(
-            self,
-            interface: RobonomicsInterface,
-            subscribed_event: SubEvent,
-            subscription_handler: callable,
-            addr: tp.Optional[tp.Union[tp.List[str], str]] = None,
+        self,
+        interface: RobonomicsInterface,
+        subscribed_event: SubEvent,
+        subscription_handler: callable,
+        addr: tp.Optional[tp.Union[tp.List[str], str]] = None,
     ) -> None:
         """
         Initiates an instance for further use and starts a subscription for a selected action
@@ -592,11 +633,11 @@ class Subscriber:
         if update_nr != 0:
             chain_events = self._subscriber_interface.custom_chainstate("System", "Events")
             for events in chain_events:
-                if events.value["event_id"] == self._event.value:
+                if events["event_id"] == self._event.value:
                     if self._target_address is None:
-                        self._callback(events.value["event"]["attributes"])  # All events
+                        self._callback(events["event"]["attributes"])  # All events
                     elif (
-                            events.value["event"]["attributes"][0 if self._event == SubEvent.NewRecord else 1]
-                            in self._target_address
+                        events["event"]["attributes"][0 if self._event == SubEvent.NewRecord else 1]
+                        in self._target_address
                     ):
-                        self._callback(events.value["event"]["attributes"])  # address-targeted
+                        self._callback(events["event"]["attributes"])  # address-targeted
