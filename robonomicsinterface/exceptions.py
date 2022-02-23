@@ -2,5 +2,5 @@ class NoPrivateKey(Exception):
     pass
 
 
-class ExtrinsicFailed(Exception):
+class DigitalTwinMapError(Exception):
     pass

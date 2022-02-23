@@ -6,10 +6,11 @@ import typing as tp
 
 from enum import Enum
 from scalecodec.types import GenericCall, GenericExtrinsic
+from substrateinterface.exceptions import  ExtrinsicFailedException
 
 from .constants import REMOTE_WS, TYPE_REGISTRY
 from .decorators import connect_close_substrate_node
-from .exceptions import NoPrivateKey, ExtrinsicFailed
+from .exceptions import NoPrivateKey, DigitalTwinMapError
 
 Datalog = tp.Tuple[int, tp.Union[int, str]]
 NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
@@ -225,6 +226,25 @@ class RobonomicsInterface:
 
         return self.custom_chainstate("DigitalTwin", "Total", block_hash=block_hash)
 
+    def dt_get_source(self, dt_id: int, topic: str) -> str:
+        """
+        Find a source for a passed Digital Twin topic
+
+        @param dt_id: Digital Twin id
+        @param topic: Searched topic. Normal string
+
+        @return: If found, topic source ss58 address
+        """
+
+        topic_hashed: str = self.dt_encode_topic(topic)
+        dt_map: tp.Optional[tp.List[tp.Tuple[str, str]]] = self.dt_info(dt_id)
+        if not dt_map:
+            raise DigitalTwinMapError("No Digital Twin was created or Digital Twin map is empty.")
+        for source in dt_map:
+            if source[0] == topic_hashed:
+                return source[1]
+        raise DigitalTwinMapError(f"No topic {topic} was found in Digital Twin with id {dt_id}")
+
     @connect_close_substrate_node
     def custom_extrinsic(
         self,
@@ -264,7 +284,7 @@ class RobonomicsInterface:
         logger.info("Submitting extrinsic")
         receipt: substrate.ExtrinsicReceipt = self.interface.submit_extrinsic(extrinsic, wait_for_inclusion=True)
         if not receipt.is_success:
-            raise ExtrinsicFailed("Extrinsic failed")
+            raise ExtrinsicFailedException()
         logger.info(
             f"Extrinsic {receipt.extrinsic_hash} for RPC {call_module}:{call_function} submitted and "
             f"included in block {receipt.block_hash}"
@@ -411,7 +431,7 @@ class RobonomicsInterface:
         return dt_id, tr_hash
 
     @staticmethod
-    def dt_get_topic_encoded(topic: str) -> str:
+    def dt_encode_topic(topic: str) -> str:
         """
         Encode any string to be accepted by Digital Twin setSource. Use byte encoding and sha256-hashing
 
@@ -435,7 +455,7 @@ class RobonomicsInterface:
         @return: Tuple of hashed topic and transaction hash
         """
 
-        topic_hashed = self.dt_get_topic_encoded(topic)
+        topic_hashed = self.dt_encode_topic(topic)
         return (
             topic_hashed,
             self.custom_extrinsic("DigitalTwin", "set_source", {"id": dt_id, "topic": topic_hashed, "source": source}),

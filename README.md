@@ -106,7 +106,10 @@ interface.dt_info(dt_id)
 interface.dt_owner(dt_id)
 interface.dt_total()
 ```
-
+One may also find topic source by
+```python
+interface.dt_get_source(dt_id, <topic_name>)
+```
 ## IO
 This package provides console prototyping tool such as [robonomics io](https://wiki.robonomics.network/docs/en/rio-overview/)
 with slight differences:
