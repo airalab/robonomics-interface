@@ -6,7 +6,7 @@ import typing as tp
 
 from enum import Enum
 from scalecodec.types import GenericCall, GenericExtrinsic
-from substrateinterface.exceptions import  ExtrinsicFailedException
+from substrateinterface.exceptions import ExtrinsicFailedException
 
 from .constants import REMOTE_WS, TYPE_REGISTRY
 from .decorators import connect_close_substrate_node
@@ -419,6 +419,47 @@ class RobonomicsInterface:
             subscription_owner_addr, "Launch", "launch", {"robot": target_address, "param": toggle}
         )
 
+    def rws_dt_create(self, subscription_owner_addr: str) -> tp.Tuple[int, str]:
+        """
+        Create a Digital Twin from a device which was granted a subscription.
+
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
+
+        @return: Tuple of newly created Digital Twin ID and hash of the creation transaction.
+        """
+
+        tr_hash: str = self.rws_custom_call(subscription_owner_addr, "DigitalTwin", "create")
+        dt_id: int = self.dt_total() - 1
+        return dt_id, tr_hash
+
+    def rws_dt_set_source(
+        self, subscription_owner_addr: str, dt_id: int, topic: str, source: str
+    ) -> tp.Tuple[str, str]:
+        """
+        Set DT topics and their sources from a device which was granted a subscription. Since topic_name is byte encoded
+        and then sha256-hashed, it's considered as good practice saving the map of digital twin in human-readable
+        format in the very first DT topic. Still there is a dt_get_source function which transforms given string
+        to the format as saved in the chain for comparing.
+
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
+        @param dt_id: Digital Twin ID, which should have been created by this function calling account.
+        @param topic: Topic to add. The string is sha256 hashed and stored in blockchain.
+        @param source: Source address in ss58 format.
+
+        @return: Tuple of hashed topic and transaction hash
+        """
+
+        topic_hashed = self.dt_encode_topic(topic)
+        return (
+            topic_hashed,
+            self.rws_custom_call(
+                subscription_owner_addr,
+                "DigitalTwin",
+                "set_source",
+                {"id": dt_id, "topic": topic_hashed, "source": source},
+            ),
+        )
+
     def dt_create(self) -> tp.Tuple[int, str]:
         """
         Create a new digital twin.
@@ -446,7 +487,7 @@ class RobonomicsInterface:
         """
         Set DT topics and their sources. Since topic_name is byte encoded and then sha256-hashed, it's considered as
         good practice saving the map of digital twin in human-readable format in the very first DT topic. Still there is
-        a dt_get_topic_encoded function which transforms given string to the format as saved in the chain for comparing.
+        a dt_get_source function which transforms given string to the format as saved in the chain for comparing.
 
         @param dt_id: Digital Twin ID, which should have been created by this function calling account.
         @param topic: Topic to add. The string is sha256 hashed and stored in blockchain.

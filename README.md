@@ -76,10 +76,12 @@ interface.rws_custom_call(<subscription_owner_addr>,
                            <call_function>,
                            <params_dict>)
 ```
-There are as well dedicated `datalog` and `launch` functions for RWS-based transactions.
+There are as well dedicated `datalog`, `launch` and [DigitalTwin](#Digital Twins) functions for RWS-based transactions.
 ```python
 interface.rws_record_datalog(<subscription_owner_addr>, <data>)
 interface.rws_send_launch(<subscription_owner_addr>, <target_addr>, True)
+interface.rws_dt_create(<subscription_owner_addr>)
+interface.rws_dt_set_source(<subscription_owner_addr>, dt_id, <topic_name>, <ss58_source_addr>)
 ```
 
 ## Subscriptions
