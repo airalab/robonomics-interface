@@ -429,7 +429,13 @@ class RobonomicsInterface:
         """
 
         tr_hash: str = self.rws_custom_call(subscription_owner_addr, "DigitalTwin", "create")
-        dt_id: int = self.dt_total() - 1
+        dt_total: int = self.dt_total()
+        dt_id: int = dt_total
+        for ids in reversed(range(dt_total)):
+            if self.dt_owner(ids) == self.define_address():
+                dt_id: int = ids
+                break
+
         return dt_id, tr_hash
 
     def rws_dt_set_source(
@@ -468,7 +474,13 @@ class RobonomicsInterface:
         """
 
         tr_hash: str = self.custom_extrinsic("DigitalTwin", "create")
-        dt_id: int = self.dt_total() - 1
+        dt_total: int = self.dt_total()
+        dt_id: int = dt_total
+        for ids in reversed(range(dt_total)):
+            if self.dt_owner(ids) == self.define_address():
+                dt_id: int = ids
+                break
+
         return dt_id, tr_hash
 
     @staticmethod
