@@ -7,6 +7,7 @@ import typing as tp
 from enum import Enum
 from scalecodec.types import GenericCall, GenericExtrinsic
 from substrateinterface.exceptions import ExtrinsicFailedException
+from websocket import WebSocketConnectionClosedException
 
 from .constants import REMOTE_WS, TYPE_REGISTRY
 from .decorators import connect_close_substrate_node
@@ -693,7 +694,10 @@ class Subscriber:
         Subscribe to events targeted to a certain account (launch, transfer). Call subscription_handler when updated
         """
 
-        self._subscriber_interface.subscribe_block_headers(self._event_callback)
+        try:
+            self._subscriber_interface.subscribe_block_headers(self._event_callback)
+        except WebSocketConnectionClosedException:
+            self._subscribe_event()
 
     def _event_callback(self, index_obj: tp.Any, update_nr: int, subscription_id: int) -> None:
         """
