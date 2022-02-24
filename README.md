@@ -76,10 +76,12 @@ interface.rws_custom_call(<subscription_owner_addr>,
                            <call_function>,
                            <params_dict>)
 ```
-There are as well dedicated `datalog` and `launch` functions for RWS-based transactions.
+There are as well dedicated `datalog`, `launch` and [DigitalTwin](#Digital Twins) functions for RWS-based transactions.
 ```python
 interface.rws_record_datalog(<subscription_owner_addr>, <data>)
 interface.rws_send_launch(<subscription_owner_addr>, <target_addr>, True)
+interface.rws_dt_create(<subscription_owner_addr>)
+interface.rws_dt_set_source(<subscription_owner_addr>, dt_id, <topic_name>, <ss58_source_addr>)
 ```
 
 ## Subscriptions
@@ -97,6 +99,19 @@ subscriber = Subscriber(interface, SubEvent.NewLaunch, callback, <ss58_addr>)
 ```
 One may also pass a list of addresses.
 
+## Digital Twins
+[Digital Twins](https://wiki.robonomics.network/docs/en/digital-twins/) functionality is also supported.
+```python
+dt_it, tr_hash = interface.dt_create()
+topic_hashed, source_tr_hash = interface.dt_set_source(dt_id, <topic_name>, <ss58_source_addr>)
+interface.dt_info(dt_id)
+interface.dt_owner(dt_id)
+interface.dt_total()
+```
+One may also find topic source by
+```python
+interface.dt_get_source(dt_id, <topic_name>)
+```
 ## IO
 This package provides console prototyping tool such as [robonomics io](https://wiki.robonomics.network/docs/en/rio-overview/)
 with slight differences:

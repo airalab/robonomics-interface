@@ -1,3 +1,4 @@
+import hashlib
 import logging
 
 import substrateinterface as substrate
@@ -5,10 +6,11 @@ import typing as tp
 
 from enum import Enum
 from scalecodec.types import GenericCall, GenericExtrinsic
+from substrateinterface.exceptions import ExtrinsicFailedException
 
 from .constants import REMOTE_WS, TYPE_REGISTRY
-from .exceptions import NoPrivateKey
 from .decorators import connect_close_substrate_node
+from .exceptions import NoPrivateKey, DigitalTwinMapError
 
 Datalog = tp.Tuple[int, tp.Union[int, str]]
 NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
@@ -99,7 +101,7 @@ class RobonomicsInterface:
             [params] if params is not None else None,
             block_hash=block_hash,
             subscription_handler=subscription_handler,
-        )
+        ).value
 
     def define_address(self) -> str:
         """
@@ -135,16 +137,14 @@ class RobonomicsInterface:
         )
 
         if index:
-            record: Datalog = self.custom_chainstate(
-                "Datalog", "DatalogItem", [address, index], block_hash=block_hash
-            ).value
+            record: Datalog = self.custom_chainstate("Datalog", "DatalogItem", [address, index], block_hash=block_hash)
             return record if record[0] != 0 else None
         else:
-            index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", address, block_hash=block_hash).value[
+            index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", address, block_hash=block_hash)[
                 "end"
             ] - 1
             return (
-                self.custom_chainstate("Datalog", "DatalogItem", [address, index_latest], block_hash=block_hash).value
+                self.custom_chainstate("Datalog", "DatalogItem", [address, index_latest], block_hash=block_hash)
                 if index_latest != -1
                 else None
             )
@@ -188,6 +188,63 @@ class RobonomicsInterface:
 
         return self.custom_chainstate("RWS", "Devices", addr, block_hash=block_hash)
 
+    def dt_info(self, dt_id: int, block_hash: tp.Optional[str] = None) -> tp.Optional[tp.List[tp.Tuple[str, str]]]:
+        """
+        Fetch information about existing digital twin
+
+        @param dt_id: Digital Twin object ID
+        @param block_hash: block_hash: Retrieves data as of passed block hash
+
+        @return: List of DigitalTwin associated mapping. None if no Digital Twin with such id.
+        """
+        logging.info(f"Fetching info about Digital Twin with ID {dt_id}")
+
+        return self.custom_chainstate("DigitalTwin", "DigitalTwin", dt_id, block_hash=block_hash)
+
+    def dt_owner(self, dt_id: int, block_hash: tp.Optional[str] = None) -> tp.Optional[str]:
+        """
+        Fetch existing Digital Twin owner address
+
+        @param dt_id: Digital Twin object ID
+        @param block_hash: block_hash: Retrieves data as of passed block hash
+
+        @return: Owner address. None if no Digital Twin with such id.
+        """
+        logging.info(f"Fetching owner of Digital Twin with ID {dt_id}")
+
+        return self.custom_chainstate("DigitalTwin", "Owner", dt_id, block_hash=block_hash)
+
+    def dt_total(self, block_hash: tp.Optional[str] = None) -> tp.Optional[int]:
+        """
+        Fetch total number of Digital Twins
+
+        @param block_hash: block_hash: Retrieves data as of passed block hash
+
+        @return: Total number of Digital Twins. None no Digital Twins.
+        """
+        logging.info("Fetching Total number of Digital Twins")
+
+        return self.custom_chainstate("DigitalTwin", "Total", block_hash=block_hash)
+
+    def dt_get_source(self, dt_id: int, topic: str) -> str:
+        """
+        Find a source for a passed Digital Twin topic
+
+        @param dt_id: Digital Twin id
+        @param topic: Searched topic. Normal string
+
+        @return: If found, topic source ss58 address
+        """
+
+        topic_hashed: str = self.dt_encode_topic(topic)
+        dt_map: tp.Optional[tp.List[tp.Tuple[str, str]]] = self.dt_info(dt_id)
+        if not dt_map:
+            raise DigitalTwinMapError("No Digital Twin was created or Digital Twin map is empty.")
+        for source in dt_map:
+            if source[0] == topic_hashed:
+                return source[1]
+        raise DigitalTwinMapError(f"No topic {topic} was found in Digital Twin with id {dt_id}")
+
     @connect_close_substrate_node
     def custom_extrinsic(
         self,
@@ -226,6 +283,8 @@ class RobonomicsInterface:
 
         logger.info("Submitting extrinsic")
         receipt: substrate.ExtrinsicReceipt = self.interface.submit_extrinsic(extrinsic, wait_for_inclusion=True)
+        if not receipt.is_success:
+            raise ExtrinsicFailedException()
         logger.info(
             f"Extrinsic {receipt.extrinsic_hash} for RPC {call_module}:{call_function} submitted and "
             f"included in block {receipt.block_hash}"
@@ -358,6 +417,101 @@ class RobonomicsInterface:
 
         return self.rws_custom_call(
             subscription_owner_addr, "Launch", "launch", {"robot": target_address, "param": toggle}
+        )
+
+    def rws_dt_create(self, subscription_owner_addr: str) -> tp.Tuple[int, str]:
+        """
+        Create a Digital Twin from a device which was granted a subscription.
+
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
+
+        @return: Tuple of newly created Digital Twin ID and hash of the creation transaction.
+        """
+
+        tr_hash: str = self.rws_custom_call(subscription_owner_addr, "DigitalTwin", "create")
+        dt_total: int = self.dt_total()
+        dt_id: int = dt_total
+        for ids in reversed(range(dt_total)):
+            if self.dt_owner(ids) == self.define_address():
+                dt_id: int = ids
+                break
+
+        return dt_id, tr_hash
+
+    def rws_dt_set_source(
+        self, subscription_owner_addr: str, dt_id: int, topic: str, source: str
+    ) -> tp.Tuple[str, str]:
+        """
+        Set DT topics and their sources from a device which was granted a subscription. Since topic_name is byte encoded
+        and then sha256-hashed, it's considered as good practice saving the map of digital twin in human-readable
+        format in the very first DT topic. Still there is a dt_get_source function which transforms given string
+        to the format as saved in the chain for comparing.
+
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
+        @param dt_id: Digital Twin ID, which should have been created by this function calling account.
+        @param topic: Topic to add. The string is sha256 hashed and stored in blockchain.
+        @param source: Source address in ss58 format.
+
+        @return: Tuple of hashed topic and transaction hash
+        """
+
+        topic_hashed = self.dt_encode_topic(topic)
+        return (
+            topic_hashed,
+            self.rws_custom_call(
+                subscription_owner_addr,
+                "DigitalTwin",
+                "set_source",
+                {"id": dt_id, "topic": topic_hashed, "source": source},
+            ),
+        )
+
+    def dt_create(self) -> tp.Tuple[int, str]:
+        """
+        Create a new digital twin.
+
+        @return: Tuple of newly created Digital Twin ID and hash of the creation transaction.
+        """
+
+        tr_hash: str = self.custom_extrinsic("DigitalTwin", "create")
+        dt_total: int = self.dt_total()
+        dt_id: int = dt_total
+        for ids in reversed(range(dt_total)):
+            if self.dt_owner(ids) == self.define_address():
+                dt_id: int = ids
+                break
+
+        return dt_id, tr_hash
+
+    @staticmethod
+    def dt_encode_topic(topic: str) -> str:
+        """
+        Encode any string to be accepted by Digital Twin setSource. Use byte encoding and sha256-hashing
+
+        @param topic: topic name to be encoded.
+
+        @return: Hashed-encoded topic name
+        """
+
+        return f"0x{hashlib.sha256(topic.encode('utf-8')).hexdigest()}"
+
+    def dt_set_source(self, dt_id: int, topic: str, source: str) -> tp.Tuple[str, str]:
+        """
+        Set DT topics and their sources. Since topic_name is byte encoded and then sha256-hashed, it's considered as
+        good practice saving the map of digital twin in human-readable format in the very first DT topic. Still there is
+        a dt_get_source function which transforms given string to the format as saved in the chain for comparing.
+
+        @param dt_id: Digital Twin ID, which should have been created by this function calling account.
+        @param topic: Topic to add. The string is sha256 hashed and stored in blockchain.
+        @param source: Source address in ss58 format.
+
+        @return: Tuple of hashed topic and transaction hash
+        """
+
+        topic_hashed = self.dt_encode_topic(topic)
+        return (
+            topic_hashed,
+            self.custom_extrinsic("DigitalTwin", "set_source", {"id": dt_id, "topic": topic_hashed, "source": source}),
         )
 
     @connect_close_substrate_node
@@ -552,13 +706,13 @@ class Subscriber:
         """
 
         if update_nr != 0:
-            chain_events = self._subscriber_interface.custom_chainstate("System", "Events")
+            chain_events: list = self._subscriber_interface.custom_chainstate("System", "Events")
             for events in chain_events:
-                if events.value["event_id"] == self._event.value:
+                if events["event_id"] == self._event.value:
                     if self._target_address is None:
-                        self._callback(events.value["event"]["attributes"])  # All events
+                        self._callback(events["event"]["attributes"])  # All events
                     elif (
-                        events.value["event"]["attributes"][0 if self._event == SubEvent.NewRecord else 1]
+                        events["event"]["attributes"][0 if self._event == SubEvent.NewRecord else 1]
                         in self._target_address
                     ):
-                        self._callback(events.value["event"]["attributes"])  # address-targeted
+                        self._callback(events["event"]["attributes"])  # address-targeted
