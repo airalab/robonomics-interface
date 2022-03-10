@@ -733,13 +733,13 @@ class Liability:
         self.liability_interface: RobonomicsInterface = interface
 
     def create_liability(
-            self,
-            technics: str,
-            economics: int,
-            promisee: str,
-            promisor: str,
-            promisee_signature: str,
-            promisor_signature: str,
+        self,
+        technics: str,
+        economics: int,
+        promisee: str,
+        promisor: str,
+        promisee_signature: str,
+        promisor_signature: str,
     ) -> str:
         """
         Create a liability to ensure economical relationships between robots! This is a contract to be assigned to a
@@ -787,10 +787,10 @@ class Liability:
         if not self.liability_interface.keypair:
             raise NoPrivateKey("No private key, unable to sign a message")
 
-        h256_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object('H256')
+        h256_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("H256")
         ipfs_hash_scale: ScaleBytes = h256_scale_obj.encode(ipfs_hash)
 
-        compact_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object('Compact<Balance>')
+        compact_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("Compact<Balance>")
         price_scale: ScaleBytes = compact_scale_obj.encode(price)
 
         return f"0x{self.liability_interface.keypair.sign(ipfs_hash_scale + price_scale).hex()}"
