@@ -6,6 +6,7 @@ import typing as tp
 
 from enum import Enum
 from scalecodec.types import GenericCall, GenericExtrinsic
+from scalecodec.base import RuntimeConfiguration, ScaleBytes, ScaleType
 from substrateinterface.exceptions import ExtrinsicFailedException
 from websocket import WebSocketConnectionClosedException
 
@@ -40,7 +41,7 @@ class RobonomicsInterface:
         @param type_registry: types used in the chain. Defaults are the most frequently used in Robonomics
         """
 
-        self._keypair: tp.Optional[substrate.Keypair] = self._create_keypair(seed) if seed else None
+        self.keypair: tp.Optional[substrate.Keypair] = self._create_keypair(seed) if seed else None
         self.remote_ws = remote_ws or REMOTE_WS
         self.type_registry = type_registry or TYPE_REGISTRY
         self.interface: tp.Optional[substrate.SubstrateInterface] = None
@@ -111,9 +112,9 @@ class RobonomicsInterface:
         @return: ss58_address of an account
         """
 
-        if not self._keypair:
+        if not self.keypair:
             raise NoPrivateKey("No private key was provided, unable to determine self address")
-        return str(self._keypair.ss58_address)
+        return str(self.keypair.ss58_address)
 
     def fetch_datalog(
         self, addr: tp.Optional[str] = None, index: tp.Optional[int] = None, block_hash: tp.Optional[str] = None
@@ -269,7 +270,7 @@ class RobonomicsInterface:
         @return: Extrinsic hash or None if failed
         """
 
-        if not self._keypair:
+        if not self.keypair:
             raise NoPrivateKey("No seed was provided, unable to use extrinsics.")
 
         logger.info(f"Creating a call {call_module}:{call_function}")
@@ -279,7 +280,7 @@ class RobonomicsInterface:
 
         logger.info("Creating extrinsic")
         extrinsic: GenericExtrinsic = self.interface.create_signed_extrinsic(
-            call=call, keypair=self._keypair, nonce=nonce
+            call=call, keypair=self.keypair, nonce=nonce
         )
 
         logger.info("Submitting extrinsic")
@@ -720,3 +721,76 @@ class Subscriber:
                         in self._target_address
                     ):
                         self._callback(events["event"]["attributes"])  # address-targeted
+
+
+class Liability:
+    def __init__(self, interface: RobonomicsInterface):
+        """
+        Set interface property
+
+        @param interface: RobonomicsInterface interface
+        """
+        self.liability_interface: RobonomicsInterface = interface
+
+    def create_liability(
+            self,
+            technics: str,
+            economics: int,
+            promisee: str,
+            promisor: str,
+            promisee_signature: str,
+            promisor_signature: str,
+    ) -> str:
+        """
+        Create a liability to ensure economical relationships between robots! This is a contract to be assigned to a
+        promisor. As soon as the job is done and reported, the promisor get his reward.
+
+        @param technics: Details of the liability, where the promisee order is described. This is a IPFS raw hash
+        @param economics: Promisor reward in Weiners.
+        @param promisee: Promisee (customer) ss58_address
+        @param promisor: Promisor (worker) ss58_address
+        @param promisee_signature: An agreement proof. This is a private key signed message containing technics and
+        economics. Both sides need to do this. Signed by promisee.
+        @param promisor_signature: An agreement proof. This is a private key signed message containing the same technics
+        and economics. Both sides need to do this. Signed by promisor.
+
+        @return: Hash of the liability creation transaction.
+        """
+
+        return self.liability_interface.custom_extrinsic(
+            "Liability",
+            "create",
+            {
+                "agreement": {
+                    "technics": {"hash": technics},
+                    "economics": {"price": economics},
+                    "promisee": promisee,
+                    "promisor": promisor,
+                    "promisee_signature": {"Sr25519": promisee_signature},
+                    "promisor_signature": {"Sr25519": promisor_signature},
+                }
+            },
+        )
+
+    def sign_liability_message(self, ipfs_hash: str, price: int) -> str:
+        """
+        Sign liability approve message with a private key. This function is meant to sign technics and economics details
+        message to state the agreement of promisee and promisor. Both sides need to do this.
+
+        @param ipfs_hash: Technics. Details of the liability, where the promisee order is described. This is a IPFS raw
+        hash
+        @param price: Promisor reward in Weiners.
+
+        @return: Signed message 64-byte hash in sting form.
+        """
+
+        if not self.liability_interface.keypair:
+            raise NoPrivateKey("No private key, unable to sign a message")
+
+        h256_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object('H256')
+        ipfs_hash_scale: ScaleBytes = h256_scale_obj.encode(ipfs_hash)
+
+        compact_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object('Compact<Balance>')
+        price_scale: ScaleBytes = compact_scale_obj.encode(price)
+
+        return f"0x{self.liability_interface.keypair.sign(ipfs_hash_scale + price_scale).hex()}"
