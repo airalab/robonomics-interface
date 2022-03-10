@@ -738,8 +738,8 @@ class Liability:
         economics: int,
         promisee: str,
         promisor: str,
-        promisee_signature: str,
-        promisor_signature: str,
+        promisee_params_signature: str,
+        promisor_params_signature: str,
     ) -> str:
         """
         Create a liability to ensure economical relationships between robots! This is a contract to be assigned to a
@@ -749,10 +749,10 @@ class Liability:
         @param economics: Promisor reward in Weiners.
         @param promisee: Promisee (customer) ss58_address
         @param promisor: Promisor (worker) ss58_address
-        @param promisee_signature: An agreement proof. This is a private key signed message containing technics and
-        economics. Both sides need to do this. Signed by promisee.
-        @param promisor_signature: An agreement proof. This is a private key signed message containing the same technics
-        and economics. Both sides need to do this. Signed by promisor.
+        @param promisee_params_signature: An agreement proof. This is a private key signed message containing technics
+        and economics. Both sides need to do this. Signed by promisee.
+        @param promisor_params_signature: An agreement proof. This is a private key signed message containing the same
+        technics and economics. Both sides need to do this. Signed by promisor.
 
         @return: Hash of the liability creation transaction.
         """
@@ -766,20 +766,19 @@ class Liability:
                     "economics": {"price": economics},
                     "promisee": promisee,
                     "promisor": promisor,
-                    "promisee_signature": {"Sr25519": promisee_signature},
-                    "promisor_signature": {"Sr25519": promisor_signature},
+                    "promisee_signature": {"Sr25519": promisee_params_signature},
+                    "promisor_signature": {"Sr25519": promisor_params_signature},
                 }
             },
         )
 
-    def sign_liability_message(self, ipfs_hash: str, price: int) -> str:
+    def sign_liability_params(self, technics: str, economics: int) -> str:
         """
-        Sign liability approve message with a private key. This function is meant to sign technics and economics details
-        message to state the agreement of promisee and promisor. Both sides need to do this.
+        Sign liability params approve message with a private key. This function is meant to sign technics and economics
+        details message to state the agreement of promisee and promisor. Both sides need to do this.
 
-        @param ipfs_hash: Technics. Details of the liability, where the promisee order is described. This is a IPFS raw
-        hash
-        @param price: Promisor reward in Weiners.
+        @param technics: Details of the liability, where the promisee order is described. This is a IPFS raw hash
+        @param economics: Promisor reward in Weiners.
 
         @return: Signed message 64-byte hash in sting form.
         """
@@ -788,9 +787,59 @@ class Liability:
             raise NoPrivateKey("No private key, unable to sign a message")
 
         h256_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("H256")
-        ipfs_hash_scale: ScaleBytes = h256_scale_obj.encode(ipfs_hash)
+        technics_scale: ScaleBytes = h256_scale_obj.encode(technics)
 
         compact_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("Compact<Balance>")
-        price_scale: ScaleBytes = compact_scale_obj.encode(price)
+        economics_scale: ScaleBytes = compact_scale_obj.encode(economics)
 
-        return f"0x{self.liability_interface.keypair.sign(ipfs_hash_scale + price_scale).hex()}"
+        return f"0x{self.liability_interface.keypair.sign(technics_scale + economics_scale).hex()}"
+
+    # TODO: technics?
+    def finalize_liability(self, index: int, promisor: str, technics: str, promisor_finalize_signature: str) -> str:
+        """
+        Report on a completed job to receive a deserved award
+
+        @param index: Liability item index.
+        @param promisor: Promisor (worker) ss58_address.
+        @param technics: _________________
+        @param promisor_finalize_signature: Report proof. This is a private key signed message containing liability
+        index and _______ . Signed by promisor.
+
+        @return: Liability finalization transaction hash
+        """
+
+        return self.liability_interface.custom_extrinsic(
+            "Liability",
+            "finalize",
+            {
+                "report": {
+                    "index": index,
+                    "sender": promisor,
+                    "payload": {"hash": technics},
+                    "signature": {"Sr25519": promisor_finalize_signature},
+                }
+            },
+        )
+
+    # TODO: technics?
+    def sign_liability_finalize(self, index: int, technics: str) -> str:
+        """
+        Sing liability finalization parameters proof message with a private key. This is meant to state that the job is
+        done by promisor.
+
+        @param index: Liability item index.
+        @param technics: _________________
+
+        @return: Signed message 64-byte hash in sting form.
+        """
+
+        if not self.liability_interface.keypair:
+            raise NoPrivateKey("No private key, unable to sign a message")
+
+        u64_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("U64")
+        index_scale: ScaleBytes = u64_scale_obj.encode(index)
+
+        h256_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("H256")
+        technics_scale: ScaleBytes = h256_scale_obj.encode(technics)
+
+        return f"0x{self.liability_interface.keypair.sign(index_scale + technics_scale).hex()}"
