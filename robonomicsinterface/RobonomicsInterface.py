@@ -745,7 +745,6 @@ class Liability:
         """
         self.liability_interface: RobonomicsInterface = interface
 
-    # TODO: return index
     # TODO: encoding IPFS hash
     def liability_info(self, liability_index: int, block_hash: tp.Optional[str] = None) -> tp.Optional[LiabilityTyping]:
         """
@@ -836,18 +835,12 @@ class Liability:
             },
         )
 
-        liability_total: int = self.liability_interface.custom_chainstate("Liability", "LatestIndex")
-        index: int = liability_total
-        # for liabilities in reversed(range(liability_total)):
-        #
-        #     if (
-        #         self.liability_interface.custom_chainstate("Liability", "AgreementOf", liabilities)[
-        #             "promiseeSignature"
-        #         ]["Sr25519"]
-        #         == promisee_params_signature
-        #     ):
-        #         index = liabilities
-        #         break
+        liability_total: int = self.liability_total()
+        index: int = liability_total - 1
+        for liabilities in reversed(range(liability_total)):
+            if self.liability_info(liabilities)["promisee_signature"]["Sr25519"] == promisee_params_signature:
+                index = liabilities
+                break
 
         return index, liability_creation_transaction_hash
 
