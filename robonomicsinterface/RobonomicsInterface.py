@@ -252,6 +252,65 @@ class RobonomicsInterface:
                 return source[1]
         raise DigitalTwinMapError(f"No topic {topic} was found in Digital Twin with id {dt_id}")
 
+    def liability_info(self, liability_index: int, block_hash: tp.Optional[str] = None) -> tp.Optional[LiabilityTyping]:
+        """
+        Fetch information about existing liabilities.
+
+        @param liability_index: Liability item index.
+        @param block_hash: block_hash: Retrieves data as of passed block hash.
+
+        @return: Liability information: technics, economics, promisee, promisor, signatures. None if no such liability.
+        """
+        logger.info(f"Fetching information about liability with index {liability_index}")
+
+        return self.custom_chainstate(
+            "Liability", "AgreementOf", liability_index, block_hash=block_hash
+        )
+
+    def liability_total(self, block_hash: tp.Optional[str] = None) -> tp.Optional[int]:
+        """
+        Fetch total number of liabilities in chain.
+
+        @param block_hash: Retrieves data as of passed block hash.
+
+        @return: Total number of liabilities in chain. None no liabilities.
+        """
+
+        logger.info("Fetching total number of liabilities in chain.")
+
+        return self.custom_chainstate("Liability", "LatestIndex", block_hash=block_hash)
+
+    def liability_report(self, report_index: int, block_hash: tp.Optional[str] = None) -> ReportTyping:
+        """
+        Fetch information about existing liability reports.
+
+        @param report_index: Reported liability item index.
+        @param block_hash: block_hash: Retrieves data as of passed block hash.
+
+        @return: Liability report information: index, promisor, report, signature. None if no such liability report.
+        """
+        logger.info(f"Fetching information about reported liability with index {report_index}")
+
+        return self.custom_chainstate(
+            "Liability", "ReportOf", report_index, block_hash=block_hash
+        )
+
+    @connect_close_substrate_node
+    def get_account_nonce(self, account_address: tp.Optional[str] = None) -> int:
+        """
+        Get current account nonce.
+
+        @param account_address: Account ss58_address. Self address via private key is obtained if not passed.
+
+        @return Account nonce. Due to e feature of substrate-interface lib,
+        to create an extrinsic with incremented nonce, pass account's current nonce. See
+        https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
+        for example.
+        """
+
+        logger.info(f"Fetching nonce of account {account_address or self.define_address()}")
+        return self.interface.get_account_nonce(account_address=account_address or self.define_address())
+
     @connect_close_substrate_node
     def custom_extrinsic(
         self,
@@ -332,21 +391,237 @@ class RobonomicsInterface:
         logger.info(f"Sending {'ON' if toggle else 'OFF'} launch command to {target_address}")
         return self.custom_extrinsic("Launch", "launch", {"robot": target_address, "param": toggle}, nonce)
 
-    @connect_close_substrate_node
-    def get_account_nonce(self, account_address: tp.Optional[str] = None) -> int:
+    def dt_create(self) -> tp.Tuple[int, str]:
         """
-        Get current account nonce.
+        Create a new digital twin.
 
-        @param account_address: Account ss58_address. Self address via private key is obtained if not passed.
-
-        @return Account nonce. Due to e feature of substrate-interface lib,
-        to create an extrinsic with incremented nonce, pass account's current nonce. See
-        https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
-        for example.
+        @return: Tuple of newly created Digital Twin ID and hash of the creation transaction.
         """
 
-        logger.info(f"Fetching nonce of account {account_address or self.define_address()}")
-        return self.interface.get_account_nonce(account_address=account_address or self.define_address())
+        tr_hash: str = self.custom_extrinsic("DigitalTwin", "create")
+        dt_total: int = self.dt_total()
+        dt_id: int = dt_total
+        for ids in reversed(range(dt_total)):
+            if self.dt_owner(ids) == self.define_address():
+                dt_id: int = ids
+                break
+
+        return dt_id, tr_hash
+
+    @staticmethod
+    def dt_encode_topic(topic: str) -> str:
+        """
+        Encode any string to be accepted by Digital Twin setSource. Use byte encoding and sha256-hashing.
+
+        @param topic: Topic name to be encoded.
+
+        @return: Hashed-encoded topic name
+        """
+
+        return f"0x{hashlib.sha256(topic.encode('utf-8')).hexdigest()}"
+
+    def dt_set_source(self, dt_id: int, topic: str, source: str) -> tp.Tuple[str, str]:
+        """
+        Set DT topics and their sources. Since topic_name is byte encoded and then sha256-hashed, it's considered as
+        good practice saving the map of digital twin in human-readable format in the very first DT topic. Still there is
+        a dt_get_source function which transforms given string to the format as saved in the chain for comparing.
+
+        @param dt_id: Digital Twin ID, which should have been created by this function calling account.
+        @param topic: Topic to add. The string is sha256 hashed and stored in blockchain.
+        @param source: Source address in ss58 format.
+
+        @return: Tuple of hashed topic and transaction hash.
+        """
+
+        topic_hashed = self.dt_encode_topic(topic)
+        return (
+            topic_hashed,
+            self.custom_extrinsic("DigitalTwin", "set_source", {"id": dt_id, "topic": topic_hashed, "source": source}),
+        )
+
+    @staticmethod
+    def ipfs_32_bytes_to_qm_hash(string_32_bytes: str) -> str:
+        """
+        Transform 32 bytes sting (without 2 heading bytes) to an IPFS base58 Qm... hash.
+
+        @param string_32_bytes: 32 bytes sting (without 2 heading bytes).
+
+        @return: IPFS base58 Qm... hash.
+        """
+
+        if string_32_bytes.startswith("0x"):
+            string_32_bytes = string_32_bytes[2:]
+        return b58encode(b'\x12 ' + bytes.fromhex(string_32_bytes)).decode('utf-8')
+
+    @staticmethod
+    def ipfs_qm_hash_to_32_bytes(ipfs_qm: str) -> str:
+        """
+        Transform IPFS base58 Qm... hash to a 32 bytes sting (without 2 heading bytes).
+
+        @param ipfs_qm: IPFS base58 Qm... hash.
+
+        @return: 32 bytes sting (without 2 heading bytes).
+        """
+
+        return f"0x{b58decode(ipfs_qm).hex()[4:]}"
+
+    def create_liability(
+            self,
+            technics_hash: str,
+            economics: int,
+            promisee: str,
+            promisor: str,
+            promisee_params_signature: str,
+            promisor_params_signature: str,
+    ) -> tp.Tuple[int, str]:
+        """
+        Create a liability to ensure economical relationships between robots! This is a contract to be assigned to a
+        promisor by promisee. As soon as the job is done and reported, the promisor gets his reward.
+        This extrinsic may be submitted by another address, but there should be promisee and promisor signatures.
+
+        @param technics_hash: Details of the liability, where the promisee order is described. Accepts any 32-bytes data
+        or a base58 (Qm...) IPFS hash.
+        @param economics: Promisor reward in Weiners.
+        @param promisee: Promisee (customer) ss58_address
+        @param promisor: Promisor (worker) ss58_address
+        @param promisee_params_signature: An agreement proof. This is a private key signed message containing technics
+        and economics. Both sides need to do this. Signed by promisee.
+        @param promisor_params_signature: An agreement proof. This is a private key signed message containing the same
+        technics and economics. Both sides need to do this. Signed by promisor.
+
+        @return: New liability index and hash of the liability creation transaction.
+        """
+
+        logger.info(
+            f"Creating new liability with promisee {promisee}, promisor {promisor}, technics {technics_hash} and"
+            f"economics {economics}."
+        )
+
+        if technics_hash.startswith("Qm"):
+            technics_hash = self.ipfs_qm_hash_to_32_bytes(technics_hash)
+
+        liability_creation_transaction_hash: str = self.custom_extrinsic(
+            "Liability",
+            "create",
+            {
+                "agreement": {
+                    "technics": {"hash": technics_hash},
+                    "economics": {"price": economics},
+                    "promisee": promisee,
+                    "promisor": promisor,
+                    "promisee_signature": {"Sr25519": promisee_params_signature},
+                    "promisor_signature": {"Sr25519": promisor_params_signature},
+                }
+            },
+        )
+
+        liability_total: int = self.liability_total()
+        index: int = liability_total - 1
+        for liabilities in reversed(range(liability_total)):
+            if self.liability_info(liabilities)["promisee_signature"]["Sr25519"] == promisee_params_signature:
+                index = liabilities
+                break
+
+        return index, liability_creation_transaction_hash
+
+    def sign_create_liability(self, technics_hash: str, economics: int) -> str:
+        """
+        Sign liability params approve message with a private key. This function is meant to sign technics and economics
+        details message to state the agreement of promisee and promisor. Both sides need to do this.
+
+        @param technics_hash: Details of the liability, where the promisee order is described. Accepts any 32-bytes data
+        or a base58 (Qm...) IPFS hash.
+        @param economics: Promisor reward in Weiners.
+
+        @return: Signed message 64-byte hash in sting form.
+        """
+
+        if not self.keypair:
+            raise NoPrivateKey("No private key, unable to sign a message")
+
+        if technics_hash.startswith("Qm"):
+            technics_hash = self.ipfs_qm_hash_to_32_bytes(technics_hash)
+
+        logger.info(f"Signing proof with technics {technics_hash} and economics {economics}.")
+
+        h256_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("H256")
+        technics_scale: ScaleBytes = h256_scale_obj.encode(technics_hash)
+
+        compact_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("Compact<Balance>")
+        economics_scale: ScaleBytes = compact_scale_obj.encode(economics)
+
+        return f"0x{self.keypair.sign(technics_scale + economics_scale).hex()}"
+
+    def finalize_liability(
+            self,
+            index: int,
+            report_hash: str,
+            promisor: tp.Optional[str] = None,
+            promisor_finalize_signature: tp.Optional[str] = None,
+    ) -> str:
+        """
+        Report on a completed job to receive a deserved award. This may be done by another address, but there should be
+        a liability promisor signature.
+
+        @param index: Liability item index.
+        @param report_hash: IPFS hash of a report data (videos, text, etc). Accepts any 32-bytes data or a base58
+        (Qm...) IPFS hash.
+        @param promisor: Promisor (worker) ss58_address. If not passed, replaced with transaction author address.
+        @param promisor_finalize_signature: 'Job done' proof. A message containing liability index and report data
+        signed by promisor. If not passed, this message is signed by a transaction author which should be a promisor so.
+
+        @return: Liability finalization transaction hash
+        """
+
+        logger.info(
+            f"Finalizing liability {index} by promisor {promisor or self.define_address()}."
+        )
+
+        if report_hash.startswith("Qm"):
+            report_hash = self.ipfs_qm_hash_to_32_bytes(report_hash)
+
+        return self.custom_extrinsic(
+            "Liability",
+            "finalize",
+            {
+                "report": {
+                    "index": index,
+                    "sender": promisor or self.define_address(),
+                    "payload": {"hash": report_hash},
+                    "signature": {
+                        "Sr25519": promisor_finalize_signature or self.sign_liability_finalize(index, report_hash)
+                    },
+                }
+            },
+        )
+
+    def sign_liability_finalize(self, index: int, report_hash: str) -> str:
+        """
+        Sing liability finalization parameters proof message with a private key. This is meant to state that the job is
+        done by promisor.
+
+        @param index: Liability item index.
+        @param report_hash: IPFS hash of a report data (videos, text, etc). Accepts any 32-bytes data or a base58
+        (Qm...) IPFS hash.
+
+        @return: Signed message 64-byte hash in sting form.
+        """
+
+        if not self.keypair:
+            raise NoPrivateKey("No private key, unable to sign a message")
+
+        if report_hash.startswith("Qm"):
+            report_hash = self.ipfs_qm_hash_to_32_bytes(report_hash)
+
+        logger.info(f"Signing report for liability {index} with report_hash {report_hash}.")
+
+        u64_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("U32")
+        index_scale: ScaleBytes = u64_scale_obj.encode(index)
+
+        h256_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("H256")
+        technics_scale: ScaleBytes = h256_scale_obj.encode(report_hash)
+
+        return f"0x{self.keypair.sign(index_scale + technics_scale).hex()}"
 
     def rws_bid(self, index: int, amount: int) -> str:
         """
@@ -479,54 +754,6 @@ class RobonomicsInterface:
                 "set_source",
                 {"id": dt_id, "topic": topic_hashed, "source": source},
             ),
-        )
-
-    def dt_create(self) -> tp.Tuple[int, str]:
-        """
-        Create a new digital twin.
-
-        @return: Tuple of newly created Digital Twin ID and hash of the creation transaction.
-        """
-
-        tr_hash: str = self.custom_extrinsic("DigitalTwin", "create")
-        dt_total: int = self.dt_total()
-        dt_id: int = dt_total
-        for ids in reversed(range(dt_total)):
-            if self.dt_owner(ids) == self.define_address():
-                dt_id: int = ids
-                break
-
-        return dt_id, tr_hash
-
-    @staticmethod
-    def dt_encode_topic(topic: str) -> str:
-        """
-        Encode any string to be accepted by Digital Twin setSource. Use byte encoding and sha256-hashing.
-
-        @param topic: Topic name to be encoded.
-
-        @return: Hashed-encoded topic name
-        """
-
-        return f"0x{hashlib.sha256(topic.encode('utf-8')).hexdigest()}"
-
-    def dt_set_source(self, dt_id: int, topic: str, source: str) -> tp.Tuple[str, str]:
-        """
-        Set DT topics and their sources. Since topic_name is byte encoded and then sha256-hashed, it's considered as
-        good practice saving the map of digital twin in human-readable format in the very first DT topic. Still there is
-        a dt_get_source function which transforms given string to the format as saved in the chain for comparing.
-
-        @param dt_id: Digital Twin ID, which should have been created by this function calling account.
-        @param topic: Topic to add. The string is sha256 hashed and stored in blockchain.
-        @param source: Source address in ss58 format.
-
-        @return: Tuple of hashed topic and transaction hash.
-        """
-
-        topic_hashed = self.dt_encode_topic(topic)
-        return (
-            topic_hashed,
-            self.custom_extrinsic("DigitalTwin", "set_source", {"id": dt_id, "topic": topic_hashed, "source": source}),
         )
 
     @connect_close_substrate_node
@@ -735,240 +962,3 @@ class Subscriber:
                         in self._target_address
                     ):
                         self._callback(events["event"]["attributes"])  # address-targeted
-
-
-class Liability:
-    def __init__(self, interface: RobonomicsInterface):
-        """
-        Set interface property.
-
-        @param interface: RobonomicsInterface interface.
-        """
-        self.liability_interface: RobonomicsInterface = interface
-
-    def liability_info(self, liability_index: int, block_hash: tp.Optional[str] = None) -> tp.Optional[LiabilityTyping]:
-        """
-        Fetch information about existing liabilities.
-
-        @param liability_index: Liability item index.
-        @param block_hash: block_hash: Retrieves data as of passed block hash.
-
-        @return: Liability information: technics, economics, promisee, promisor, signatures. None if no such liability.
-        """
-        logger.info(f"Fetching information about liability with index {liability_index}")
-
-        return self.liability_interface.custom_chainstate(
-            "Liability", "AgreementOf", liability_index, block_hash=block_hash
-        )
-
-    def liability_total(self, block_hash: tp.Optional[str] = None) -> tp.Optional[int]:
-        """
-        Fetch total number of liabilities in chain.
-
-        @param block_hash: Retrieves data as of passed block hash.
-
-        @return: Total number of liabilities in chain. None no liabilities.
-        """
-
-        logger.info("Fetching total number of liabilities in chain.")
-
-        return self.liability_interface.custom_chainstate("Liability", "LatestIndex", block_hash=block_hash)
-
-    def liability_report(self, report_index: int, block_hash: tp.Optional[str] = None) -> ReportTyping:
-        """
-        Fetch information about existing liability reports.
-
-        @param report_index: Reported liability item index.
-        @param block_hash: block_hash: Retrieves data as of passed block hash.
-
-        @return: Liability report information: index, promisor, report, signature. None if no such liability report.
-        """
-        logger.info(f"Fetching information about reported liability with index {report_index}")
-
-        return self.liability_interface.custom_chainstate(
-            "Liability", "ReportOf", report_index, block_hash=block_hash
-        )
-
-    @staticmethod
-    def ipfs_32_bytes_to_qm_hash(string_32_bytes: str) -> str:
-        """
-        Transform 32 bytes sting (without 2 heading bytes) to an IPFS base58 Qm... hash.
-
-        @param string_32_bytes: 32 bytes sting (without 2 heading bytes).
-
-        @return: IPFS base58 Qm... hash.
-        """
-
-        if string_32_bytes.startswith("0x"):
-            string_32_bytes = string_32_bytes[2:]
-        return b58encode(b'\x12 ' + bytes.fromhex(string_32_bytes)).decode('utf-8')
-
-    @staticmethod
-    def ipfs_qm_hash_to_32_bytes(ipfs_qm: str) -> str:
-        """
-        Transform IPFS base58 Qm... hash to a 32 bytes sting (without 2 heading bytes).
-
-        @param ipfs_qm: IPFS base58 Qm... hash.
-
-        @return: 32 bytes sting (without 2 heading bytes).
-        """
-
-        return f"0x{b58decode(ipfs_qm).hex()[4:]}"
-
-    def create_liability(
-        self,
-        technics_hash: str,
-        economics: int,
-        promisee: str,
-        promisor: str,
-        promisee_params_signature: str,
-        promisor_params_signature: str,
-    ) -> tp.Tuple[int, str]:
-        """
-        Create a liability to ensure economical relationships between robots! This is a contract to be assigned to a
-        promisor by promisee. As soon as the job is done and reported, the promisor gets his reward.
-        This extrinsic may be submitted by another address, but there should be promisee and promisor signatures.
-
-        @param technics_hash: Details of the liability, where the promisee order is described. Accepts any 32-bytes data
-        or a base58 (Qm...) IPFS hash.
-        @param economics: Promisor reward in Weiners.
-        @param promisee: Promisee (customer) ss58_address
-        @param promisor: Promisor (worker) ss58_address
-        @param promisee_params_signature: An agreement proof. This is a private key signed message containing technics
-        and economics. Both sides need to do this. Signed by promisee.
-        @param promisor_params_signature: An agreement proof. This is a private key signed message containing the same
-        technics and economics. Both sides need to do this. Signed by promisor.
-
-        @return: New liability index and hash of the liability creation transaction.
-        """
-
-        logger.info(
-            f"Creating new liability with promisee {promisee}, promisor {promisor}, technics {technics_hash} and"
-            f"economics {economics}."
-        )
-
-        if technics_hash.startswith("Qm"):
-            technics_hash = self.ipfs_qm_hash_to_32_bytes(technics_hash)
-
-        liability_creation_transaction_hash: str = self.liability_interface.custom_extrinsic(
-            "Liability",
-            "create",
-            {
-                "agreement": {
-                    "technics": {"hash": technics_hash},
-                    "economics": {"price": economics},
-                    "promisee": promisee,
-                    "promisor": promisor,
-                    "promisee_signature": {"Sr25519": promisee_params_signature},
-                    "promisor_signature": {"Sr25519": promisor_params_signature},
-                }
-            },
-        )
-
-        liability_total: int = self.liability_total()
-        index: int = liability_total - 1
-        for liabilities in reversed(range(liability_total)):
-            if self.liability_info(liabilities)["promisee_signature"]["Sr25519"] == promisee_params_signature:
-                index = liabilities
-                break
-
-        return index, liability_creation_transaction_hash
-
-    def sign_create_liability(self, technics_hash: str, economics: int) -> str:
-        """
-        Sign liability params approve message with a private key. This function is meant to sign technics and economics
-        details message to state the agreement of promisee and promisor. Both sides need to do this.
-
-        @param technics_hash: Details of the liability, where the promisee order is described. Accepts any 32-bytes data
-        or a base58 (Qm...) IPFS hash.
-        @param economics: Promisor reward in Weiners.
-
-        @return: Signed message 64-byte hash in sting form.
-        """
-
-        if not self.liability_interface.keypair:
-            raise NoPrivateKey("No private key, unable to sign a message")
-
-        if technics_hash.startswith("Qm"):
-            technics_hash = self.ipfs_qm_hash_to_32_bytes(technics_hash)
-
-        logger.info(f"Signing proof with technics {technics_hash} and economics {economics}.")
-
-        h256_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("H256")
-        technics_scale: ScaleBytes = h256_scale_obj.encode(technics_hash)
-
-        compact_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("Compact<Balance>")
-        economics_scale: ScaleBytes = compact_scale_obj.encode(economics)
-
-        return f"0x{self.liability_interface.keypair.sign(technics_scale + economics_scale).hex()}"
-
-    def finalize_liability(
-        self,
-        index: int,
-        report_hash: str,
-        promisor: tp.Optional[str] = None,
-        promisor_finalize_signature: tp.Optional[str] = None,
-    ) -> str:
-        """
-        Report on a completed job to receive a deserved award. This may be done by another address, but there should be
-        a liability promisor signature.
-
-        @param index: Liability item index.
-        @param report_hash: IPFS hash of a report data (videos, text, etc). Accepts any 32-bytes data or a base58
-        (Qm...) IPFS hash.
-        @param promisor: Promisor (worker) ss58_address. If not passed, replaced with transaction author address.
-        @param promisor_finalize_signature: 'Job done' proof. A message containing liability index and report data
-        signed by promisor. If not passed, this message is signed by a transaction author which should be a promisor so.
-
-        @return: Liability finalization transaction hash
-        """
-
-        logger.info(
-            f"Finalizing liability {index} by promisor {promisor or self.liability_interface.define_address()}."
-        )
-
-        if report_hash.startswith("Qm"):
-            report_hash = self.ipfs_qm_hash_to_32_bytes(report_hash)
-
-        return self.liability_interface.custom_extrinsic(
-            "Liability",
-            "finalize",
-            {
-                "report": {
-                    "index": index,
-                    "sender": promisor or self.liability_interface.define_address(),
-                    "payload": {"hash": report_hash},
-                    "signature": {
-                        "Sr25519": promisor_finalize_signature or self.sign_liability_finalize(index, report_hash)
-                    },
-                }
-            },
-        )
-
-    def sign_liability_finalize(self, index: int, report_hash: str) -> str:
-        """
-        Sing liability finalization parameters proof message with a private key. This is meant to state that the job is
-        done by promisor.
-
-        @param index: Liability item index.
-        @param report_hash: IPFS hash of a report data (videos, text, etc). Accepts any 32-bytes data or a base58
-        (Qm...) IPFS hash.
-
-        @return: Signed message 64-byte hash in sting form.
-        """
-
-        if not self.liability_interface.keypair:
-            raise NoPrivateKey("No private key, unable to sign a message")
-
-        if report_hash.startswith("Qm"):
-            report_hash = self.ipfs_qm_hash_to_32_bytes(report_hash)
-
-        logger.info(f"Signing report for liability {index} with report_hash {report_hash}.")
-
-        u64_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("U32")
-        index_scale: ScaleBytes = u64_scale_obj.encode(index)
-
-        h256_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("H256")
-        technics_scale: ScaleBytes = h256_scale_obj.encode(report_hash)
-
-        return f"0x{self.liability_interface.keypair.sign(index_scale + technics_scale).hex()}"
