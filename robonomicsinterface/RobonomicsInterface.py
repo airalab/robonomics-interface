@@ -35,10 +35,10 @@ class RobonomicsInterface:
         """
         Instance of a class is an interface with a node. Here this interface is initialized.
 
-        @param seed: account seed in mnemonic/raw form. When not passed, no extrinsics functionality
-        @param remote_ws: node url. Default node address is "wss://kusama.rpc.robonomics.network".
+        @param seed: Account seed in mnemonic/raw form. When not passed, no extrinsics functionality.
+        @param remote_ws: Node url. Default node address is "wss://kusama.rpc.robonomics.network".
         Another address may be specified (e.g. "ws://127.0.0.1:9944" for local node).
-        @param type_registry: types used in the chain. Defaults are the most frequently used in Robonomics
+        @param type_registry: Types used in the chain. Defaults are the most frequently used in Robonomics.
         """
 
         self.keypair: tp.Optional[substrate.Keypair] = self._create_keypair(seed) if seed else None
@@ -50,11 +50,11 @@ class RobonomicsInterface:
     @staticmethod
     def _create_keypair(seed: str) -> substrate.Keypair:
         """
-        Create a keypair for further use
+        Create a keypair for further use.
 
-        @param seed: user seed as a key to sign transactions
+        @param seed: Account seed as a key to sign transactions.
 
-        @return: a Keypair instance used by substrate to sign transactions
+        @return: A Keypair instance used by substrate to sign transactions.
         """
 
         if seed.startswith("0x"):
@@ -73,12 +73,12 @@ class RobonomicsInterface:
     ) -> tp.Any:
         """
         Create custom queries to fetch data from the Chainstate. Module names and storage functions, as well as required
-        parameters are available at https://parachain.robonomics.network/#/chainstate
+        parameters are available at https://parachain.robonomics.network/#/chainstate.
 
-        @param module: chainstate module
-        @param storage_function: storage function
-        @param params: query parameters. None if no parameters. Include in list, if several
-        @param block_hash: Retrieves data as of passed block hash
+        @param module: Chainstate module.
+        @param storage_function: Storage function.
+        @param params: Query parameters. None if no parameters. Include in list, if several.
+        @param block_hash: Retrieves data as of passed block hash.
         @param subscription_handler: Callback function that processes the updates of the storage query subscription.
         The workflow is the same as in substrateinterface lib. Calling method with this parameter blocks current thread!
                 Example of subscription handler:
@@ -93,10 +93,10 @@ class RobonomicsInterface:
             if update_nr > 1:
                 return obj
         ```
-        @return: output of the query in any form
+        @return: Output of the query in any form.
         """
 
-        logger.info("Performing query")
+        logger.info(f"Performing query {module}.{storage_function}")
         return self.interface.query(
             module,
             storage_function,
@@ -107,9 +107,9 @@ class RobonomicsInterface:
 
     def define_address(self) -> str:
         """
-        define ss58_address of an account, which seed was provided while initializing an interface
+        Define ss58_address of an account, which seed was provided while initializing an interface.
 
-        @return: ss58_address of an account
+        @return: ss58_address of an account.
         """
 
         if not self.keypair:
@@ -124,10 +124,10 @@ class RobonomicsInterface:
         initialized with a seed.
 
         @param addr: ss58 type 32 address of an account which datalog is to be fetched. If None, tries to fetch self
-        datalog if keypair was created, else raises NoPrivateKey
+        datalog if keypair was created, else raises NoPrivateKey.
         @param index: record index. case int: fetch datalog by specified index
-                                    case None: fetch latest datalog
-        @param block_hash: Retrieves data as of passed block hash
+                                    case None: fetch latest datalog.
+        @param block_hash: Retrieves data as of passed block hash.
 
         @return: Tuple. Datalog of the account with a timestamp, None if no records.
         """
@@ -153,11 +153,11 @@ class RobonomicsInterface:
 
     def rws_auction_queue(self, block_hash: tp.Optional[str] = None) -> tp.List[tp.Optional[int]]:
         """
-        Get an auction queue of Robonomics Web Services subscriptions
+        Get an auction queue of Robonomics Web Services subscriptions.
 
-        @param block_hash: Retrieves data as of passed block hash
+        @param block_hash: Retrieves data as of passed block hash.
 
-        @return: Auction queue of Robonomics Web Services subscriptions
+        @return: Auction queue of Robonomics Web Services subscriptions.
         """
 
         logger.info("Fetching auctions queue list")
@@ -165,12 +165,12 @@ class RobonomicsInterface:
 
     def rws_auction(self, index: int, block_hash: tp.Optional[str] = None) -> tp.Dict[str, tp.Union[str, int, dict]]:
         """
-        Get to now information about subscription auction
+        Get to now information about subscription auction.
 
-        @param index: Auction index
-        @param block_hash: Retrieves data as of passed block hash
+        @param index: Auction index.
+        @param block_hash: Retrieves data as of passed block hash.
 
-        @return: Auction info
+        @return: Auction info.
         """
 
         logger.info(f"Fetching auction {index} information")
@@ -178,64 +178,64 @@ class RobonomicsInterface:
 
     def rws_list_devices(self, addr: str, block_hash: tp.Optional[str] = None) -> tp.List[tp.Optional[str]]:
         """
-        Fetch list of RWS added devices
+        Fetch list of RWS added devices.
 
-        @param addr: Subscription owner
-        @param block_hash: Retrieves data as of passed block hash
+        @param addr: Subscription owner.
+        @param block_hash: Retrieves data as of passed block hash.
 
-        @return: List of added devices. Empty if none
+        @return: List of added devices. Empty if none.
         """
 
-        logging.info(f"Fetching list of RWS devices set by owner {addr}")
+        logger.info(f"Fetching list of RWS devices set by owner {addr}")
 
         return self.custom_chainstate("RWS", "Devices", addr, block_hash=block_hash)
 
     def dt_info(self, dt_id: int, block_hash: tp.Optional[str] = None) -> tp.Optional[tp.List[tp.Tuple[str, str]]]:
         """
-        Fetch information about existing digital twin
+        Fetch information about existing digital twin.
 
-        @param dt_id: Digital Twin object ID
-        @param block_hash: block_hash: Retrieves data as of passed block hash
+        @param dt_id: Digital Twin object ID.
+        @param block_hash: Retrieves data as of passed block hash.
 
-        @return: List of DigitalTwin associated mapping. None if no Digital Twin with such id.
+        @return: List of DigitalTwin associated mapping. None if no Digital Twin with such id..
         """
-        logging.info(f"Fetching info about Digital Twin with ID {dt_id}")
+        logger.info(f"Fetching info about Digital Twin with ID {dt_id}")
 
         return self.custom_chainstate("DigitalTwin", "DigitalTwin", dt_id, block_hash=block_hash)
 
     def dt_owner(self, dt_id: int, block_hash: tp.Optional[str] = None) -> tp.Optional[str]:
         """
-        Fetch existing Digital Twin owner address
+        Fetch existing Digital Twin owner address.
 
-        @param dt_id: Digital Twin object ID
-        @param block_hash: block_hash: Retrieves data as of passed block hash
+        @param dt_id: Digital Twin object ID.
+        @param block_hash: Retrieves data as of passed block hash.
 
         @return: Owner address. None if no Digital Twin with such id.
         """
-        logging.info(f"Fetching owner of Digital Twin with ID {dt_id}")
+        logger.info(f"Fetching owner of Digital Twin with ID {dt_id}")
 
         return self.custom_chainstate("DigitalTwin", "Owner", dt_id, block_hash=block_hash)
 
     def dt_total(self, block_hash: tp.Optional[str] = None) -> tp.Optional[int]:
         """
-        Fetch total number of Digital Twins
+        Fetch total number of Digital Twins.
 
-        @param block_hash: block_hash: Retrieves data as of passed block hash
+        @param block_hash: Retrieves data as of passed block hash.
 
         @return: Total number of Digital Twins. None no Digital Twins.
         """
-        logging.info("Fetching Total number of Digital Twins")
+        logger.info("Fetching Total number of Digital Twins")
 
         return self.custom_chainstate("DigitalTwin", "Total", block_hash=block_hash)
 
     def dt_get_source(self, dt_id: int, topic: str) -> str:
         """
-        Find a source for a passed Digital Twin topic
+        Find a source for a passed Digital Twin topic.
 
-        @param dt_id: Digital Twin id
-        @param topic: Searched topic. Normal string
+        @param dt_id: Digital Twin id.
+        @param topic: Searched topic. Normal string.
 
-        @return: If found, topic source ss58 address
+        @return: If found, topic source ss58 address.
         """
 
         topic_hashed: str = self.dt_encode_topic(topic)
@@ -257,17 +257,17 @@ class RobonomicsInterface:
     ) -> str:
         """
         Create an extrinsic, sign&submit it. Module names and functions, as well as required parameters are available
-        at https://parachain.robonomics.network/#/extrinsics
+        at https://parachain.robonomics.network/#/extrinsics.
 
-        @param call_module: Call module from extrinsic tab on portal
-        @param call_function: Call function from extrinsic tab on portal
-        @param params: Call parameters as a dictionary. None for no parameters
-        @param nonce: transaction nonce, defined automatically if None. Due to e feature of substrate-interface lib,
+        @param call_module: Call module from extrinsic tab on portal.
+        @param call_function: Call function from extrinsic tab on portal.
+        @param params: Call parameters as a dictionary. None for no parameters.
+        @param nonce: Transaction nonce, defined automatically if None. Due to e feature of substrate-interface lib,
         to create an extrinsic with incremented nonce, pass account's current nonce. See
         https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
         for example.
 
-        @return: Extrinsic hash or None if failed
+        @return: Extrinsic hash.
         """
 
         if not self.keypair:
@@ -296,15 +296,15 @@ class RobonomicsInterface:
 
     def record_datalog(self, data: str, nonce: tp.Optional[int] = None) -> str:
         """
-        Write any string to datalog
+        Write any string to datalog.
 
-        @param data: string to be stored in datalog
-        @param nonce: nonce of the transaction. Due to e feature of substrate-interface lib,
+        @param data: String to be stored in datalog.
+        @param nonce: Nonce of the transaction. Due to e feature of substrate-interface lib,
         to create an extrinsic with incremented nonce, pass account's current nonce. See
         https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
         for example.
 
-        @return: Hash of the datalog transaction
+        @return: Hash of the datalog transaction.
         """
 
         logger.info(f"Writing datalog {data}")
@@ -312,16 +312,16 @@ class RobonomicsInterface:
 
     def send_launch(self, target_address: str, toggle: bool, nonce: tp.Optional[int] = None) -> str:
         """
-        Send Launch command to device
+        Send Launch command to device.
 
-        @param target_address: device to be triggered with launch
-        @param toggle: whether send ON or OFF command. ON == True, OFF == False
-        @param nonce: account nonce. Due to e feature of substrate-interface lib,
+        @param target_address: Device to be triggered with launch.
+        @param toggle: Whether send ON or OFF command. ON == True, OFF == False.
+        @param nonce: Account nonce. Due to e feature of substrate-interface lib,
         to create an extrinsic with incremented nonce, pass account's current nonce. See
         https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
         for example.
 
-        @return: Hash of the launch transaction
+        @return: Hash of the launch transaction.
         """
 
         logger.info(f"Sending {'ON' if toggle else 'OFF'} launch command to {target_address}")
@@ -330,16 +330,17 @@ class RobonomicsInterface:
     @connect_close_substrate_node
     def get_account_nonce(self, account_address: tp.Optional[str] = None) -> int:
         """
-        Get current account nonce
+        Get current account nonce.
 
-        @param account_address: account ss58_address. Self address via private key is obtained if not passed.
+        @param account_address: Account ss58_address. Self address via private key is obtained if not passed.
 
-        @return account nonce. Due to e feature of substrate-interface lib,
+        @return Account nonce. Due to e feature of substrate-interface lib,
         to create an extrinsic with incremented nonce, pass account's current nonce. See
         https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
         for example.
         """
 
+        logger.info(f"Fetching nonce of account {account_address or self.define_address()}")
         return self.interface.get_account_nonce(account_address=account_address or self.define_address())
 
     def rws_bid(self, index: int, amount: int) -> str:
@@ -347,8 +348,8 @@ class RobonomicsInterface:
         Bid to win a subscription!
 
 
-        @param index: Auction index
-        @param amount: Your bid in Weiners (!)
+        @param index: Auction index.
+        @param amount: Your bid in Weiners.
         """
 
         logger.info(f"Bidding on auction {index} with {amount} Weiners (appx. {round(amount / 10 ** 9, 2)} XRT)")
@@ -356,11 +357,11 @@ class RobonomicsInterface:
 
     def rws_set_devices(self, devices: tp.List[str]) -> str:
         """
-        Set devices which are authorized to use RWS subscriptions held by the extrinsic author
+        Set devices which are authorized to use RWS subscriptions held by the extrinsic author.
 
         @param devices: Devices authorized to use RWS subscriptions. Include in list.
 
-        @return: transaction hash
+        @return: Transaction hash.
         """
 
         logger.info(f"Allowing {devices} to use {self.define_address()} subscription")
@@ -374,17 +375,20 @@ class RobonomicsInterface:
         params: tp.Optional[tp.Dict[str, tp.Any]] = None,
     ) -> str:
         """
-        Send transaction from a device given a RWS subscription
+        Send transaction from a device given a RWS subscription.
 
-        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
-        @param call_module: Call module from extrinsic tab on portal
-        @param call_function: Call function from extrinsic tab on portal
-        @param params: Call parameters as a dictionary. None for no parameters
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send
+        transactions.
+        @param call_module: Call module from extrinsic tab on portal.
+        @param call_function: Call function from extrinsic tab on portal.
+        @param params: Call parameters as a dictionary. None for no parameters.
 
-        @return: Transaction hash
+        @return: Transaction hash.
         """
 
-        logger.info("Sending transaction using subscription")
+        logger.info(
+            f"Sending {call_module}.{call_function} transaction using subscription of {subscription_owner_addr}"
+        )
         return self.custom_extrinsic(
             "RWS",
             "call",
@@ -398,10 +402,11 @@ class RobonomicsInterface:
         """
         Write any string to datalog from a device which was granted a subscription.
 
-        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
-        @param data: string to be stored in datalog
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send
+        transactions.
+        @param data: String to be stored in datalog.
 
-        @return: Hash of the datalog transaction
+        @return: Hash of the datalog transaction.
         """
 
         return self.rws_custom_call(subscription_owner_addr, "Datalog", "record", {"record": data})
@@ -410,11 +415,12 @@ class RobonomicsInterface:
         """
         Send Launch command to device from another device which was granted a subscription.
 
-        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
-        @param target_address: device to be triggered with launch
-        @param toggle: whether send ON or OFF command. ON == True, OFF == False
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send
+        transactions.
+        @param target_address: device to be triggered with launch.
+        @param toggle: whether send ON or OFF command. ON == True, OFF == False.
 
-        @return: Hash of the launch transaction
+        @return: Hash of the launch transaction.
         """
 
         return self.rws_custom_call(
@@ -425,7 +431,8 @@ class RobonomicsInterface:
         """
         Create a Digital Twin from a device which was granted a subscription.
 
-        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send
+        transactions.
 
         @return: Tuple of newly created Digital Twin ID and hash of the creation transaction.
         """
@@ -449,12 +456,13 @@ class RobonomicsInterface:
         format in the very first DT topic. Still there is a dt_get_source function which transforms given string
         to the format as saved in the chain for comparing.
 
-        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send transactions
+        @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send
+        transactions.
         @param dt_id: Digital Twin ID, which should have been created by this function calling account.
-        @param topic: Topic to add. The string is sha256 hashed and stored in blockchain.
+        @param topic: Topic to add. The passed string is sha256 hashed and stored in blockchain.
         @param source: Source address in ss58 format.
 
-        @return: Tuple of hashed topic and transaction hash
+        @return: Tuple of hashed topic and transaction hash.
         """
 
         topic_hashed = self.dt_encode_topic(topic)
@@ -488,9 +496,9 @@ class RobonomicsInterface:
     @staticmethod
     def dt_encode_topic(topic: str) -> str:
         """
-        Encode any string to be accepted by Digital Twin setSource. Use byte encoding and sha256-hashing
+        Encode any string to be accepted by Digital Twin setSource. Use byte encoding and sha256-hashing.
 
-        @param topic: topic name to be encoded.
+        @param topic: Topic name to be encoded.
 
         @return: Hashed-encoded topic name
         """
@@ -507,7 +515,7 @@ class RobonomicsInterface:
         @param topic: Topic to add. The string is sha256 hashed and stored in blockchain.
         @param source: Source address in ss58 format.
 
-        @return: Tuple of hashed topic and transaction hash
+        @return: Tuple of hashed topic and transaction hash.
         """
 
         topic_hashed = self.dt_encode_topic(topic)
@@ -524,11 +532,11 @@ class RobonomicsInterface:
         Method that handles the actual RPC request to the Substrate node. The other implemented functions eventually
         use this method to perform the request.
 
-        @param method: method of the JSONRPC request
-        @param params: a list containing the parameters of the JSONRPC request
-        @param result_handler: Callback function that processes the result received from the node
+        @param method: Method of the JSONRPC request.
+        @param params: A list containing the parameters of the JSONRPC request.
+        @param result_handler: Callback function that processes the result received from the node.
 
-        @return: result of the request
+        @return: Result of the request.
         """
 
         return self.interface.rpc_request(method, params, result_handler)
@@ -536,9 +544,9 @@ class RobonomicsInterface:
     @connect_close_substrate_node
     def subscribe_block_headers(self, callback: callable) -> dict:
         """
-        Get chain head block headers
+        Get chain head block headers.
 
-        @return: Chain head block headers
+        @return: Chain head block headers.
         """
 
         return self.interface.subscribe_block_headers(subscription_handler=callback)
@@ -555,7 +563,7 @@ class PubSub:
         """
         Initiate an instance for further use.
 
-        @param interface: RobonomicsInterface instance
+        @param interface: RobonomicsInterface instance.
         """
 
         self._pubsub_interface = interface
@@ -566,10 +574,10 @@ class PubSub:
         """
         Connect to peer and add it into swarm.
 
-        @param address: Multiaddr address of the peer to connect to
-        @param result_handler: Callback function that processes the result received from the node
+        @param address: Multiaddr address of the peer to connect to.
+        @param result_handler: Callback function that processes the result received from the node.
 
-        @return: success flag in JSON message
+        @return: Success flag in JSON message.
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_connect", [address], result_handler)
@@ -580,10 +588,10 @@ class PubSub:
         """
         Listen address for incoming connections.
 
-        @param address: Multiaddr address of the peer to connect to
-        @param result_handler: Callback function that processes the result received from the node
+        @param address: Multiaddr address of the peer to connect to.
+        @param result_handler: Callback function that processes the result received from the node.
 
-        @return: success flag in JSON message
+        @return: Success flag in JSON message.
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_listen", [address], result_handler)
@@ -594,9 +602,9 @@ class PubSub:
         """
         Returns a list of node addresses.
 
-        @param result_handler: Callback function that processes the result received from the node
+        @param result_handler: Callback function that processes the result received from the node.
 
-        @return: list of node addresses in JSON message
+        @return: List of node addresses in JSON message.
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_listeners", None, result_handler)
@@ -605,7 +613,7 @@ class PubSub:
         """
         Returns local peer ID.
 
-        @return: local peer ID in JSON message
+        @return: Local peer ID in JSON message.
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_peer", None, result_handler)
@@ -614,9 +622,9 @@ class PubSub:
         """
         Publish message into the topic by name.
 
-        @param topic_name: topic name
-        @param message: message to be published
-        @param result_handler: Callback function that processes the result received from the node
+        @param topic_name: Topic name.
+        @param message: Message to be published.
+        @param result_handler: Callback function that processes the result received from the node.
 
         @return: TODO
         """
@@ -629,10 +637,10 @@ class PubSub:
         """
         Listen address for incoming connections.
 
-        @param topic_name: topic name to subscribe to
-        @param result_handler: Callback function that processes the result received from the node
+        @param topic_name: Topic name to subscribe to.
+        @param result_handler: Callback function that processes the result received from the node.
 
-        @return: subscription ID in JSON message
+        @return: Subscription ID in JSON message.
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_subscribe", [topic_name], result_handler)
@@ -643,10 +651,10 @@ class PubSub:
         """
         Unsubscribe for incoming messages from topic.
 
-        @param subscription_id: subscription ID obtained when subscribed
-        @param result_handler: Callback function that processes the result received from the node
+        @param subscription_id: Subscription ID obtained when subscribed.
+        @param result_handler: Callback function that processes the result received from the node.
 
-        @return: success flag in JSON message
+        @return: Success flag in JSON message.
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_unsubscribe", [subscription_id], result_handler)
@@ -671,10 +679,10 @@ class Subscriber:
         addr: tp.Optional[tp.Union[tp.List[str], str]] = None,
     ) -> None:
         """
-        Initiates an instance for further use and starts a subscription for a selected action
+        Initiates an instance for further use and starts a subscription for a selected action.
 
         @param interface: RobonomicsInterface instance
-        @param subscribed_event: Event in substrate chain to be awaited. Choose from [NewRecord, NewLaunch, Transfer]
+        @param subscribed_event: Event in substrate chain to be awaited. Choose from [NewRecord, NewLaunch, Transfer].
         This parameter should be a SubEvent class attribute. This also requires importing this class.
         @param subscription_handler: Callback function that processes the updates of the storage.
         THIS FUNCTION IS MEANT TO ACCEPT ONLY ONE ARGUMENT (THE NEW EVENT DESCRIPTION TUPLE).
@@ -692,9 +700,10 @@ class Subscriber:
 
     def _subscribe_event(self) -> None:
         """
-        Subscribe to events targeted to a certain account (launch, transfer). Call subscription_handler when updated
+        Subscribe to events targeted to a certain account (launch, transfer). Call subscription_handler when updated.
         """
 
+        logger.info(f"Subscribing to event {self._event.value} for target addresses {self._target_address}")
         try:
             self._subscriber_interface.subscribe_block_headers(self._event_callback)
         except WebSocketConnectionClosedException:
@@ -702,12 +711,12 @@ class Subscriber:
 
     def _event_callback(self, index_obj: tp.Any, update_nr: int, subscription_id: int) -> None:
         """
-        Function, processing updates in event list storage. When update, filters events to a desired account
+        Function, processing updates in event list storage. On update filters events to a desired account
         and passes the event description to the user-provided callback method.
 
-        @param index_obj: updated event list
-        @param update_nr: update counter. Increments every new update added. Starts with 0
-        @param subscription_id: subscription ID
+        @param index_obj: Updated event list.
+        @param update_nr: Update counter. Increments every new update added. Starts with 0.
+        @param subscription_id: Subscription ID.
         """
 
         if update_nr != 0:
@@ -726,9 +735,9 @@ class Subscriber:
 class Liability:
     def __init__(self, interface: RobonomicsInterface):
         """
-        Set interface property
+        Set interface property.
 
-        @param interface: RobonomicsInterface interface
+        @param interface: RobonomicsInterface interface.
         """
         self.liability_interface: RobonomicsInterface = interface
 
