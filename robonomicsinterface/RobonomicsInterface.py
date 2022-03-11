@@ -16,6 +16,7 @@ from .exceptions import NoPrivateKey, DigitalTwinMapError
 
 DatalogTyping = tp.Tuple[int, tp.Union[int, str]]
 LiabilityTyping = tp.Dict[str, tp.Union[tp.Dict[str, tp.Union[str, int]], str]]
+ReportTyping = tp.Dict[str, tp.Union[int, str, tp.Dict[str, str]]]
 NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
 
 logger = logging.getLogger(__name__)
@@ -744,9 +745,51 @@ class Liability:
         """
         self.liability_interface: RobonomicsInterface = interface
 
-    # TODO: chainstate
     # TODO: return index
     # TODO: encoding IPFS hash
+    def liability_info(self, liability_index: int, block_hash: tp.Optional[str] = None) -> tp.Optional[LiabilityTyping]:
+        """
+        Fetch information about existing liabilities.
+
+        @param liability_index: Liability item index.
+        @param block_hash: block_hash: Retrieves data as of passed block hash.
+
+        @return: Liability information: technics, economics, promisee, promisor, signatures. None if no such liability.
+        """
+        logger.info(f"Fetching information about liability with index {liability_index}")
+
+        return self.liability_interface.custom_chainstate(
+            "Liability", "AgreementOf", liability_index, block_hash=block_hash
+        )
+
+    def liability_total(self, block_hash: tp.Optional[str] = None) -> tp.Optional[int]:
+        """
+        Fetch total number of liabilities in chain.
+
+        @param block_hash: Retrieves data as of passed block hash.
+
+        @return: Total number of liabilities in chain. None no liabilities.
+        """
+
+        logger.info("Fetching total number of liabilities in chain.")
+
+        return self.liability_interface.custom_chainstate("Liability", "LatestIndex", block_hash=block_hash)
+
+    def liability_report(self, report_index: int, block_hash: tp.Optional[str] = None) -> ReportTyping:
+        """
+        Fetch information about existing liability reports.
+
+        @param report_index: Reported liability item index.
+        @param block_hash: block_hash: Retrieves data as of passed block hash.
+
+        @return: Liability report information: index, promisor, report, signature. None if no such liability report.
+        """
+        logger.info(f"Fetching information about reported liability with index {report_index}")
+
+        return self.liability_interface.custom_chainstate(
+            "Liability", "ReportOf", report_index, block_hash=block_hash
+        )
+
     def create_liability(
         self,
         technics_hash: str,
