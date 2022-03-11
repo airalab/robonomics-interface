@@ -4,6 +4,7 @@ import logging
 import substrateinterface as substrate
 import typing as tp
 
+from base58 import b58decode, b58encode
 from enum import Enum
 from scalecodec.types import GenericCall, GenericExtrinsic
 from scalecodec.base import RuntimeConfiguration, ScaleBytes, ScaleType
@@ -745,7 +746,6 @@ class Liability:
         """
         self.liability_interface: RobonomicsInterface = interface
 
-    # TODO: encoding IPFS hash
     def liability_info(self, liability_index: int, block_hash: tp.Optional[str] = None) -> tp.Optional[LiabilityTyping]:
         """
         Fetch information about existing liabilities.
@@ -789,6 +789,32 @@ class Liability:
             "Liability", "ReportOf", report_index, block_hash=block_hash
         )
 
+    @staticmethod
+    def ipfs_32_bytes_to_qm_hash(string_32_bytes: str) -> str:
+        """
+        Transform 32 bytes sting (without 2 heading bytes) to an IPFS base58 Qm... hash.
+
+        @param string_32_bytes: 32 bytes sting (without 2 heading bytes).
+
+        @return: IPFS base58 Qm... hash.
+        """
+
+        if string_32_bytes.startswith("0x"):
+            string_32_bytes = string_32_bytes[2:]
+        return b58encode(b'\x12 ' + bytes.fromhex(string_32_bytes)).decode('utf-8')
+
+    @staticmethod
+    def ipfs_qm_hash_to_32_bytes(ipfs_qm: str) -> str:
+        """
+        Transform IPFS base58 Qm... hash to a 32 bytes sting (without 2 heading bytes).
+
+        @param ipfs_qm: IPFS base58 Qm... hash.
+
+        @return: 32 bytes sting (without 2 heading bytes).
+        """
+
+        return f"0x{b58decode(ipfs_qm).hex()[4:]}"
+
     def create_liability(
         self,
         technics_hash: str,
@@ -803,8 +829,8 @@ class Liability:
         promisor by promisee. As soon as the job is done and reported, the promisor gets his reward.
         This extrinsic may be submitted by another address, but there should be promisee and promisor signatures.
 
-        @param technics_hash: Details of the liability, where the promisee order is described. Both base58 (Qm...)
-        and raw IPFS formats are accepted.
+        @param technics_hash: Details of the liability, where the promisee order is described. Accepts any 32-bytes data
+        or a base58 (Qm...) IPFS hash.
         @param economics: Promisor reward in Weiners.
         @param promisee: Promisee (customer) ss58_address
         @param promisor: Promisor (worker) ss58_address
@@ -820,6 +846,10 @@ class Liability:
             f"Creating new liability with promisee {promisee}, promisor {promisor}, technics {technics_hash} and"
             f"economics {economics}."
         )
+
+        if technics_hash.startswith("Qm"):
+            technics_hash = self.ipfs_qm_hash_to_32_bytes(technics_hash)
+
         liability_creation_transaction_hash: str = self.liability_interface.custom_extrinsic(
             "Liability",
             "create",
@@ -849,8 +879,8 @@ class Liability:
         Sign liability params approve message with a private key. This function is meant to sign technics and economics
         details message to state the agreement of promisee and promisor. Both sides need to do this.
 
-        @param technics_hash: Details of the liability, where the promisee order is described. Both base58 (Qm...) and
-        raw IPFS formats are accepted.
+        @param technics_hash: Details of the liability, where the promisee order is described. Accepts any 32-bytes data
+        or a base58 (Qm...) IPFS hash.
         @param economics: Promisor reward in Weiners.
 
         @return: Signed message 64-byte hash in sting form.
@@ -858,6 +888,9 @@ class Liability:
 
         if not self.liability_interface.keypair:
             raise NoPrivateKey("No private key, unable to sign a message")
+
+        if technics_hash.startswith("Qm"):
+            technics_hash = self.ipfs_qm_hash_to_32_bytes(technics_hash)
 
         logger.info(f"Signing proof with technics {technics_hash} and economics {economics}.")
 
@@ -881,8 +914,8 @@ class Liability:
         a liability promisor signature.
 
         @param index: Liability item index.
-        @param report_hash: IPFS hash of a report data (videos, text, etc). Both base58 (Qm...) and raw IPFS formats are
-        accepted.
+        @param report_hash: IPFS hash of a report data (videos, text, etc). Accepts any 32-bytes data or a base58
+        (Qm...) IPFS hash.
         @param promisor: Promisor (worker) ss58_address. If not passed, replaced with transaction author address.
         @param promisor_finalize_signature: 'Job done' proof. A message containing liability index and report data
         signed by promisor. If not passed, this message is signed by a transaction author which should be a promisor so.
@@ -893,6 +926,9 @@ class Liability:
         logger.info(
             f"Finalizing liability {index} by promisor {promisor or self.liability_interface.define_address()}."
         )
+
+        if report_hash.startswith("Qm"):
+            report_hash = self.ipfs_qm_hash_to_32_bytes(report_hash)
 
         return self.liability_interface.custom_extrinsic(
             "Liability",
@@ -915,14 +951,17 @@ class Liability:
         done by promisor.
 
         @param index: Liability item index.
-        @param report_hash: IPFS hash of a report data (videos, text, etc). Both base58 (Qm...) and raw IPFS formats are
-        accepted.
+        @param report_hash: IPFS hash of a report data (videos, text, etc). Accepts any 32-bytes data or a base58
+        (Qm...) IPFS hash.
 
         @return: Signed message 64-byte hash in sting form.
         """
 
         if not self.liability_interface.keypair:
             raise NoPrivateKey("No private key, unable to sign a message")
+
+        if report_hash.startswith("Qm"):
+            report_hash = self.ipfs_qm_hash_to_32_bytes(report_hash)
 
         logger.info(f"Signing report for liability {index} with report_hash {report_hash}.")
 
