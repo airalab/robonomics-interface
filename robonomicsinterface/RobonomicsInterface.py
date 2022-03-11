@@ -14,7 +14,8 @@ from .constants import REMOTE_WS, TYPE_REGISTRY
 from .decorators import connect_close_substrate_node
 from .exceptions import NoPrivateKey, DigitalTwinMapError
 
-Datalog = tp.Tuple[int, tp.Union[int, str]]
+DatalogTyping = tp.Tuple[int, tp.Union[int, str]]
+LiabilityTyping = tp.Dict[str, tp.Union[tp.Dict[str, tp.Union[str, int]], str]]
 NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
 
 logger = logging.getLogger(__name__)
@@ -118,7 +119,7 @@ class RobonomicsInterface:
 
     def fetch_datalog(
         self, addr: tp.Optional[str] = None, index: tp.Optional[int] = None, block_hash: tp.Optional[str] = None
-    ) -> tp.Optional[Datalog]:
+    ) -> tp.Optional[DatalogTyping]:
         """
         Fetch datalog record of a provided account. Fetch self datalog if no address provided and interface was
         initialized with a seed.
@@ -139,7 +140,9 @@ class RobonomicsInterface:
         )
 
         if index:
-            record: Datalog = self.custom_chainstate("Datalog", "DatalogItem", [address, index], block_hash=block_hash)
+            record: DatalogTyping = self.custom_chainstate(
+                "Datalog", "DatalogItem", [address, index], block_hash=block_hash
+            )
             return record if record[0] != 0 else None
         else:
             index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", address, block_hash=block_hash)[
@@ -771,6 +774,10 @@ class Liability:
         @return: New liability index and hash of the liability creation transaction.
         """
 
+        logger.info(
+            f"Creating new liability with promisee {promisee}, promisor {promisor}, technics {technics_hash} and"
+            f"economics {economics}."
+        )
         liability_creation_transaction_hash: str = self.liability_interface.custom_extrinsic(
             "Liability",
             "create",
@@ -816,6 +823,8 @@ class Liability:
         if not self.liability_interface.keypair:
             raise NoPrivateKey("No private key, unable to sign a message")
 
+        logger.info(f"Signing proof with technics {technics_hash} and economics {economics}.")
+
         h256_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("H256")
         technics_scale: ScaleBytes = h256_scale_obj.encode(technics_hash)
 
@@ -825,24 +834,29 @@ class Liability:
         return f"0x{self.liability_interface.keypair.sign(technics_scale + economics_scale).hex()}"
 
     def finalize_liability(
-        self, index: int, promisor: str, report_hash: str, promisor_finalize_signature: tp.Optional[str] = None
+        self,
+        index: int,
+        report_hash: str,
+        promisor: tp.Optional[str] = None,
+        promisor_finalize_signature: tp.Optional[str] = None,
     ) -> str:
         """
         Report on a completed job to receive a deserved award. This may be done by another address, but there should be
         a liability promisor signature.
 
         @param index: Liability item index.
-        @param promisor: Promisor (worker) ss58_address.
         @param report_hash: IPFS hash of a report data (videos, text, etc). Both base58 (Qm...) and raw IPFS formats are
         accepted.
+        @param promisor: Promisor (worker) ss58_address. If not passed, replaced with transaction author address.
         @param promisor_finalize_signature: 'Job done' proof. A message containing liability index and report data
         signed by promisor. If not passed, this message is signed by a transaction author which should be a promisor so.
 
         @return: Liability finalization transaction hash
         """
 
-        if not promisor_finalize_signature:
-            promisor_finalize_signature: str = self.sign_liability_finalize(index, report_hash)
+        logger.info(
+            f"Finalizing liability {index} by promisor {promisor or self.liability_interface.define_address()}."
+        )
 
         return self.liability_interface.custom_extrinsic(
             "Liability",
@@ -850,9 +864,11 @@ class Liability:
             {
                 "report": {
                     "index": index,
-                    "sender": promisor,
+                    "sender": promisor or self.liability_interface.define_address(),
                     "payload": {"hash": report_hash},
-                    "signature": {"Sr25519": promisor_finalize_signature},
+                    "signature": {
+                        "Sr25519": promisor_finalize_signature or self.sign_liability_finalize(index, report_hash)
+                    },
                 }
             },
         )
@@ -871,6 +887,8 @@ class Liability:
 
         if not self.liability_interface.keypair:
             raise NoPrivateKey("No private key, unable to sign a message")
+
+        logger.info(f"Signing report for liability {index} with report_hash {report_hash}.")
 
         u64_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("U32")
         index_scale: ScaleBytes = u64_scale_obj.encode(index)
