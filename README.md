@@ -59,31 +59,6 @@ interface.send_launch(<target_addr>, True)
 ```
 Current nonce definition and manual nonce setting is also possible.
 
-## Robonomics Web Services (RWS)
-There are as well dedicated methods for convenient usage of RWS.
-- Chainstate functions `auctionQueue`, `auction`, `devices` to examine subscriptions auctions:
-```python
-interface.rws_auction_queue()
-inteface.rws_auction(<auction_index>)
-interface.rws_list_devices(<subscription_owner_addr>)
-```
-- Extrinsincs: `bid`, `set_devices` and, the most important, `call`
-```python
-interface.rws_bid(<auction_index>, <amount_weiners>)
-interface.rws_set_devices([<ss58_addr>, <ss58_addr>])
-interface.rws_custom_call(<subscription_owner_addr>,
-                           <call_module>,
-                           <call_function>,
-                           <params_dict>)
-```
-There are as well dedicated `datalog`, `launch` and [DigitalTwin](#Digital Twins) functions for RWS-based transactions.
-```python
-interface.rws_record_datalog(<subscription_owner_addr>, <data>)
-interface.rws_send_launch(<subscription_owner_addr>, <target_addr>, True)
-interface.rws_dt_create(<subscription_owner_addr>)
-interface.rws_dt_set_source(<subscription_owner_addr>, dt_id, <topic_name>, <ss58_source_addr>)
-```
-
 ## Subscriptions
 There is a subscriptions functional implemented. When initiated, blocks thread and processes new events with a user-passed 
 callback function. Pay attention that this callback may only accept one argument - the event data. Up to now, the only supported 
@@ -112,6 +87,63 @@ One may also find topic source by
 ```python
 interface.dt_get_source(dt_id, <topic_name>)
 ```
+
+## Liabilities
+This package support Robonomics liability functionality. [Here](https://wiki.robonomics.network/docs/en/robonomics-how-it-works/)
+is a bit about the concept on Ethereum. It's slightly different in Substrate.
+
+With this package one can create liabilities, sign technical parameters messages, report completed liabilities, sign 
+report messages, fetch information about current and completed liabilities:
+```python
+promisee = RobonomicsInterface(remote_ws="ws://127.0.0.1:9944", seed="<seed>")
+promisor = RobonomicsInterface(remote_ws="ws://127.0.0.1:9944", seed="<seed>")
+
+task = "QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE" # task parsing is on user side
+reward = 10 * 10 ** 9
+promisee = promisee.define_address()
+promisor = promisor.define_address()
+
+promisee_task_signature = promisee.sign_create_liability(task, reward)
+promisor_task_signature = promisor.sign_create_liability(task, reward)
+
+index, tr_hash = promisee.create_liability(
+    task, reward, promisee, promisor, promisee_task_signature, promisor_task_signature
+)
+
+print(index)
+print(promisee.liability_info(index))
+
+report = "Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z" # report parsing is on user side
+promisor.finalize_liability(index, report) # this one signs report message automatically if no signature provided
+print(promisor.liability_report(index))
+```
+More information and functionality may be found in the code.
+
+## Robonomics Web Services (RWS)
+There are as well dedicated methods for convenient usage of RWS.
+- Chainstate functions `auctionQueue`, `auction`, `devices` to examine subscriptions auctions:
+```python
+interface.rws_auction_queue()
+inteface.rws_auction(<auction_index>)
+interface.rws_list_devices(<subscription_owner_addr>)
+```
+- Extrinsincs: `bid`, `set_devices` and, the most important, `call`
+```python
+interface.rws_bid(<auction_index>, <amount_weiners>)
+interface.rws_set_devices([<ss58_addr>, <ss58_addr>])
+interface.rws_custom_call(<subscription_owner_addr>,
+                           <call_module>,
+                           <call_function>,
+                           <params_dict>)
+```
+There are as well dedicated `datalog`, `launch` and [DigitalTwin](#Digital Twins) functions for RWS-based transactions.
+```python
+interface.rws_record_datalog(<subscription_owner_addr>, <data>)
+interface.rws_send_launch(<subscription_owner_addr>, <target_addr>, True)
+interface.rws_dt_create(<subscription_owner_addr>)
+interface.rws_dt_set_source(<subscription_owner_addr>, dt_id, <topic_name>, <ss58_source_addr>)
+```
+
 ## IO
 This package provides console prototyping tool such as [robonomics io](https://wiki.robonomics.network/docs/en/rio-overview/)
 with slight differences:

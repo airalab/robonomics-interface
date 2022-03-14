@@ -1,1 +1,1 @@
-from .RobonomicsInterface import RobonomicsInterface, PubSub, Subscriber, SubEvent
+from .RobonomicsInterface import PubSub, RobonomicsInterface, SubEvent, Subscriber
