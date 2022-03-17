@@ -2,7 +2,6 @@ REMOTE_WS = "wss://kusama.rpc.robonomics.network"
 TYPE_REGISTRY = {
     "types": {
         "Record": "Vec<u8>",
-        "Parameter": "Bool",
         "<T as frame_system::Config>::AccountId": "AccountId",
         "RingBufferItem": {
             "type": "struct",
