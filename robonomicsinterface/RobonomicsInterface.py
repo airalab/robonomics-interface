@@ -42,6 +42,7 @@ class RobonomicsInterface:
         :param remote_ws: Node url. Default node address is "wss://kusama.rpc.robonomics.network".
         Another address may be specified (e.g. "ws://127.0.0.1:9944" for local node).
         :param type_registry: Types used in the chain. Defaults are the most frequently used in Robonomics.
+
         """
 
         self.keypair: tp.Optional[substrate.Keypair] = self._create_keypair(seed) if seed else None
@@ -58,6 +59,7 @@ class RobonomicsInterface:
         :param seed: Account seed as a key to sign transactions.
 
         :return: A Keypair instance used by substrate to sign transactions.
+
         """
 
         if seed.startswith("0x"):
@@ -83,20 +85,22 @@ class RobonomicsInterface:
         :param params: Query parameters. None if no parameters. Include in list, if several.
         :param block_hash: Retrieves data as of passed block hash.
         :param subscription_handler: Callback function that processes the updates of the storage query subscription.
-        The workflow is the same as in substrateinterface lib. Calling method with this parameter blocks current thread!
-                Example of subscription handler:
-        ```
-        def subscription_handler(obj, update_nr, subscription_id):
-            if update_nr == 0:
-                print('Initial data:', obj.value)
-            if update_nr > 0:
-                # Do something with the update.
-                print('data changed:', obj.value)
-            # The execution will block until an arbitrary value is returned, which will be the result of the `query`
-            if update_nr > 1:
-                return obj
-        ```
+            The workflow is the same as in substrateinterface lib. Calling method with this parameter blocks current thread!
+                    Example of subscription handler:
+            ```
+            def subscription_handler(obj, update_nr, subscription_id):
+                if update_nr == 0:
+                    print('Initial data:', obj.value)
+                if update_nr > 0:
+                    # Do something with the update.
+                    print('data changed:', obj.value)
+                # The execution will block until an arbitrary value is returned, which will be the result of the `query`
+                if update_nr > 1:
+                    return obj
+            ```
+
         :return: Output of the query in any form.
+
         """
 
         logger.info(f"Performing query {module}.{storage_function}")
@@ -113,6 +117,7 @@ class RobonomicsInterface:
         Define ss58_address of an account, which seed was provided while initializing an interface.
 
         :return: ss58_address of an account.
+
         """
 
         if not self.keypair:
@@ -127,12 +132,12 @@ class RobonomicsInterface:
         initialized with a seed.
 
         :param addr: ss58 type 32 address of an account which datalog is to be fetched. If None, tries to fetch self
-        datalog if keypair was created, else raises NoPrivateKey.
-        :param index: record index. case int: fetch datalog by specified index
-                                    case None: fetch latest datalog.
+            datalog if keypair was created, else raises NoPrivateKey.
+        :param index: record index. case int: fetch datalog by specified index case None: fetch latest datalog.
         :param block_hash: Retrieves data as of passed block hash.
 
         :return: Tuple. Datalog of the account with a timestamp, None if no records.
+
         """
 
         address: str = addr or self.define_address()
@@ -163,6 +168,7 @@ class RobonomicsInterface:
         :param block_hash: Retrieves data as of passed block hash.
 
         :return: Auction queue of Robonomics Web Services subscriptions.
+
         """
 
         logger.info("Fetching auctions queue list")
@@ -176,6 +182,7 @@ class RobonomicsInterface:
         :param block_hash: Retrieves data as of passed block hash.
 
         :return: Auction info.
+
         """
 
         logger.info(f"Fetching auction {index} information")
@@ -189,6 +196,7 @@ class RobonomicsInterface:
         :param block_hash: Retrieves data as of passed block hash.
 
         :return: List of added devices. Empty if none.
+
         """
 
         logger.info(f"Fetching list of RWS devices set by owner {addr}")
@@ -202,7 +210,8 @@ class RobonomicsInterface:
         :param dt_id: Digital Twin object ID.
         :param block_hash: Retrieves data as of passed block hash.
 
-        :return: List of DigitalTwin associated mapping. None if no Digital Twin with such id..
+        :return: List of DigitalTwin associated mapping. None if no Digital Twin with such id.
+
         """
         logger.info(f"Fetching info about Digital Twin with ID {dt_id}")
 
@@ -216,6 +225,7 @@ class RobonomicsInterface:
         :param block_hash: Retrieves data as of passed block hash.
 
         :return: Owner address. None if no Digital Twin with such id.
+
         """
         logger.info(f"Fetching owner of Digital Twin with ID {dt_id}")
 
@@ -228,6 +238,7 @@ class RobonomicsInterface:
         :param block_hash: Retrieves data as of passed block hash.
 
         :return: Total number of Digital Twins. None no Digital Twins.
+
         """
         logger.info("Fetching Total number of Digital Twins")
 
@@ -241,6 +252,7 @@ class RobonomicsInterface:
         :param topic: Searched topic. Normal string.
 
         :return: If found, topic source ss58 address.
+
         """
 
         topic_hashed: str = self.dt_encode_topic(topic)
@@ -260,12 +272,11 @@ class RobonomicsInterface:
         :param block_hash: block_hash: Retrieves data as of passed block hash.
 
         :return: Liability information: technics, economics, promisee, promisor, signatures. None if no such liability.
+
         """
         logger.info(f"Fetching information about liability with index {liability_index}")
 
-        return self.custom_chainstate(
-            "Liability", "AgreementOf", liability_index, block_hash=block_hash
-        )
+        return self.custom_chainstate("Liability", "AgreementOf", liability_index, block_hash=block_hash)
 
     def liability_total(self, block_hash: tp.Optional[str] = None) -> tp.Optional[int]:
         """
@@ -274,6 +285,7 @@ class RobonomicsInterface:
         :param block_hash: Retrieves data as of passed block hash.
 
         :return: Total number of liabilities in chain. None no liabilities.
+
         """
 
         logger.info("Fetching total number of liabilities in chain.")
@@ -288,12 +300,12 @@ class RobonomicsInterface:
         :param block_hash: block_hash: Retrieves data as of passed block hash.
 
         :return: Liability report information: index, promisor, report, signature. None if no such liability report.
+
         """
+
         logger.info(f"Fetching information about reported liability with index {report_index}")
 
-        return self.custom_chainstate(
-            "Liability", "ReportOf", report_index, block_hash=block_hash
-        )
+        return self.custom_chainstate("Liability", "ReportOf", report_index, block_hash=block_hash)
 
     @connect_close_substrate_node
     def get_account_nonce(self, account_address: tp.Optional[str] = None) -> int:
@@ -302,10 +314,11 @@ class RobonomicsInterface:
 
         :param account_address: Account ss58_address. Self address via private key is obtained if not passed.
 
-        :return Account nonce. Due to e feature of substrate-interface lib,
-        to create an extrinsic with incremented nonce, pass account's current nonce. See
-        https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
-        for example.
+        :return Account nonce. Due to e feature of substrate-interface lib, to create an extrinsic with incremented
+            nonce, pass account's current nonce. See
+            https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
+            for example.
+
         """
 
         logger.info(f"Fetching nonce of account {account_address or self.define_address()}")
@@ -327,11 +340,12 @@ class RobonomicsInterface:
         :param call_function: Call function from extrinsic tab on portal.
         :param params: Call parameters as a dictionary. None for no parameters.
         :param nonce: Transaction nonce, defined automatically if None. Due to e feature of substrate-interface lib,
-        to create an extrinsic with incremented nonce, pass account's current nonce. See
-        https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
-        for example.
+            to create an extrinsic with incremented nonce, pass account's current nonce. See
+            https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
+            for example.
 
         :return: Extrinsic hash.
+
         """
 
         if not self.keypair:
@@ -364,11 +378,12 @@ class RobonomicsInterface:
 
         :param data: String to be stored in datalog.
         :param nonce: Nonce of the transaction. Due to e feature of substrate-interface lib,
-        to create an extrinsic with incremented nonce, pass account's current nonce. See
-        https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
-        for example.
+            to create an extrinsic with incremented nonce, pass account's current nonce. See
+            https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
+            for example.
 
         :return: Hash of the datalog transaction.
+
         """
 
         logger.info(f"Writing datalog {data}")
@@ -380,13 +395,14 @@ class RobonomicsInterface:
 
         :param target_address: Device to be triggered with launch.
         :param parameter: Launch command accompanying parameter. Should be a 32 bytes data. Also, IPFS Qm... hash is
-        supported.
+            supported.
         :param nonce: Account nonce. Due to e feature of substrate-interface lib,
-        to create an extrinsic with incremented nonce, pass account's current nonce. See
-        https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
-        for example.
+            to create an extrinsic with incremented nonce, pass account's current nonce. See
+            https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
+            for example.
 
         :return: Hash of the launch transaction.
+
         """
 
         logger.info(f"Sending launch command to {target_address}")
@@ -401,6 +417,7 @@ class RobonomicsInterface:
         Create a new digital twin.
 
         :return: Tuple of newly created Digital Twin ID and hash of the creation transaction.
+
         """
 
         tr_hash: str = self.custom_extrinsic("DigitalTwin", "create")
@@ -421,6 +438,7 @@ class RobonomicsInterface:
         :param topic: Topic name to be encoded.
 
         :return: Hashed-encoded topic name
+
         """
 
         return f"0x{hashlib.sha256(topic.encode('utf-8')).hexdigest()}"
@@ -436,6 +454,7 @@ class RobonomicsInterface:
         :param source: Source address in ss58 format.
 
         :return: Tuple of hashed topic and transaction hash.
+
         """
 
         topic_hashed = self.dt_encode_topic(topic)
@@ -452,11 +471,12 @@ class RobonomicsInterface:
         :param string_32_bytes: 32 bytes sting (without 2 heading bytes).
 
         :return: IPFS base58 Qm... hash.
+
         """
 
         if string_32_bytes.startswith("0x"):
             string_32_bytes = string_32_bytes[2:]
-        return b58encode(b'\x12 ' + bytes.fromhex(string_32_bytes)).decode('utf-8')
+        return b58encode(b"\x12 " + bytes.fromhex(string_32_bytes)).decode("utf-8")
 
     @staticmethod
     def ipfs_qm_hash_to_32_bytes(ipfs_qm: str) -> str:
@@ -466,18 +486,19 @@ class RobonomicsInterface:
         :param ipfs_qm: IPFS base58 Qm... hash.
 
         :return: 32 bytes sting (without 2 heading bytes).
+
         """
 
         return f"0x{b58decode(ipfs_qm).hex()[4:]}"
 
     def create_liability(
-            self,
-            technics_hash: str,
-            economics: int,
-            promisee: str,
-            promisor: str,
-            promisee_params_signature: str,
-            promisor_params_signature: str,
+        self,
+        technics_hash: str,
+        economics: int,
+        promisee: str,
+        promisor: str,
+        promisee_params_signature: str,
+        promisor_params_signature: str,
     ) -> tp.Tuple[int, str]:
         """
         Create a liability to ensure economical relationships between robots! This is a contract to be assigned to a
@@ -485,16 +506,17 @@ class RobonomicsInterface:
         This extrinsic may be submitted by another address, but there should be promisee and promisor signatures.
 
         :param technics_hash: Details of the liability, where the promisee order is described. Accepts any 32-bytes data
-        or a base58 (Qm...) IPFS hash.
+            or a base58 (Qm...) IPFS hash.
         :param economics: Promisor reward in Weiners.
         :param promisee: Promisee (customer) ss58_address
         :param promisor: Promisor (worker) ss58_address
         :param promisee_params_signature: An agreement proof. This is a private key signed message containing technics
-        and economics. Both sides need to do this. Signed by promisee.
+            and economics. Both sides need to do this. Signed by promisee.
         :param promisor_params_signature: An agreement proof. This is a private key signed message containing the same
-        technics and economics. Both sides need to do this. Signed by promisor.
+            technics and economics. Both sides need to do this. Signed by promisor.
 
         :return: New liability index and hash of the liability creation transaction.
+
         """
 
         logger.info(
@@ -535,10 +557,11 @@ class RobonomicsInterface:
         details message to state the agreement of promisee and promisor. Both sides need to do this.
 
         :param technics_hash: Details of the liability, where the promisee order is described. Accepts any 32-bytes data
-        or a base58 (Qm...) IPFS hash.
+            or a base58 (Qm...) IPFS hash.
         :param economics: Promisor reward in Weiners.
 
         :return: Signed message 64-byte hash in sting form.
+
         """
 
         if not self.keypair:
@@ -558,11 +581,11 @@ class RobonomicsInterface:
         return f"0x{self.keypair.sign(technics_scale + economics_scale).hex()}"
 
     def finalize_liability(
-            self,
-            index: int,
-            report_hash: str,
-            promisor: tp.Optional[str] = None,
-            promisor_finalize_signature: tp.Optional[str] = None,
+        self,
+        index: int,
+        report_hash: str,
+        promisor: tp.Optional[str] = None,
+        promisor_finalize_signature: tp.Optional[str] = None,
     ) -> str:
         """
         Report on a completed job to receive a deserved award. This may be done by another address, but there should be
@@ -570,17 +593,16 @@ class RobonomicsInterface:
 
         :param index: Liability item index.
         :param report_hash: IPFS hash of a report data (videos, text, etc). Accepts any 32-bytes data or a base58
-        (Qm...) IPFS hash.
+            (Qm...) IPFS hash.
         :param promisor: Promisor (worker) ss58_address. If not passed, replaced with transaction author address.
         :param promisor_finalize_signature: 'Job done' proof. A message containing liability index and report data
-        signed by promisor. If not passed, this message is signed by a transaction author which should be a promisor so.
+            signed by promisor. If not passed, this message is signed by a transaction author which should be a promisor so.
 
         :return: Liability finalization transaction hash
+
         """
 
-        logger.info(
-            f"Finalizing liability {index} by promisor {promisor or self.define_address()}."
-        )
+        logger.info(f"Finalizing liability {index} by promisor {promisor or self.define_address()}.")
 
         if report_hash.startswith("Qm"):
             report_hash = self.ipfs_qm_hash_to_32_bytes(report_hash)
@@ -607,9 +629,10 @@ class RobonomicsInterface:
 
         :param index: Liability item index.
         :param report_hash: IPFS hash of a report data (videos, text, etc). Accepts any 32-bytes data or a base58
-        (Qm...) IPFS hash.
+            (Qm...) IPFS hash.
 
         :return: Signed message 64-byte hash in sting form.
+
         """
 
         if not self.keypair:
@@ -632,9 +655,11 @@ class RobonomicsInterface:
         """
         Bid to win a subscription!
 
-
         :param index: Auction index.
         :param amount: Your bid in Weiners.
+
+        :return: Transaction hash.
+
         """
 
         logger.info(f"Bidding on auction {index} with {amount} Weiners (appx. {round(amount / 10 ** 9, 2)} XRT)")
@@ -647,6 +672,7 @@ class RobonomicsInterface:
         :param devices: Devices authorized to use RWS subscriptions. Include in list.
 
         :return: Transaction hash.
+
         """
 
         logger.info(f"Allowing {devices} to use {self.define_address()} subscription")
@@ -663,12 +689,13 @@ class RobonomicsInterface:
         Send transaction from a device given a RWS subscription.
 
         :param subscription_owner_addr: Subscription owner, the one who granted this device ability to send
-        transactions.
+            transactions.
         :param call_module: Call module from extrinsic tab on portal.
         :param call_function: Call function from extrinsic tab on portal.
         :param params: Call parameters as a dictionary. None for no parameters.
 
         :return: Transaction hash.
+
         """
 
         logger.info(
@@ -688,10 +715,11 @@ class RobonomicsInterface:
         Write any string to datalog from a device which was granted a subscription.
 
         :param subscription_owner_addr: Subscription owner, the one who granted this device ability to send
-        transactions.
+            transactions.
         :param data: String to be stored in datalog.
 
         :return: Hash of the datalog transaction.
+
         """
 
         return self.rws_custom_call(subscription_owner_addr, "Datalog", "record", {"record": data})
@@ -701,12 +729,13 @@ class RobonomicsInterface:
         Send Launch command to device from another device which was granted a subscription.
 
         :param subscription_owner_addr: Subscription owner, the one who granted this device ability to send
-        transactions.
+            transactions.
         :param target_address: device to be triggered with launch.
         :param parameter: Launch command accompanying parameter. Should be a 32 bytes data. Also, IPFS Qm... hash is
-        supported.
+            supported.
 
         :return: Hash of the launch transaction.
+
         """
 
         if parameter.startswith("Qm"):
@@ -721,9 +750,10 @@ class RobonomicsInterface:
         Create a Digital Twin from a device which was granted a subscription.
 
         :param subscription_owner_addr: Subscription owner, the one who granted this device ability to send
-        transactions.
+            transactions.
 
         :return: Tuple of newly created Digital Twin ID and hash of the creation transaction.
+
         """
 
         tr_hash: str = self.rws_custom_call(subscription_owner_addr, "DigitalTwin", "create")
@@ -746,12 +776,13 @@ class RobonomicsInterface:
         to the format as saved in the chain for comparing.
 
         :param subscription_owner_addr: Subscription owner, the one who granted this device ability to send
-        transactions.
+            transactions.
         :param dt_id: Digital Twin ID, which should have been created by this function calling account.
         :param topic: Topic to add. The passed string is sha256 hashed and stored in blockchain.
         :param source: Source address in ss58 format.
 
         :return: Tuple of hashed topic and transaction hash.
+
         """
 
         topic_hashed = self.dt_encode_topic(topic)
@@ -778,6 +809,7 @@ class RobonomicsInterface:
         :param result_handler: Callback function that processes the result received from the node.
 
         :return: Result of the request.
+
         """
 
         return self.interface.rpc_request(method, params, result_handler)
@@ -788,6 +820,7 @@ class RobonomicsInterface:
         Get chain head block headers.
 
         :return: Chain head block headers.
+
         """
 
         return self.interface.subscribe_block_headers(subscription_handler=callback)
@@ -805,6 +838,7 @@ class PubSub:
         Initiate an instance for further use.
 
         :param interface: RobonomicsInterface instance.
+
         """
 
         self._pubsub_interface = interface
@@ -819,6 +853,7 @@ class PubSub:
         :param result_handler: Callback function that processes the result received from the node.
 
         :return: Success flag in JSON message.
+
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_connect", [address], result_handler)
@@ -833,6 +868,7 @@ class PubSub:
         :param result_handler: Callback function that processes the result received from the node.
 
         :return: Success flag in JSON message.
+
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_listen", [address], result_handler)
@@ -846,6 +882,7 @@ class PubSub:
         :param result_handler: Callback function that processes the result received from the node.
 
         :return: List of node addresses in JSON message.
+
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_listeners", None, result_handler)
@@ -855,6 +892,7 @@ class PubSub:
         Returns local peer ID.
 
         :return: Local peer ID in JSON message.
+
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_peer", None, result_handler)
@@ -868,6 +906,7 @@ class PubSub:
         :param result_handler: Callback function that processes the result received from the node.
 
         :return: TODO
+
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_publish", [topic_name, message], result_handler)
@@ -882,6 +921,7 @@ class PubSub:
         :param result_handler: Callback function that processes the result received from the node.
 
         :return: Subscription ID in JSON message.
+
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_subscribe", [topic_name], result_handler)
@@ -896,6 +936,7 @@ class PubSub:
         :param result_handler: Callback function that processes the result received from the node.
 
         :return: Success flag in JSON message.
+
         """
 
         return self._pubsub_interface.custom_rpc_request("pubsub_unsubscribe", [subscription_id], result_handler)
@@ -924,11 +965,12 @@ class Subscriber:
 
         :param interface: RobonomicsInterface instance
         :param subscribed_event: Event in substrate chain to be awaited. Choose from [NewRecord, NewLaunch, Transfer].
-        This parameter should be a SubEvent class attribute. This also requires importing this class.
+            This parameter should be a SubEvent class attribute. This also requires importing this class.
         :param subscription_handler: Callback function that processes the updates of the storage.
-        THIS FUNCTION IS MEANT TO ACCEPT ONLY ONE ARGUMENT (THE NEW EVENT DESCRIPTION TUPLE).
+            THIS FUNCTION IS MEANT TO ACCEPT ONLY ONE ARGUMENT (THE NEW EVENT DESCRIPTION TUPLE).
         :param addr: ss58 type 32 address(-es) of an account(-s) which is(are) meant to be event target. If None, will
-        subscribe to all such events never-mind target address(-es).
+            subscribe to all such events never-mind target address(-es).
+
         """
 
         self._subscriber_interface: RobonomicsInterface = interface
@@ -958,6 +1000,7 @@ class Subscriber:
         :param index_obj: Updated event list.
         :param update_nr: Update counter. Increments every new update added. Starts with 0.
         :param subscription_id: Subscription ID.
+
         """
 
         if update_nr != 0:

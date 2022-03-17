@@ -8,7 +8,8 @@ def callback(data):
     """
     callback executed when subscription event triggered. Simply outputs incoming info to console
 
-    @param data: data to be output
+    :param data: data to be output
+
     """
     click.echo(data)
 
