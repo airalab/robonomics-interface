@@ -696,20 +696,24 @@ class RobonomicsInterface:
 
         return self.rws_custom_call(subscription_owner_addr, "Datalog", "record", {"record": data})
 
-    def rws_send_launch(self, subscription_owner_addr: str, target_address: str, toggle: bool) -> str:
+    def rws_send_launch(self, subscription_owner_addr: str, target_address: str, parameter: str) -> str:
         """
         Send Launch command to device from another device which was granted a subscription.
 
         @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send
         transactions.
         @param target_address: device to be triggered with launch.
-        @param toggle: whether send ON or OFF command. ON == True, OFF == False.
+        @param parameter: Launch command accompanying parameter. Should be a 32 bytes data. Also, IPFS Qm... hash is
+        supported.
 
         @return: Hash of the launch transaction.
         """
 
+        if parameter.startswith("Qm"):
+            parameter = self.ipfs_qm_hash_to_32_bytes(parameter)
+
         return self.rws_custom_call(
-            subscription_owner_addr, "Launch", "launch", {"robot": target_address, "param": toggle}
+            subscription_owner_addr, "Launch", "launch", {"robot": target_address, "param": parameter}
         )
 
     def rws_dt_create(self, subscription_owner_addr: str) -> tp.Tuple[int, str]:
