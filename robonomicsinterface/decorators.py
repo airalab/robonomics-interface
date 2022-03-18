@@ -1,5 +1,7 @@
 import substrateinterface as substrate
 
+from functools import wraps
+
 
 def connect_close_substrate_node(func):
     """
@@ -11,6 +13,7 @@ def connect_close_substrate_node(func):
 
     """
 
+    @wraps(func)
     def wrapper(ri_instance, *args, **kwargs):
         """
         Wrap decorated function with interface opening/closing

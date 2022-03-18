@@ -85,19 +85,9 @@ class RobonomicsInterface:
         :param params: Query parameters. None if no parameters. Include in list, if several.
         :param block_hash: Retrieves data as of passed block hash.
         :param subscription_handler: Callback function that processes the updates of the storage query subscription.
-            The workflow is the same as in substrateinterface lib. Calling method with this parameter blocks current thread!
-                    Example of subscription handler:
-            ```
-            def subscription_handler(obj, update_nr, subscription_id):
-                if update_nr == 0:
-                    print('Initial data:', obj.value)
-                if update_nr > 0:
-                    # Do something with the update.
-                    print('data changed:', obj.value)
-                # The execution will block until an arbitrary value is returned, which will be the result of the `query`
-                if update_nr > 1:
-                    return obj
-            ```
+            The workflow is the same as in substrateinterface lib. Calling method with this parameter blocks current
+            thread! Example of subscription handler:
+            https://github.com/polkascan/py-substrate-interface#storage-subscriptions
 
         :return: Output of the query in any form.
 
@@ -596,7 +586,8 @@ class RobonomicsInterface:
             (Qm...) IPFS hash.
         :param promisor: Promisor (worker) ss58_address. If not passed, replaced with transaction author address.
         :param promisor_finalize_signature: 'Job done' proof. A message containing liability index and report data
-            signed by promisor. If not passed, this message is signed by a transaction author which should be a promisor so.
+            signed by promisor. If not passed, this message is signed by a transaction author which should be a promisor
+            so.
 
         :return: Liability finalization transaction hash
 
