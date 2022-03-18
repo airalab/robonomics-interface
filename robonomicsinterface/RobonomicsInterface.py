@@ -374,12 +374,13 @@ class RobonomicsInterface:
         logger.info(f"Writing datalog {data}")
         return self.custom_extrinsic("Datalog", "record", {"record": data}, nonce)
 
-    def send_launch(self, target_address: str, toggle: bool, nonce: tp.Optional[int] = None) -> str:
+    def send_launch(self, target_address: str, parameter: str, nonce: tp.Optional[int] = None) -> str:
         """
         Send Launch command to device.
 
         @param target_address: Device to be triggered with launch.
-        @param toggle: Whether send ON or OFF command. ON == True, OFF == False.
+        @param parameter: Launch command accompanying parameter. Should be a 32 bytes data. Also, IPFS Qm... hash is
+        supported.
         @param nonce: Account nonce. Due to e feature of substrate-interface lib,
         to create an extrinsic with incremented nonce, pass account's current nonce. See
         https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
@@ -388,8 +389,12 @@ class RobonomicsInterface:
         @return: Hash of the launch transaction.
         """
 
-        logger.info(f"Sending {'ON' if toggle else 'OFF'} launch command to {target_address}")
-        return self.custom_extrinsic("Launch", "launch", {"robot": target_address, "param": toggle}, nonce)
+        logger.info(f"Sending launch command to {target_address}")
+
+        if parameter.startswith("Qm"):
+            parameter = self.ipfs_qm_hash_to_32_bytes(parameter)
+
+        return self.custom_extrinsic("Launch", "launch", {"robot": target_address, "param": parameter}, nonce)
 
     def dt_create(self) -> tp.Tuple[int, str]:
         """
@@ -691,20 +696,24 @@ class RobonomicsInterface:
 
         return self.rws_custom_call(subscription_owner_addr, "Datalog", "record", {"record": data})
 
-    def rws_send_launch(self, subscription_owner_addr: str, target_address: str, toggle: bool) -> str:
+    def rws_send_launch(self, subscription_owner_addr: str, target_address: str, parameter: str) -> str:
         """
         Send Launch command to device from another device which was granted a subscription.
 
         @param subscription_owner_addr: Subscription owner, the one who granted this device ability to send
         transactions.
         @param target_address: device to be triggered with launch.
-        @param toggle: whether send ON or OFF command. ON == True, OFF == False.
+        @param parameter: Launch command accompanying parameter. Should be a 32 bytes data. Also, IPFS Qm... hash is
+        supported.
 
         @return: Hash of the launch transaction.
         """
 
+        if parameter.startswith("Qm"):
+            parameter = self.ipfs_qm_hash_to_32_bytes(parameter)
+
         return self.rws_custom_call(
-            subscription_owner_addr, "Launch", "launch", {"robot": target_address, "param": toggle}
+            subscription_owner_addr, "Launch", "launch", {"robot": target_address, "param": parameter}
         )
 
     def rws_dt_create(self, subscription_owner_addr: str) -> tp.Tuple[int, str]:

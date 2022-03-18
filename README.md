@@ -55,7 +55,7 @@ hash = interface.custom_extrinsic("DigitalTwin", "create")
 There are dedicated functions for recording datalog and sending launch commands:
 ```python
 interface.record_datalog("Hello, Robonomics")
-interface.send_launch(<target_addr>, True)
+interface.send_launch(<target_addr>, "Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z")
 ```
 Current nonce definition and manual nonce setting is also possible.
 

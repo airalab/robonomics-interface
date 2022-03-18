@@ -73,16 +73,14 @@ def datalog(input_string: sys.stdin, remote_ws: str, s: str) -> None:
 @click.option("-r", type=str, required=True, help="Target account ss58_address.")
 def launch(command, remote_ws, s, r) -> None:
     """
-    Send ON|OFF launch commands using pipeline:  <echo "ON" | robonomics_interface io write launch (params)>
-    If nothing passed, waits for a string in a new line. Sends "True" if "ON" passed, anything else results in "OFF".
+    Send launch command accompanied by parameter in IPFS Qm... form or just 32 bytes data using pipeline:
+    <echo "Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z" | robonomics_interface io write launch (params)>
+    If nothing passed, waits for a string in a new line.
     """
     interface: RI = RI(remote_ws=remote_ws, seed=s)
-    if command.readline()[:-1] == "ON":
-        transaction_hash: str = interface.send_launch(r, True)
-        click.echo((transaction_hash, f"{interface.define_address()} -> {r}: true"))
-    else:
-        transaction_hash: str = interface.send_launch(r, False)
-        click.echo((transaction_hash, f"{interface.define_address()} -> {r}: false"))
+    parameter: str = command.readline()[:-1]
+    transaction_hash: str = interface.send_launch(r, parameter)
+    click.echo((transaction_hash, f"{interface.define_address()} -> {r}: {parameter}"))
 
 
 @read.command()
