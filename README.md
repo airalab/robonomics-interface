@@ -52,10 +52,11 @@ hash = interface.custom_extrinsic("DigitalTwin", "create")
 ```
 `hash` here is the transaction hash of the succeeded extrinsic. You can also specify arguments for the extrinsic as a dictionary.
 
-There are dedicated functions for recording datalog and sending launch commands:
+There are dedicated functions for recording datalog, sending launch commands and sending tokens:
 ```python
 interface.record_datalog("Hello, Robonomics")
 interface.send_launch(<target_addr>, "Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z")
+interface.send_tokens(<target_addr>, <number_of_tokens>)
 ```
 Current nonce definition and manual nonce setting is also possible.
 

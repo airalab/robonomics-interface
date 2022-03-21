@@ -263,9 +263,7 @@ class RobonomicsInterface:
         """
         logger.info(f"Fetching information about liability with index {liability_index}")
 
-        return self.custom_chainstate(
-            "Liability", "AgreementOf", liability_index, block_hash=block_hash
-        )
+        return self.custom_chainstate("Liability", "AgreementOf", liability_index, block_hash=block_hash)
 
     def liability_total(self, block_hash: tp.Optional[str] = None) -> tp.Optional[int]:
         """
@@ -291,9 +289,7 @@ class RobonomicsInterface:
         """
         logger.info(f"Fetching information about reported liability with index {report_index}")
 
-        return self.custom_chainstate(
-            "Liability", "ReportOf", report_index, block_hash=block_hash
-        )
+        return self.custom_chainstate("Liability", "ReportOf", report_index, block_hash=block_hash)
 
     @connect_close_substrate_node
     def get_account_nonce(self, account_address: tp.Optional[str] = None) -> int:
@@ -302,7 +298,7 @@ class RobonomicsInterface:
 
         @param account_address: Account ss58_address. Self address via private key is obtained if not passed.
 
-        @return Account nonce. Due to e feature of substrate-interface lib,
+        @return Account nonce. Due to the feature of substrate-interface lib,
         to create an extrinsic with incremented nonce, pass account's current nonce. See
         https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
         for example.
@@ -326,7 +322,7 @@ class RobonomicsInterface:
         @param call_module: Call module from extrinsic tab on portal.
         @param call_function: Call function from extrinsic tab on portal.
         @param params: Call parameters as a dictionary. None for no parameters.
-        @param nonce: Transaction nonce, defined automatically if None. Due to e feature of substrate-interface lib,
+        @param nonce: Transaction nonce, defined automatically if None. Due to the feature of substrate-interface lib,
         to create an extrinsic with incremented nonce, pass account's current nonce. See
         https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
         for example.
@@ -358,12 +354,31 @@ class RobonomicsInterface:
 
         return str(receipt.extrinsic_hash)
 
+    def send_tokens(self, target_address: str, tokens: int, nonce: tp.Optional[int] = None) -> str:
+        """
+        Send tokens to target address.
+
+        @param target_address: Account that will receive tokens.
+        @param tokens: Number of tokens to be sent, in Wei, so if you want to send 1 XRT, you should send 
+        "1 000 000 000" units.
+        @param nonce: Account nonce. Due to the feature of substrate-interface lib,
+        to create an extrinsic with incremented nonce, pass account's current nonce. See
+        https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
+        for example.
+
+        @return: Hash of the transfer transaction.
+        """
+
+        logger.info(f"Sending tokens to {target_address}")
+
+        return self.custom_extrinsic("Balances", "transfer", {"dest": {"Id": target_address}, "value": tokens}, nonce)
+
     def record_datalog(self, data: str, nonce: tp.Optional[int] = None) -> str:
         """
         Write any string to datalog.
 
         @param data: String to be stored in datalog.
-        @param nonce: Nonce of the transaction. Due to e feature of substrate-interface lib,
+        @param nonce: Nonce of the transaction. Due to the feature of substrate-interface lib,
         to create an extrinsic with incremented nonce, pass account's current nonce. See
         https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
         for example.
@@ -381,7 +396,7 @@ class RobonomicsInterface:
         @param target_address: Device to be triggered with launch.
         @param parameter: Launch command accompanying parameter. Should be a 32 bytes data. Also, IPFS Qm... hash is
         supported.
-        @param nonce: Account nonce. Due to e feature of substrate-interface lib,
+        @param nonce: Account nonce. Due to the feature of substrate-interface lib,
         to create an extrinsic with incremented nonce, pass account's current nonce. See
         https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
         for example.
@@ -456,7 +471,7 @@ class RobonomicsInterface:
 
         if string_32_bytes.startswith("0x"):
             string_32_bytes = string_32_bytes[2:]
-        return b58encode(b'\x12 ' + bytes.fromhex(string_32_bytes)).decode('utf-8')
+        return b58encode(b"\x12 " + bytes.fromhex(string_32_bytes)).decode("utf-8")
 
     @staticmethod
     def ipfs_qm_hash_to_32_bytes(ipfs_qm: str) -> str:
@@ -471,13 +486,13 @@ class RobonomicsInterface:
         return f"0x{b58decode(ipfs_qm).hex()[4:]}"
 
     def create_liability(
-            self,
-            technics_hash: str,
-            economics: int,
-            promisee: str,
-            promisor: str,
-            promisee_params_signature: str,
-            promisor_params_signature: str,
+        self,
+        technics_hash: str,
+        economics: int,
+        promisee: str,
+        promisor: str,
+        promisee_params_signature: str,
+        promisor_params_signature: str,
     ) -> tp.Tuple[int, str]:
         """
         Create a liability to ensure economical relationships between robots! This is a contract to be assigned to a
@@ -558,11 +573,11 @@ class RobonomicsInterface:
         return f"0x{self.keypair.sign(technics_scale + economics_scale).hex()}"
 
     def finalize_liability(
-            self,
-            index: int,
-            report_hash: str,
-            promisor: tp.Optional[str] = None,
-            promisor_finalize_signature: tp.Optional[str] = None,
+        self,
+        index: int,
+        report_hash: str,
+        promisor: tp.Optional[str] = None,
+        promisor_finalize_signature: tp.Optional[str] = None,
     ) -> str:
         """
         Report on a completed job to receive a deserved award. This may be done by another address, but there should be
@@ -578,9 +593,7 @@ class RobonomicsInterface:
         @return: Liability finalization transaction hash
         """
 
-        logger.info(
-            f"Finalizing liability {index} by promisor {promisor or self.define_address()}."
-        )
+        logger.info(f"Finalizing liability {index} by promisor {promisor or self.define_address()}.")
 
         if report_hash.startswith("Qm"):
             report_hash = self.ipfs_qm_hash_to_32_bytes(report_hash)
