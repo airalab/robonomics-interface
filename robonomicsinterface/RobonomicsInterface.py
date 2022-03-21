@@ -304,7 +304,7 @@ class RobonomicsInterface:
 
         :param account_address: Account ss58_address. Self address via private key is obtained if not passed.
 
-        :return Account nonce. Due to e feature of substrate-interface lib, to create an extrinsic with incremented
+        :return Account nonce. Due to the feature of substrate-interface lib, to create an extrinsic with incremented
             nonce, pass account's current nonce. See
             https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
             for example.
@@ -329,7 +329,7 @@ class RobonomicsInterface:
         :param call_module: Call module from extrinsic tab on portal.
         :param call_function: Call function from extrinsic tab on portal.
         :param params: Call parameters as a dictionary. None for no parameters.
-        :param nonce: Transaction nonce, defined automatically if None. Due to e feature of substrate-interface lib,
+        :param nonce: Transaction nonce, defined automatically if None. Due to the feature of substrate-interface lib,
             to create an extrinsic with incremented nonce, pass account's current nonce. See
             https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
             for example.
@@ -367,7 +367,7 @@ class RobonomicsInterface:
         Write any string to datalog.
 
         :param data: String to be stored in datalog.
-        :param nonce: Nonce of the transaction. Due to e feature of substrate-interface lib,
+        :param nonce: Nonce of the transaction. Due to the feature of substrate-interface lib,
             to create an extrinsic with incremented nonce, pass account's current nonce. See
             https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
             for example.
@@ -386,7 +386,7 @@ class RobonomicsInterface:
         :param target_address: Device to be triggered with launch.
         :param parameter: Launch command accompanying parameter. Should be a 32 bytes data. Also, IPFS Qm... hash is
             supported.
-        :param nonce: Account nonce. Due to e feature of substrate-interface lib,
+        :param nonce: Account nonce. Due to the feature of substrate-interface lib,
             to create an extrinsic with incremented nonce, pass account's current nonce. See
             https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
             for example.
