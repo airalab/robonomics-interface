@@ -358,6 +358,29 @@ class RobonomicsInterface:
 
         return str(receipt.extrinsic_hash)
 
+    def send_tokens(self, target_address: str, tokens: int, nonce: tp.Optional[int] = None) -> str:
+        """
+        Send tokens to target device.
+
+        @param target_address: device that will receive tokens.
+        @param tokens: Number of tokens to be send. Number in wei, so if you want to sent 1 xrt, you should sent "1 000 000 000" units.
+        @param nonce: Account nonce. Due to e feature of substrate-interface lib,
+        to create an extrinsic with incremented nonce, pass account's current nonce. See
+        https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
+        for example.
+
+        @return: Hash of the launch transaction.
+        """
+
+        logger.info(f"Sending tokens to {target_address}")
+
+        return self.custom_extrinsic(
+            "Balances",
+            "transfer",
+            {"dest": {"Id": target_address}, "value": tokens},
+            nonce,
+        )
+
     def record_datalog(self, data: str, nonce: tp.Optional[int] = None) -> str:
         """
         Write any string to datalog.
