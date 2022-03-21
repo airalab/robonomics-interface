@@ -54,6 +54,7 @@ to fetch specific record. If you create an interface with a provided seed, you'l
 Another dedicated function is for **Account information**:
 
 .. code-block:: python
+
     account_info = interface.account_info(<ss58_addr>)
 
 This will return account information of the specified address. If an interface was created with a seed passed seed,
