@@ -108,6 +108,24 @@ class RobonomicsInterface:
             subscription_handler=subscription_handler,
         ).value
 
+    def account_info(
+        self, addr: tp.Optional[str] = None, block_hash: tp.Optional[str] = None
+    ) -> tp.Dict[str, tp.Union[int, tp.Dict[str, int]]]:
+        """
+        Get an information about account.
+
+        @param addr: Explored account ss_58 address.
+
+        @param block_hash: Retrieves data as of passed block hash.
+
+        @return: Dictionary with information about account data.
+
+        """
+        account_address: str = addr or self.define_address()
+
+        logger.info("Getting account data")
+        return self.custom_chainstate("System", "Account", account_address, block_hash=block_hash)
+
     def define_address(self) -> str:
         """
         Define ss58_address of an account, which seed was provided while initializing an interface.
@@ -147,9 +165,9 @@ class RobonomicsInterface:
             )
             return record if record[0] != 0 else None
         else:
-            index_latest: int = self.custom_chainstate("Datalog", "DatalogIndex", address, block_hash=block_hash)[
-                "end"
-            ] - 1
+            index_latest: int = (
+                self.custom_chainstate("Datalog", "DatalogIndex", address, block_hash=block_hash)["end"] - 1
+            )
             return (
                 self.custom_chainstate("Datalog", "DatalogItem", [address, index_latest], block_hash=block_hash)
                 if index_latest != -1
@@ -359,7 +377,7 @@ class RobonomicsInterface:
         Send tokens to target address.
 
         @param target_address: Account that will receive tokens.
-        @param tokens: Number of tokens to be sent, in Wei, so if you want to send 1 XRT, you should send 
+        @param tokens: Number of tokens to be sent, in Wei, so if you want to send 1 XRT, you should send
         "1 000 000 000" units.
         @param nonce: Account nonce. Due to the feature of substrate-interface lib,
         to create an extrinsic with incremented nonce, pass account's current nonce. See
