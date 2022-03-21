@@ -51,6 +51,14 @@ This will give you the latest datalog record of the specified account with its t
 to fetch specific record. If you create an interface with a provided seed, you'll be able to fetch self-datalog calling
 `fetch_datalog` with no arguments (or just the `index` argument).
 
+Another dedicated function is for **Account information**:
+
+.. code-block:: python
+    account_info = interface.account_info(<ss58_addr>)
+
+This will return account information of the specified address. If an interface was created with a seed passed seed,
+you'll be able to get self-account info calling `account_info` with no arguments.
+
 Extrinsics
 ++++++++++
 
@@ -63,12 +71,13 @@ Extrinsics
 
 `hash` here is the transaction hash of the succeeded extrinsic. You can also specify arguments for the extrinsic as a dictionary.
 
-There are dedicated functions for recording datalog and sending launch commands:
+There are dedicated functions for recording datalog, sending launch commands and sending tokens:
 
 .. code-block:: python
 
     interface.record_datalog("Hello, Robonomics")
     interface.send_launch(<target_addr>, "Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z")
+    interface.send_tokens(<target_addr>, <number_of_tokens>)
 
 Current nonce definition and manual nonce setting is also possible.
 
