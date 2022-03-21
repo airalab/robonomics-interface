@@ -263,9 +263,7 @@ class RobonomicsInterface:
         """
         logger.info(f"Fetching information about liability with index {liability_index}")
 
-        return self.custom_chainstate(
-            "Liability", "AgreementOf", liability_index, block_hash=block_hash
-        )
+        return self.custom_chainstate("Liability", "AgreementOf", liability_index, block_hash=block_hash)
 
     def liability_total(self, block_hash: tp.Optional[str] = None) -> tp.Optional[int]:
         """
@@ -291,9 +289,7 @@ class RobonomicsInterface:
         """
         logger.info(f"Fetching information about reported liability with index {report_index}")
 
-        return self.custom_chainstate(
-            "Liability", "ReportOf", report_index, block_hash=block_hash
-        )
+        return self.custom_chainstate("Liability", "ReportOf", report_index, block_hash=block_hash)
 
     @connect_close_substrate_node
     def get_account_nonce(self, account_address: tp.Optional[str] = None) -> int:
@@ -456,7 +452,7 @@ class RobonomicsInterface:
 
         if string_32_bytes.startswith("0x"):
             string_32_bytes = string_32_bytes[2:]
-        return b58encode(b'\x12 ' + bytes.fromhex(string_32_bytes)).decode('utf-8')
+        return b58encode(b"\x12 " + bytes.fromhex(string_32_bytes)).decode("utf-8")
 
     @staticmethod
     def ipfs_qm_hash_to_32_bytes(ipfs_qm: str) -> str:
@@ -471,13 +467,13 @@ class RobonomicsInterface:
         return f"0x{b58decode(ipfs_qm).hex()[4:]}"
 
     def create_liability(
-            self,
-            technics_hash: str,
-            economics: int,
-            promisee: str,
-            promisor: str,
-            promisee_params_signature: str,
-            promisor_params_signature: str,
+        self,
+        technics_hash: str,
+        economics: int,
+        promisee: str,
+        promisor: str,
+        promisee_params_signature: str,
+        promisor_params_signature: str,
     ) -> tp.Tuple[int, str]:
         """
         Create a liability to ensure economical relationships between robots! This is a contract to be assigned to a
@@ -558,11 +554,11 @@ class RobonomicsInterface:
         return f"0x{self.keypair.sign(technics_scale + economics_scale).hex()}"
 
     def finalize_liability(
-            self,
-            index: int,
-            report_hash: str,
-            promisor: tp.Optional[str] = None,
-            promisor_finalize_signature: tp.Optional[str] = None,
+        self,
+        index: int,
+        report_hash: str,
+        promisor: tp.Optional[str] = None,
+        promisor_finalize_signature: tp.Optional[str] = None,
     ) -> str:
         """
         Report on a completed job to receive a deserved award. This may be done by another address, but there should be
@@ -578,9 +574,7 @@ class RobonomicsInterface:
         @return: Liability finalization transaction hash
         """
 
-        logger.info(
-            f"Finalizing liability {index} by promisor {promisor or self.define_address()}."
-        )
+        logger.info(f"Finalizing liability {index} by promisor {promisor or self.define_address()}.")
 
         if report_hash.startswith("Qm"):
             report_hash = self.ipfs_qm_hash_to_32_bytes(report_hash)
