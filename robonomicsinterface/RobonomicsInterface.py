@@ -112,18 +112,19 @@ class RobonomicsInterface:
         self, addr: tp.Optional[str] = None, block_hash: tp.Optional[str] = None
     ) -> tp.Dict[str, tp.Union[int, tp.Dict[str, int]]]:
         """
-        Get an information about account.
+        Get account information.
 
         @param addr: Explored account ss_58 address.
 
         @param block_hash: Retrieves data as of passed block hash.
 
-        @return: Dictionary with information about account data.
+        @return: Account information dictionary.
 
         """
         account_address: str = addr or self.define_address()
 
-        logger.info("Getting account data")
+        logger.info(f"Getting account {account_address} data")
+
         return self.custom_chainstate("System", "Account", account_address, block_hash=block_hash)
 
     def define_address(self) -> str:
