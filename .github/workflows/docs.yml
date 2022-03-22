@@ -28,10 +28,12 @@ jobs:
       run: |
         poetry --version
         poetry build
+    - name: Install Package
+      run: |
+        pip install dist/robonomics_*
     - name: Build Docs
       uses: ammaraskar/sphinx-action@master
       with:
-        build-command: "sphinx-build -b html ./source/ build"
         docs-folder: "docs"
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
