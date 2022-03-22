@@ -21,10 +21,6 @@ project = 'robonomics-interface'
 copyright = '2022, PavelTarasov'
 author = 'PavelTarasov'
 
-# The full version, including alpha/beta/rc tags
-release = '0.8.0'
-
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -33,7 +29,6 @@ release = '0.8.0'
 extensions = [
     'sphinx.ext.duration',
     'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
