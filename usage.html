@@ -1,0 +1,297 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Usage &#8212; robonomics-interface  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Code Documentation" href="modules.html" />
+    <link rel="prev" title="Welcome to robonomics-interface’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="usage">
+<span id="id1"></span><h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>To use robonomics-interface, first install it using pip:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> pip install robonomics-interface
+</pre></div>
+</div>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="initialization">
+<h3>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interface</span> <span class="o">=</span> <span class="n">RI</span><span class="o">.</span><span class="n">RobonomicsInterface</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>By default, you will only be able to fetch Chainstate info from Frontier parachain and use PubSub pattern.</p>
+<p>You can specify another <cite>node address</cite> (e.g. local), <cite>seed</cite> to sign extrinsics and custom <cite>registry types</cite>.</p>
+<p>Address of the device may be obtained using <cite>define_address</cite> method. If the interface was initialed with a seed/private key
+this method will return <cite>&lt;ss58_addr&gt;</cite> of the device whose seed/private key was passed.</p>
+</div>
+<div class="section" id="chainstate">
+<h3>Chainstate<a class="headerlink" href="#chainstate" title="Permalink to this headline">¶</a></h3>
+<p>With the above mentioned executed, you will be able to read any Chainstate info from the Frontier parachain:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">num_dt</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">custom_chainstate</span><span class="p">(</span><span class="s2">&quot;DigitalTwin&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also specify an argument for the query. Several arguments should be put in a list. Block hash parameter is
+also available via <cite>block_hash</cite> argument if you want to make a query as of a specified block.</p>
+<p>There is a dedicated function to obtain <strong>Datalog</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">record</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">fetch_datalog</span><span class="p">(</span><span class="o">&lt;</span><span class="n">ss58_addr</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will give you the latest datalog record of the specified account with its timestamp. You may pass an index argument
+to fetch specific record. If you create an interface with a provided seed, you’ll be able to fetch self-datalog calling
+<cite>fetch_datalog</cite> with no arguments (or just the <cite>index</cite> argument).</p>
+<p>Another dedicated function is for <strong>Account information</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">account_info</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">account_info</span><span class="p">(</span><span class="o">&lt;</span><span class="n">ss58_addr</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will return account information of the specified address. If an interface was created with a seed passed seed,
+you’ll be able to get self-account info calling <cite>account_info</cite> with no arguments.</p>
+</div>
+<div class="section" id="extrinsics">
+<h3>Extrinsics<a class="headerlink" href="#extrinsics" title="Permalink to this headline">¶</a></h3>
+<p><strong>Providing seed</strong> (any raw or mnemonic) while initializing <strong>will let you create and submit extrinsics</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interface</span> <span class="o">=</span> <span class="n">RI</span><span class="o">.</span><span class="n">RobonmicsInterface</span><span class="p">(</span><span class="n">seed</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">seed</span><span class="o">&gt;</span><span class="p">)</span>
+<span class="nb">hash</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">custom_extrinsic</span><span class="p">(</span><span class="s2">&quot;DigitalTwin&quot;</span><span class="p">,</span> <span class="s2">&quot;create&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><cite>hash</cite> here is the transaction hash of the succeeded extrinsic. You can also specify arguments for the extrinsic as a dictionary.</p>
+<p>There are dedicated functions for recording datalog, sending launch commands and sending tokens:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interface</span><span class="o">.</span><span class="n">record_datalog</span><span class="p">(</span><span class="s2">&quot;Hello, Robonomics&quot;</span><span class="p">)</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">send_launch</span><span class="p">(</span><span class="o">&lt;</span><span class="n">target_addr</span><span class="o">&gt;</span><span class="p">,</span> <span class="s2">&quot;Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z&quot;</span><span class="p">)</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">send_tokens</span><span class="p">(</span><span class="o">&lt;</span><span class="n">target_addr</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">number_of_tokens</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Current nonce definition and manual nonce setting is also possible.</p>
+</div>
+<div class="section" id="subscriptions">
+<h3>Subscriptions<a class="headerlink" href="#subscriptions" title="Permalink to this headline">¶</a></h3>
+<p>There is a subscriptions functional implemented. When initiated, blocks thread and processes new events with a user-passed
+callback function. Pay attention that this callback may only accept one argument - the event data. Up to now, the only supported
+events are <cite>NewRecord</cite>, <cite>NewLaunch</cite>, <cite>Transfer</cite></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">robonomicsinterface</span> <span class="kn">import</span> <span class="n">RobonomicsInterface</span><span class="p">,</span> <span class="n">Subscriber</span><span class="p">,</span> <span class="n">SubEvent</span>
+
+<span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+<span class="n">interface</span> <span class="o">=</span> <span class="n">RobonomicsInterface</span><span class="p">()</span>
+<span class="n">subscriber</span> <span class="o">=</span> <span class="n">Subscriber</span><span class="p">(</span><span class="n">interface</span><span class="p">,</span> <span class="n">SubEvent</span><span class="o">.</span><span class="n">NewLaunch</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">ss58_addr</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>One may also pass a list of addresses.</p>
+</div>
+<div class="section" id="digital-twins">
+<span id="digital-twin"></span><h3>Digital Twins<a class="headerlink" href="#digital-twins" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="https://wiki.robonomics.network/docs/en/digital-twins/">Digital Twins</a> functionality is also supported.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dt_it</span><span class="p">,</span> <span class="n">tr_hash</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">dt_create</span><span class="p">()</span>
+<span class="n">topic_hashed</span><span class="p">,</span> <span class="n">source_tr_hash</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">dt_set_source</span><span class="p">(</span><span class="n">dt_id</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">topic_name</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">ss58_source_addr</span><span class="o">&gt;</span><span class="p">)</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">dt_info</span><span class="p">(</span><span class="n">dt_id</span><span class="p">)</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">dt_owner</span><span class="p">(</span><span class="n">dt_id</span><span class="p">)</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">dt_total</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>One may also find topic source by</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interface</span><span class="o">.</span><span class="n">dt_get_source</span><span class="p">(</span><span class="n">dt_id</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">topic_name</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="liabilities">
+<h3>Liabilities<a class="headerlink" href="#liabilities" title="Permalink to this headline">¶</a></h3>
+<p>This package support Robonomics liability functionality. <a class="reference external" href="https://wiki.robonomics.network/docs/en/robonomics-how-it-works/">Here</a>
+is a bit about the concept on Ethereum. It’s slightly different in Substrate.</p>
+<p>With this package one can create liabilities, sign technical parameters messages, report completed liabilities, sign
+report messages, fetch information about current and completed liabilities:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">promisee</span> <span class="o">=</span> <span class="n">RobonomicsInterface</span><span class="p">(</span><span class="n">remote_ws</span><span class="o">=</span><span class="s2">&quot;ws://127.0.0.1:9944&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="s2">&quot;&lt;seed&gt;&quot;</span><span class="p">)</span>
+<span class="n">promisor</span> <span class="o">=</span> <span class="n">RobonomicsInterface</span><span class="p">(</span><span class="n">remote_ws</span><span class="o">=</span><span class="s2">&quot;ws://127.0.0.1:9944&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="s2">&quot;&lt;seed&gt;&quot;</span><span class="p">)</span>
+
+<span class="n">task</span> <span class="o">=</span> <span class="s2">&quot;QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE&quot;</span> <span class="c1"># task parsing is on user side</span>
+<span class="n">reward</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">9</span>
+<span class="n">promisee</span> <span class="o">=</span> <span class="n">promisee</span><span class="o">.</span><span class="n">define_address</span><span class="p">()</span>
+<span class="n">promisor</span> <span class="o">=</span> <span class="n">promisor</span><span class="o">.</span><span class="n">define_address</span><span class="p">()</span>
+
+<span class="n">promisee_task_signature</span> <span class="o">=</span> <span class="n">promisee</span><span class="o">.</span><span class="n">sign_create_liability</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">reward</span><span class="p">)</span>
+<span class="n">promisor_task_signature</span> <span class="o">=</span> <span class="n">promisor</span><span class="o">.</span><span class="n">sign_create_liability</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">reward</span><span class="p">)</span>
+
+<span class="n">index</span><span class="p">,</span> <span class="n">tr_hash</span> <span class="o">=</span> <span class="n">promisee</span><span class="o">.</span><span class="n">create_liability</span><span class="p">(</span>
+    <span class="n">task</span><span class="p">,</span> <span class="n">reward</span><span class="p">,</span> <span class="n">promisee</span><span class="p">,</span> <span class="n">promisor</span><span class="p">,</span> <span class="n">promisee_task_signature</span><span class="p">,</span> <span class="n">promisor_task_signature</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">promisee</span><span class="o">.</span><span class="n">liability_info</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+
+<span class="n">report</span> <span class="o">=</span> <span class="s2">&quot;Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z&quot;</span> <span class="c1"># report parsing is on user side</span>
+<span class="n">promisor</span><span class="o">.</span><span class="n">finalize_liability</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">report</span><span class="p">)</span> <span class="c1"># this one signs report message automatically if no signature provided</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">promisor</span><span class="o">.</span><span class="n">liability_report</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="robonomics-web-services-rws">
+<h3>Robonomics Web Services (RWS)<a class="headerlink" href="#robonomics-web-services-rws" title="Permalink to this headline">¶</a></h3>
+<p>There are as well dedicated methods for convenient usage of RWS.
+- Chainstate functions <cite>auctionQueue</cite>, <cite>auction</cite>, <cite>devices</cite> to examine subscriptions auctions:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interface</span><span class="o">.</span><span class="n">rws_auction_queue</span><span class="p">()</span>
+<span class="n">inteface</span><span class="o">.</span><span class="n">rws_auction</span><span class="p">(</span><span class="o">&lt;</span><span class="n">auction_index</span><span class="o">&gt;</span><span class="p">)</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">rws_list_devices</span><span class="p">(</span><span class="o">&lt;</span><span class="n">subscription_owner_addr</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Extrinsincs: <cite>bid</cite>, <cite>set_devices</cite> and, the most important, <cite>call</cite></p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interface</span><span class="o">.</span><span class="n">rws_bid</span><span class="p">(</span><span class="o">&lt;</span><span class="n">auction_index</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">amount_weiners</span><span class="o">&gt;</span><span class="p">)</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">rws_set_devices</span><span class="p">([</span><span class="o">&lt;</span><span class="n">ss58_addr</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">ss58_addr</span><span class="o">&gt;</span><span class="p">])</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">rws_custom_call</span><span class="p">(</span><span class="o">&lt;</span><span class="n">subscription_owner_addr</span><span class="o">&gt;</span><span class="p">,</span>
+                           <span class="o">&lt;</span><span class="n">call_module</span><span class="o">&gt;</span><span class="p">,</span>
+                           <span class="o">&lt;</span><span class="n">call_function</span><span class="o">&gt;</span><span class="p">,</span>
+                           <span class="o">&lt;</span><span class="n">params_dict</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>There are as well dedicated <cite>datalog</cite>, <cite>launch</cite> and <a class="reference internal" href="#digital-twin">Digital Twin</a> functions for RWS-based transactions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interface</span><span class="o">.</span><span class="n">rws_record_datalog</span><span class="p">(</span><span class="o">&lt;</span><span class="n">subscription_owner_addr</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">data</span><span class="o">&gt;</span><span class="p">)</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">rws_send_launch</span><span class="p">(</span><span class="o">&lt;</span><span class="n">subscription_owner_addr</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">target_addr</span><span class="o">&gt;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">rws_dt_create</span><span class="p">(</span><span class="o">&lt;</span><span class="n">subscription_owner_addr</span><span class="o">&gt;</span><span class="p">)</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">rws_dt_set_source</span><span class="p">(</span><span class="o">&lt;</span><span class="n">subscription_owner_addr</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">dt_id</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">topic_name</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">ss58_source_addr</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="io">
+<h3>IO<a class="headerlink" href="#io" title="Permalink to this headline">¶</a></h3>
+<p>This package provides console prototyping tool such as <a class="reference external" href="https://wiki.robonomics.network/docs/en/rio-overview/">robonomics io</a>
+with slight differences:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> robonomics_interface <span class="nb">read</span> datalog
+<span class="gp">$</span> <span class="nb">echo</span> <span class="s2">&quot;Hello, Robonomics&quot;</span> <span class="p">|</span> robonomics_interface write datalog -s &lt;seed&gt;
+<span class="gp">$</span> robonomics_interface <span class="nb">read</span> launch
+<span class="gp">$</span> <span class="nb">echo</span> <span class="s2">&quot;ON&quot;</span> <span class="p">|</span> robonomics_interface write launch -s &lt;seed&gt; -r &lt;target_addr&gt;
+</pre></div>
+</div>
+<p>More info may be found with</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> robonomics_interface --help
+</pre></div>
+</div>
+</div>
+<div class="section" id="json-rpc">
+<h3>JSON RPC<a class="headerlink" href="#json-rpc" title="Permalink to this headline">¶</a></h3>
+<p><em>WARNING: THIS MODULE IS UNDER CONSTRUCTIONS, USE AT YOUR OWN RISK! TO BE UPDATED SOON.</em>
+There is a way to implement robonomics pubsub rpc calls:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interface</span> <span class="o">=</span> <span class="n">RI</span><span class="o">.</span><span class="n">RobonomicsInterface</span><span class="p">()</span>
+<span class="n">pubsub</span> <span class="o">=</span> <span class="n">PubSub</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span>
+<span class="n">pubsub</span><span class="o">.</span><span class="n">peer</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This is an evolving package, it may have errors and lack of functionality, fixes are coming.
+Feel free to open issues when faced a problem.</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">robonomics-interface</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#initialization">Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#chainstate">Chainstate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#extrinsics">Extrinsics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#subscriptions">Subscriptions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#digital-twins">Digital Twins</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#liabilities">Liabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robonomics-web-services-rws">Robonomics Web Services (RWS)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#io">IO</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#json-rpc">JSON RPC</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">Code Documentation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to robonomics-interface’s documentation!</a></li>
+      <li>Next: <a href="modules.html" title="next chapter">Code Documentation</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, PavelTarasov.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/usage.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
