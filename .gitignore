@@ -1,5 +1,7 @@
 dist/
 .idea
+.venv
+poetry.lock
 __pycache__/
 docs/build
 docs/source/modules.rst

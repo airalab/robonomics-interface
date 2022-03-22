@@ -44,15 +44,13 @@ robonomics_interface = 'robonomicsinterface.robonomics_interface_io:cli'
 "Bug Tracker" = "https://github.com/Multi-Agent-io/robonomics-interface/issues"
 
 [tool.poetry.dependencies]
-python = ">3.6, <4.0"
-substrate-interface = "^1.1.7"
-click = "^8.0.3"
+python = ">=3.8, <4.0"
+substrate-interface = "^1.2.2"
+click = "^8.0.4"
 
 [tool.poetry.dev-dependencies]
-python = ">3.6, <4.0"
-substrate-interface = "^1.1.7"
-click = "^8.0.3"
-sphinx = ">4.4.0, <5.0"
+Sphinx = "^4.4.0"
+black = "^22.1.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
