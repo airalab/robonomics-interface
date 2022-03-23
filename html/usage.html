@@ -1,17 +1,18 @@
 
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
     <title>Usage &#8212; robonomics-interface  documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Code Documentation" href="modules.html" />
@@ -32,18 +33,18 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="usage">
+  <section id="usage">
 <span id="id1"></span><h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="installation">
+<section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>To use robonomics-interface, first install it using pip:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> pip install robonomics-interface
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install robonomics-interface
 </pre></div>
 </div>
-</div>
-<div class="section" id="examples">
+</section>
+<section id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="initialization">
+<section id="initialization">
 <h3>Initialization<a class="headerlink" href="#initialization" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interface</span> <span class="o">=</span> <span class="n">RI</span><span class="o">.</span><span class="n">RobonomicsInterface</span><span class="p">()</span>
 </pre></div>
@@ -52,8 +53,8 @@
 <p>You can specify another <cite>node address</cite> (e.g. local), <cite>seed</cite> to sign extrinsics and custom <cite>registry types</cite>.</p>
 <p>Address of the device may be obtained using <cite>define_address</cite> method. If the interface was initialed with a seed/private key
 this method will return <cite>&lt;ss58_addr&gt;</cite> of the device whose seed/private key was passed.</p>
-</div>
-<div class="section" id="chainstate">
+</section>
+<section id="chainstate">
 <h3>Chainstate<a class="headerlink" href="#chainstate" title="Permalink to this headline">¶</a></h3>
 <p>With the above mentioned executed, you will be able to read any Chainstate info from the Frontier parachain:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">num_dt</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">custom_chainstate</span><span class="p">(</span><span class="s2">&quot;DigitalTwin&quot;</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">)</span>
@@ -74,8 +75,8 @@ to fetch specific record. If you create an interface with a provided seed, you�
 </div>
 <p>This will return account information of the specified address. If an interface was created with a seed passed seed,
 you’ll be able to get self-account info calling <cite>account_info</cite> with no arguments.</p>
-</div>
-<div class="section" id="extrinsics">
+</section>
+<section id="extrinsics">
 <h3>Extrinsics<a class="headerlink" href="#extrinsics" title="Permalink to this headline">¶</a></h3>
 <p><strong>Providing seed</strong> (any raw or mnemonic) while initializing <strong>will let you create and submit extrinsics</strong>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interface</span> <span class="o">=</span> <span class="n">RI</span><span class="o">.</span><span class="n">RobonmicsInterface</span><span class="p">(</span><span class="n">seed</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">seed</span><span class="o">&gt;</span><span class="p">)</span>
@@ -90,8 +91,8 @@ you’ll be able to get self-account info calling <cite>account_info</cite> with
 </pre></div>
 </div>
 <p>Current nonce definition and manual nonce setting is also possible.</p>
-</div>
-<div class="section" id="subscriptions">
+</section>
+<section id="subscriptions">
 <h3>Subscriptions<a class="headerlink" href="#subscriptions" title="Permalink to this headline">¶</a></h3>
 <p>There is a subscriptions functional implemented. When initiated, blocks thread and processes new events with a user-passed
 callback function. Pay attention that this callback may only accept one argument - the event data. Up to now, the only supported
@@ -106,8 +107,8 @@ events are <cite>NewRecord</cite>, <cite>NewLaunch</cite>, <cite>Transfer</cite>
 </pre></div>
 </div>
 <p>One may also pass a list of addresses.</p>
-</div>
-<div class="section" id="digital-twins">
+</section>
+<section id="digital-twins">
 <span id="digital-twin"></span><h3>Digital Twins<a class="headerlink" href="#digital-twins" title="Permalink to this headline">¶</a></h3>
 <p><a class="reference external" href="https://wiki.robonomics.network/docs/en/digital-twins/">Digital Twins</a> functionality is also supported.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dt_it</span><span class="p">,</span> <span class="n">tr_hash</span> <span class="o">=</span> <span class="n">interface</span><span class="o">.</span><span class="n">dt_create</span><span class="p">()</span>
@@ -121,8 +122,8 @@ events are <cite>NewRecord</cite>, <cite>NewLaunch</cite>, <cite>Transfer</cite>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interface</span><span class="o">.</span><span class="n">dt_get_source</span><span class="p">(</span><span class="n">dt_id</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">topic_name</span><span class="o">&gt;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="liabilities">
+</section>
+<section id="liabilities">
 <h3>Liabilities<a class="headerlink" href="#liabilities" title="Permalink to this headline">¶</a></h3>
 <p>This package support Robonomics liability functionality. <a class="reference external" href="https://wiki.robonomics.network/docs/en/robonomics-how-it-works/">Here</a>
 is a bit about the concept on Ethereum. It’s slightly different in Substrate.</p>
@@ -151,8 +152,8 @@ report messages, fetch information about current and completed liabilities:</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">promisor</span><span class="o">.</span><span class="n">liability_report</span><span class="p">(</span><span class="n">index</span><span class="p">))</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="robonomics-web-services-rws">
+</section>
+<section id="robonomics-web-services-rws">
 <h3>Robonomics Web Services (RWS)<a class="headerlink" href="#robonomics-web-services-rws" title="Permalink to this headline">¶</a></h3>
 <p>There are as well dedicated methods for convenient usage of RWS.
 - Chainstate functions <cite>auctionQueue</cite>, <cite>auction</cite>, <cite>devices</cite> to examine subscriptions auctions:</p>
@@ -179,23 +180,23 @@ report messages, fetch information about current and completed liabilities:</p>
 <span class="n">interface</span><span class="o">.</span><span class="n">rws_dt_set_source</span><span class="p">(</span><span class="o">&lt;</span><span class="n">subscription_owner_addr</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">dt_id</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">topic_name</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">ss58_source_addr</span><span class="o">&gt;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="io">
+</section>
+<section id="io">
 <h3>IO<a class="headerlink" href="#io" title="Permalink to this headline">¶</a></h3>
 <p>This package provides console prototyping tool such as <a class="reference external" href="https://wiki.robonomics.network/docs/en/rio-overview/">robonomics io</a>
 with slight differences:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> robonomics_interface <span class="nb">read</span> datalog
-<span class="gp">$</span> <span class="nb">echo</span> <span class="s2">&quot;Hello, Robonomics&quot;</span> <span class="p">|</span> robonomics_interface write datalog -s &lt;seed&gt;
-<span class="gp">$</span> robonomics_interface <span class="nb">read</span> launch
-<span class="gp">$</span> <span class="nb">echo</span> <span class="s2">&quot;ON&quot;</span> <span class="p">|</span> robonomics_interface write launch -s &lt;seed&gt; -r &lt;target_addr&gt;
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>robonomics_interface <span class="nb">read</span> datalog
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">&quot;Hello, Robonomics&quot;</span> <span class="p">|</span> robonomics_interface write datalog -s &lt;seed&gt;
+<span class="gp">$ </span>robonomics_interface <span class="nb">read</span> launch
+<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">&quot;ON&quot;</span> <span class="p">|</span> robonomics_interface write launch -s &lt;seed&gt; -r &lt;target_addr&gt;
 </pre></div>
 </div>
 <p>More info may be found with</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> robonomics_interface --help
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>robonomics_interface --help
 </pre></div>
 </div>
-</div>
-<div class="section" id="json-rpc">
+</section>
+<section id="json-rpc">
 <h3>JSON RPC<a class="headerlink" href="#json-rpc" title="Permalink to this headline">¶</a></h3>
 <p><em>WARNING: THIS MODULE IS UNDER CONSTRUCTIONS, USE AT YOUR OWN RISK! TO BE UPDATED SOON.</em>
 There is a way to implement robonomics pubsub rpc calls:</p>
@@ -206,9 +207,9 @@ There is a way to implement robonomics pubsub rpc calls:</p>
 </div>
 <p>This is an evolving package, it may have errors and lack of functionality, fixes are coming.
 Feel free to open issues when faced a problem.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
           </div>
@@ -260,7 +261,7 @@ Feel free to open issues when faced a problem.</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -282,7 +283,7 @@ Feel free to open issues when faced a problem.</p>
       &copy;2022, PavelTarasov.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.4.4</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
