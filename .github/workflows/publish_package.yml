@@ -31,3 +31,17 @@ jobs:
     - name: Publish package
       run: |
         poetry publish -u "__token__" -p ${{ secrets.PYPI_API_TOKEN }}
+
+    - name: Get Package Version
+      id: get_version
+      shell: bash
+      run: |
+        echo "::set-output name=name::$(poetry version)"
+        echo "::set-output name=version::$(poetry version | cut -d " " -f 2)"
+
+    - name: Release With Assets
+      uses: softprops/action-gh-release@v1
+      with:
+        name: ${{ steps.get_version.outputs.name }}
+        tag_name: ${{ steps.get_version.outputs.version }}
+        files: ./dist/*.whl
