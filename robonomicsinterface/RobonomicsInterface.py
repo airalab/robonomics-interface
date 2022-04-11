@@ -1044,3 +1044,39 @@ class Subscriber:
                         in self._target_address
                     ):
                         self._callback(events["event"]["attributes"])  # address-targeted
+
+
+class ReqRes:
+    """
+    Class for handling Robonomics reqres rpc requests
+    """
+
+    def __init__(self, interface: RobonomicsInterface) -> None:
+        """
+        Initiate an instance for further use.
+
+        :param interface: RobonomicsInterface instance.
+
+        """
+        self._reqres_interface = interface
+
+    def p2p_get(self, address: str, message: str, result_handler: tp.Optional[tp.Callable] = None):
+        """
+        Returns for p2p rpc get response.
+
+        :param address: Multiaddr address of the peer to connect to. For example - "/ip4/127.0.0.1/tcp/61240/<Peer Id of server>
+        :param message: GET request.
+        :param result_handler: Callback function that processes the result received from the node.
+        """
+
+        return self._reqres_interface.custom_rpc_request("p2p_get", [address, message], result_handler)
+
+    def p2p_ping(self, address: str, result_handler: tp.Optional[tp.Callable] = None):
+
+        """
+        Returns for reqres p2p rpc ping to server response
+        :param address: Multiaddr address of the peer to connect to.  For example - "/ip4/127.0.0.1/tcp/61240/<Peer Id of server>
+        :param result_handler: Callback function that processes the result received from the node.
+        """
+
+        return self._reqres_interface.custom_rpc_request("p2p_ping", [address], result_handler)

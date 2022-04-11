@@ -166,13 +166,32 @@ More info may be found with
 $ robonomics_interface --help
 ```
 
+## REQRES API 
+There is a functionality for a direct connect to server based on robonomics node. 
+```python
+interface = RI.RobonomicsInterface()
+reqres = RI.ReqRes(interface)
+reqres.p2p_get(<Multiaddr of server>,<GET request>)
+reqres.p2p_ping(<Multiaddr of server>)
+```
+
+Example of usage:
+Dowload example of server [here](https://github.com/airalab/robonomics/tree/master/protocol/examples/reqres).   
+Start this server with local ip. Use for this next command: `cargo run "/ip4/127.0.0.1/tcp/61240"`. Then, in other terminal write small program:
+```python
+import robonomicsinterface as RI
+interface = RI.RobonomicsInterface(remote_ws = "ws://127.0.0.1:9944"
+reqres = RI.ReqRes(interface)
+print(reqres.p2p_get("/ip4/127.0.0.1/tcp/61240/<PeerId>","GET")) # PeerId - you will see in server logs
+```
+
 ## JSON RPC
 *WARNING: THIS MODULE IS UNDER CONSTRUCTIONS, USE AT YOUR OWN RISK! TO BE UPDATED SOON.*  
 There is a way to implement robonomics pubsub rpc calls:
 
 ```python3
 interface = RI.RobonomicsInterface()
-pubsub = PubSub(interface)
+pubsub = RI.PubSub(interface)
 pubsub.peer()
 ```
 
