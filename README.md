@@ -167,7 +167,9 @@ $ robonomics_interface --help
 ```
 
 ## REQRES API 
-There is a functionality for a direct connect to server based on robonomics node. 
+
+There is a functionality for a direct connection to server based on Robonomics node. 
+
 ```python
 interface = RI.RobonomicsInterface()
 reqres = RI.ReqRes(interface)
@@ -175,9 +177,12 @@ reqres.p2p_get(<Multiaddr of server>,<GET request>)
 reqres.p2p_ping(<Multiaddr of server>)
 ```
 
-Example of usage:
-Dowload example of server [here](https://github.com/airalab/robonomics/tree/master/protocol/examples/reqres).   
-Start this server with local ip. Use for this next command: `cargo run "/ip4/127.0.0.1/tcp/61240"`. Then, in other terminal write small program:
+#### Example of usage:
+
+Download sample server [here](https://github.com/airalab/robonomics/tree/master/protocol/examples/reqres).   
+Start this server with local ip: `cargo run "/ip4/127.0.0.1/tcp/61240"`. Then, in other terminal write small execute this
+script:
+
 ```python
 import robonomicsinterface as RI
 interface = RI.RobonomicsInterface(remote_ws = "ws://127.0.0.1:9944"
