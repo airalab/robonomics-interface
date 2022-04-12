@@ -196,12 +196,38 @@ with slight differences:</p>
 </pre></div>
 </div>
 </section>
+<section id="reqres-api">
+<h3>REQRES API<a class="headerlink" href="#reqres-api" title="Permalink to this headline">¶</a></h3>
+<p>There is a functionality for a direct connection to server based on Robonomics node.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interface</span> <span class="o">=</span> <span class="n">RI</span><span class="o">.</span><span class="n">RobonomicsInterface</span><span class="p">()</span>
+<span class="n">reqres</span> <span class="o">=</span> <span class="n">RI</span><span class="o">.</span><span class="n">ReqRes</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span>
+<span class="n">reqres</span><span class="o">.</span><span class="n">p2p_get</span><span class="p">(</span><span class="o">&lt;</span><span class="n">Multiaddr</span> <span class="n">of</span> <span class="n">server</span><span class="o">&gt;</span><span class="p">,</span><span class="o">&lt;</span><span class="n">GET</span> <span class="n">request</span><span class="o">&gt;</span><span class="p">)</span>
+<span class="n">reqres</span><span class="o">.</span><span class="n">p2p_ping</span><span class="p">(</span><span class="o">&lt;</span><span class="n">Multiaddr</span> <span class="n">of</span> <span class="n">server</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="example-of-usage">
+<h4>Example of usage<a class="headerlink" href="#example-of-usage" title="Permalink to this headline">¶</a></h4>
+<p>Download sample server <a class="reference external" href="https://github.com/airalab/robonomics/tree/master/protocol/examples/reqres">here</a>.
+Start this server with local ip (Rust (with cargo) installation process described <a class="reference external" href="https://www.rust-lang.org/tools/install">here</a>):</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">cargo run &quot;/ip4/127.0.0.1/tcp/61240&quot;</span>
+</pre></div>
+</div>
+<p>Then, in other terminal write small execute this script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">robonomicsinterface</span> <span class="k">as</span> <span class="nn">RI</span>
+<span class="n">interface</span> <span class="o">=</span> <span class="n">RI</span><span class="o">.</span><span class="n">RobonomicsInterface</span><span class="p">(</span><span class="n">remote_ws</span> <span class="o">=</span> <span class="s2">&quot;ws://127.0.0.1:9944&quot;</span><span class="p">)</span> <span class="c1"># requires local node</span>
+<span class="n">reqres</span> <span class="o">=</span> <span class="n">RI</span><span class="o">.</span><span class="n">ReqRes</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">reqres</span><span class="o">.</span><span class="n">p2p_get</span><span class="p">(</span><span class="s2">&quot;/ip4/127.0.0.1/tcp/61240/&lt;PeerId&gt;&quot;</span><span class="p">,</span><span class="s2">&quot;GET&quot;</span><span class="p">))</span> <span class="c1"># PeerId - you will see in server logs</span>
+</pre></div>
+</div>
+<p>This code sample requires local node launched. <cite>PeerId</cite> is obtained when launching server.</p>
+</section>
+</section>
 <section id="json-rpc">
 <h3>JSON RPC<a class="headerlink" href="#json-rpc" title="Permalink to this headline">¶</a></h3>
-<p><em>WARNING: THIS MODULE IS UNDER CONSTRUCTIONS, USE AT YOUR OWN RISK! TO BE UPDATED SOON.</em>
-There is a way to implement robonomics pubsub rpc calls:</p>
+<p><em>WARNING: THIS MODULE IS UNDER CONSTRUCTIONS, USE AT YOUR OWN RISK! TO BE UPDATED SOON.</em></p>
+<p>There is a way to implement robonomics pubsub rpc calls:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">interface</span> <span class="o">=</span> <span class="n">RI</span><span class="o">.</span><span class="n">RobonomicsInterface</span><span class="p">()</span>
-<span class="n">pubsub</span> <span class="o">=</span> <span class="n">PubSub</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span>
+<span class="n">pubsub</span> <span class="o">=</span> <span class="n">RI</span><span class="o">.</span><span class="n">PubSub</span><span class="p">(</span><span class="n">interface</span><span class="p">)</span>
 <span class="n">pubsub</span><span class="o">.</span><span class="n">peer</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -240,6 +266,10 @@ Feel free to open issues when faced a problem.</p>
 <li class="toctree-l3"><a class="reference internal" href="#liabilities">Liabilities</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#robonomics-web-services-rws">Robonomics Web Services (RWS)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#io">IO</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#reqres-api">REQRES API</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#example-of-usage">Example of usage</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#json-rpc">JSON RPC</a></li>
 </ul>
 </li>
@@ -283,7 +313,7 @@ Feel free to open issues when faced a problem.</p>
       &copy;2022, PavelTarasov.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
