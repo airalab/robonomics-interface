@@ -1003,7 +1003,12 @@ class Subscriber:
 
         """
 
-        self._subscriber_interface: RobonomicsInterface = interface
+        self._subscriber_interface: substrate.SubstrateInterface = substrate.SubstrateInterface(
+            url=interface.remote_ws,
+            ss58_format=32,
+            type_registry_preset="substrate-node-template",
+            type_registry=interface.type_registry,
+        )
 
         self._event: SubEvent = subscribed_event
         self._callback: callable = subscription_handler
@@ -1034,7 +1039,7 @@ class Subscriber:
         """
 
         if update_nr != 0:
-            chain_events: list = self._subscriber_interface.custom_chainstate("System", "Events")
+            chain_events: list = self._subscriber_interface.query("System", "Events").value
             for events in chain_events:
                 if events["event_id"] == self._event.value:
                     if self._target_address is None:
