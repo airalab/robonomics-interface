@@ -1003,7 +1003,12 @@ class Subscriber:
 
         """
 
-        self._subscriber_interface: RobonomicsInterface = interface
+        self._subscriber_interface: substrate.SubstrateInterface = substrate.SubstrateInterface(
+            url=interface.remote_ws,
+            ss58_format=32,
+            type_registry_preset="substrate-node-template",
+            type_registry=interface.type_registry,
+        )
 
         self._event: SubEvent = subscribed_event
         self._callback: callable = subscription_handler
@@ -1034,7 +1039,7 @@ class Subscriber:
         """
 
         if update_nr != 0:
-            chain_events: list = self._subscriber_interface.custom_chainstate("System", "Events")
+            chain_events: list = self._subscriber_interface.query("System", "Events").value
             for events in chain_events:
                 if events["event_id"] == self._event.value:
                     if self._target_address is None:
@@ -1044,3 +1049,48 @@ class Subscriber:
                         in self._target_address
                     ):
                         self._callback(events["event"]["attributes"])  # address-targeted
+
+
+class ReqRes:
+    """
+    Class for handling Robonomics reqres rpc requests
+    """
+
+    def __init__(self, interface: RobonomicsInterface) -> None:
+        """
+        Initiate an instance for further use.
+
+        :param interface: RobonomicsInterface instance.
+
+        """
+        self._reqres_interface = interface
+
+    def p2p_get(self, address: str, message: str, result_handler: tp.Optional[tp.Callable] = None):
+        """
+        Returns for p2p rpc get response.
+
+        :param address: Multiaddr address of the peer to connect to. For example:
+            "/ip4/127.0.0.1/tcp/61240/<Peer ID of server>."
+            This ID may be obtained on node/server initialization.
+        :param message: Request message. "GET" for example.
+        :param result_handler: Callback function that processes the result received from the node. This function accepts
+            one argument - response.
+
+        """
+
+        return self._reqres_interface.custom_rpc_request("p2p_get", [address, message], result_handler)
+
+    def p2p_ping(self, address: str, result_handler: tp.Optional[tp.Callable] = None):
+
+        """
+        Returns for reqres p2p rpc ping to server response
+
+        :param address: Multiaddr address of the peer to connect to. For example:
+            "/ip4/127.0.0.1/tcp/61240/<Peer ID of server>."
+            This ID may be obtained on node/server initialization.
+        :param result_handler: Callback function that processes the result received from the node. This function accepts
+            one argument - response.
+
+        """
+
+        return self._reqres_interface.custom_rpc_request("p2p_ping", [address], result_handler)

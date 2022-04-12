@@ -209,15 +209,50 @@ More info may be found with
 
     $ robonomics_interface --help
 
+REQRES API
+++++++++++
+
+There is a functionality for a direct connection to server based on Robonomics node.
+
+.. code-block:: python
+
+    interface = RI.RobonomicsInterface()
+    reqres = RI.ReqRes(interface)
+    reqres.p2p_get(<Multiaddr of server>,<GET request>)
+    reqres.p2p_ping(<Multiaddr of server>)
+
+
+Example of usage
+~~~~~~~~~~~~~~~~
+
+Download sample server `here <https://github.com/airalab/robonomics/tree/master/protocol/examples/reqres>`__.
+Start this server with local ip (Rust (with cargo) installation process described `here <https://www.rust-lang.org/tools/install>`__):
+
+.. code-block:: console
+
+    cargo run "/ip4/127.0.0.1/tcp/61240"
+
+Then, in other terminal write small execute this script:
+
+.. code-block:: python
+
+    import robonomicsinterface as RI
+    interface = RI.RobonomicsInterface(remote_ws = "ws://127.0.0.1:9944") # requires local node
+    reqres = RI.ReqRes(interface)
+    print(reqres.p2p_get("/ip4/127.0.0.1/tcp/61240/<PeerId>","GET")) # PeerId - you will see in server logs
+
+This code sample requires local node launched. `PeerId` is obtained when launching server.
+
 JSON RPC
 ++++++++
 *WARNING: THIS MODULE IS UNDER CONSTRUCTIONS, USE AT YOUR OWN RISK! TO BE UPDATED SOON.*
+
 There is a way to implement robonomics pubsub rpc calls:
 
 .. code-block:: python
 
     interface = RI.RobonomicsInterface()
-    pubsub = PubSub(interface)
+    pubsub = RI.PubSub(interface)
     pubsub.peer()
 
 This is an evolving package, it may have errors and lack of functionality, fixes are coming.
