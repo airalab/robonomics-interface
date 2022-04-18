@@ -28,7 +28,7 @@ class RobonomicsInterface:
     A class for establishing connection to the Robonomics nodes and interacting with them.
     Fetch chainstate, submit extrinsics, custom calls.
     """
-
+    ###############################
     def __init__(
         self,
         seed: tp.Optional[str] = None,
@@ -51,6 +51,7 @@ class RobonomicsInterface:
         self.interface: tp.Optional[substrate.SubstrateInterface] = None
         # This is a dummy since interface is opened-closed every time it's needed
 
+    ###############################
     @staticmethod
     def _create_keypair(seed: str) -> substrate.Keypair:
         """
@@ -67,6 +68,7 @@ class RobonomicsInterface:
         else:
             return substrate.Keypair.create_from_mnemonic(seed, ss58_format=32)
 
+    ############################################
     @connect_close_substrate_node
     def custom_chainstate(
         self,
@@ -121,6 +123,7 @@ class RobonomicsInterface:
 
         return self.custom_chainstate("System", "Account", account_address, block_hash=block_hash)
 
+    ###############################
     def define_address(self) -> str:
         """
         Define ss58_address of an account, which seed was provided while initializing an interface.
@@ -459,6 +462,7 @@ class RobonomicsInterface:
 
         return dt_id, tr_hash
 
+    ##############################################
     @staticmethod
     def dt_encode_topic(topic: str) -> str:
         """

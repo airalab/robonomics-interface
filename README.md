@@ -102,14 +102,15 @@ is a bit about the concept on Ethereum. It's slightly different in Substrate.
 
 With this package one can create liabilities, sign technical parameters messages, report completed liabilities, sign 
 report messages, fetch information about current and completed liabilities:
+
 ```python
 promisee = RobonomicsInterface(remote_ws="ws://127.0.0.1:9944", seed="<seed>")
 promisor = RobonomicsInterface(remote_ws="ws://127.0.0.1:9944", seed="<seed>")
 
-task = "QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE" # task parsing is on user side
+task = "QmYA2fn8cMbVWo4v95RwcwJVyQsNtnEwHerfWR8UNtEwoE"  # task parsing is on user side
 reward = 10 * 10 ** 9
-promisee = promisee.define_address()
-promisor = promisor.define_address()
+promisee = promisee._define_address()
+promisor = promisor._define_address()
 
 promisee_task_signature = promisee.sign_create_liability(task, reward)
 promisor_task_signature = promisor.sign_create_liability(task, reward)
@@ -121,8 +122,8 @@ index, tr_hash = promisee.create_liability(
 print(index)
 print(promisee.liability_info(index))
 
-report = "Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z" # report parsing is on user side
-promisor.finalize_liability(index, report) # this one signs report message automatically if no signature provided
+report = "Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z"  # report parsing is on user side
+promisor.finalize_liability(index, report)  # this one signs report message automatically if no signature provided
 print(promisor.liability_report(index))
 ```
 More information and functionality may be found in the code.
