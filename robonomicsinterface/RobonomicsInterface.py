@@ -104,6 +104,7 @@ class RobonomicsInterface:
             subscription_handler=subscription_handler,
         ).value
 
+    ############################################
     def account_info(
         self, addr: tp.Optional[str] = None, block_hash: tp.Optional[str] = None
     ) -> tp.Dict[str, tp.Union[int, tp.Dict[str, int]]]:
@@ -319,6 +320,7 @@ class RobonomicsInterface:
 
         return self.custom_chainstate("Liability", "ReportOf", report_index, block_hash=block_hash)
 
+    ###################################
     @connect_close_substrate_node
     def get_account_nonce(self, account_address: tp.Optional[str] = None) -> int:
         """
@@ -336,6 +338,7 @@ class RobonomicsInterface:
         logger.info(f"Fetching nonce of account {account_address or self.define_address()}")
         return self.interface.get_account_nonce(account_address=account_address or self.define_address())
 
+    ############################################
     @connect_close_substrate_node
     def custom_extrinsic(
         self,
@@ -384,6 +387,7 @@ class RobonomicsInterface:
 
         return str(receipt.extrinsic_hash)
 
+    #####################################
     def send_tokens(self, target_address: str, tokens: int, nonce: tp.Optional[int] = None) -> str:
         """
         Send tokens to target address.
@@ -496,6 +500,7 @@ class RobonomicsInterface:
             self.custom_extrinsic("DigitalTwin", "set_source", {"id": dt_id, "topic": topic_hashed, "source": source}),
         )
 
+    #####################################
     @staticmethod
     def ipfs_32_bytes_to_qm_hash(string_32_bytes: str) -> str:
         """
@@ -511,6 +516,7 @@ class RobonomicsInterface:
             string_32_bytes = string_32_bytes[2:]
         return b58encode(b"\x12 " + bytes.fromhex(string_32_bytes)).decode("utf-8")
 
+    ###########################################
     @staticmethod
     def ipfs_qm_hash_to_32_bytes(ipfs_qm: str) -> str:
         """
@@ -829,7 +835,7 @@ class RobonomicsInterface:
                 {"id": dt_id, "topic": topic_hashed, "source": source},
             ),
         )
-
+    #########################################
     @connect_close_substrate_node
     def custom_rpc_request(
         self, method: str, params: tp.Optional[tp.List[str]], result_handler: tp.Optional[tp.Callable]

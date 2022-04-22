@@ -50,3 +50,31 @@ def dt_encode_topic(topic: str) -> str:
     """
 
     return f"0x{hashlib.sha256(topic.encode('utf-8')).hexdigest()}"
+
+
+def ipfs_32_bytes_to_qm_hash(string_32_bytes: str) -> str:
+    """
+    Transform 32 bytes sting (without 2 heading bytes) to an IPFS base58 Qm... hash.
+
+    :param string_32_bytes: 32 bytes sting (without 2 heading bytes).
+
+    :return: IPFS base58 Qm... hash.
+
+    """
+
+    if string_32_bytes.startswith("0x"):
+        string_32_bytes = string_32_bytes[2:]
+    return b58encode(b"\x12 " + bytes.fromhex(string_32_bytes)).decode("utf-8")
+
+
+def ipfs_qm_hash_to_32_bytes(ipfs_qm: str) -> str:
+    """
+    Transform IPFS base58 Qm... hash to a 32 bytes sting (without 2 heading bytes).
+
+    :param ipfs_qm: IPFS base58 Qm... hash.
+
+    :return: 32 bytes sting (without 2 heading bytes).
+
+    """
+
+    return f"0x{b58decode(ipfs_qm).hex()[4:]}"

@@ -1,17 +1,18 @@
-import logging
-import substrateinterface as substrate
-import sys
 import typing as tp
 
 from dataclasses import dataclass
+from logging import getLogger
+from substrateinterface import Keypair
+from sys import path
 
-sys.path.append("../")
+path.append("../")
 
 from robonomicsinterface.constants import REMOTE_WS, TYPE_REGISTRY
-from robonomicsinterface.utils import create_keypair
+from robonomicsinterface.exceptions import NoPrivateKey
 from robonomicsinterface.types import TypeRegistryTyping
+from robonomicsinterface.utils import create_keypair
 
-logger = logging.getLogger(__name__)
+logger = getLogger(__name__)
 
 
 @dataclass
@@ -39,5 +40,16 @@ class Account:
         self.remote_ws: tp.Optional[str] = remote_ws or REMOTE_WS
         self.type_registry: tp.Optional[TypeRegistryTyping] = type_registry or TYPE_REGISTRY
         if seed:
-            self.keypair: substrate.Keypair = create_keypair(seed)
-            self.address: str = self.keypair.ss58_address
+            self.keypair: Keypair = create_keypair(seed)
+            self._address: str = self.keypair.ss58_address
+
+    def get_address(self) -> str:
+        """
+        Determine account address if seed was passed when creating an instance
+
+        :return: Account ss58_address
+
+        """
+        if not self.keypair:
+            raise NoPrivateKey("No private key was provided, unable to determine account address")
+        return str(self.keypair.ss58_address)
