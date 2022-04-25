@@ -20,7 +20,7 @@ class Launch:
 
     def __init__(self, account: Account):
         """
-        Assign Account dataclass parameters and create an empty interface attribute for a decorator.
+        Assign Account dataclass parameters and create a custom_functions attribute to be used.
 
         :param account: Account dataclass with seed, ws address and node type_registry
 

@@ -215,7 +215,7 @@ class RobonomicsInterface:
         logger.info(f"Fetching list of RWS devices set by owner {addr}")
 
         return self.custom_chainstate("RWS", "Devices", addr, block_hash=block_hash)
-
+    ################################################
     def dt_info(self, dt_id: int, block_hash: tp.Optional[str] = None) -> tp.Optional[tp.List[tp.Tuple[str, str]]]:
         """
         Fetch information about existing digital twin.
@@ -229,7 +229,7 @@ class RobonomicsInterface:
         logger.info(f"Fetching info about Digital Twin with ID {dt_id}")
 
         return self.custom_chainstate("DigitalTwin", "DigitalTwin", dt_id, block_hash=block_hash)
-
+    #################################################
     def dt_owner(self, dt_id: int, block_hash: tp.Optional[str] = None) -> tp.Optional[str]:
         """
         Fetch existing Digital Twin owner address.
@@ -243,7 +243,7 @@ class RobonomicsInterface:
         logger.info(f"Fetching owner of Digital Twin with ID {dt_id}")
 
         return self.custom_chainstate("DigitalTwin", "Owner", dt_id, block_hash=block_hash)
-
+    ###############################################
     def dt_total(self, block_hash: tp.Optional[str] = None) -> tp.Optional[int]:
         """
         Fetch total number of Digital Twins.
@@ -257,6 +257,7 @@ class RobonomicsInterface:
 
         return self.custom_chainstate("DigitalTwin", "Total", block_hash=block_hash)
 
+    ##############################################
     def dt_get_source(self, dt_id: int, topic: str) -> str:
         """
         Find a source for a passed Digital Twin topic.
@@ -449,7 +450,7 @@ class RobonomicsInterface:
             parameter = self.ipfs_qm_hash_to_32_bytes(parameter)
 
         return self.custom_extrinsic("Launch", "launch", {"robot": target_address, "param": parameter}, nonce)
-
+    ########################################
     def dt_create(self) -> tp.Tuple[int, str]:
         """
         Create a new digital twin.
@@ -460,7 +461,7 @@ class RobonomicsInterface:
 
         tr_hash: str = self.custom_extrinsic("DigitalTwin", "create")
         dt_total: int = self.dt_total()
-        dt_id: int = dt_total
+        dt_id: int =self.define_address dt_total
         for ids in reversed(range(dt_total)):
             if self.dt_owner(ids) == self.define_address():
                 dt_id: int = ids
@@ -482,6 +483,7 @@ class RobonomicsInterface:
 
         return f"0x{hashlib.sha256(topic.encode('utf-8')).hexdigest()}"
 
+    ############################################
     def dt_set_source(self, dt_id: int, topic: str, source: str) -> tp.Tuple[str, str]:
         """
         Set DT topics and their sources. Since topic_name is byte encoded and then sha256-hashed, it's considered as
