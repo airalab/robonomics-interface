@@ -136,7 +136,7 @@ class RobonomicsInterface:
         if not self.keypair:
             raise NoPrivateKey("No private key was provided, unable to determine self address")
         return str(self.keypair.ss58_address)
-
+    ###################################
     def fetch_datalog(
         self, addr: tp.Optional[str] = None, index: tp.Optional[int] = None, block_hash: tp.Optional[str] = None
     ) -> tp.Optional[DatalogTyping]:
@@ -408,6 +408,7 @@ class RobonomicsInterface:
 
         return self.custom_extrinsic("Balances", "transfer", {"dest": {"Id": target_address}, "value": tokens}, nonce)
 
+    #################################
     def record_datalog(self, data: str, nonce: tp.Optional[int] = None) -> str:
         """
         Write any string to datalog.
