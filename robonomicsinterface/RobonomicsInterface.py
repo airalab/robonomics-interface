@@ -426,6 +426,7 @@ class RobonomicsInterface:
         logger.info(f"Writing datalog {data}")
         return self.custom_extrinsic("Datalog", "record", {"record": data}, nonce)
 
+    ##################################
     def send_launch(self, target_address: str, parameter: str, nonce: tp.Optional[int] = None) -> str:
         """
         Send Launch command to device.

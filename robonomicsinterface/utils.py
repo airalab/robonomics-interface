@@ -69,7 +69,7 @@ def ipfs_32_bytes_to_qm_hash(string_32_bytes: str) -> str:
 
 def ipfs_qm_hash_to_32_bytes(ipfs_qm: str) -> str:
     """
-    Transform IPFS base58 Qm... hash to a 32 bytes sting (without 2 heading bytes).
+    Transform IPFS base58 Qm... hash to a 32 bytes sting (without 2 heading '0x' bytes).
 
     :param ipfs_qm: IPFS base58 Qm... hash.
 
