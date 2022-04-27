@@ -278,6 +278,7 @@ class RobonomicsInterface:
                 return source[1]
         raise DigitalTwinMapError(f"No topic {topic} was found in Digital Twin with id {dt_id}")
 
+    ################################################
     def liability_info(self, liability_index: int, block_hash: tp.Optional[str] = None) -> tp.Optional[LiabilityTyping]:
         """
         Fetch information about existing liabilities.
@@ -292,6 +293,7 @@ class RobonomicsInterface:
 
         return self.custom_chainstate("Liability", "AgreementOf", liability_index, block_hash=block_hash)
 
+    #################################################
     def liability_total(self, block_hash: tp.Optional[str] = None) -> tp.Optional[int]:
         """
         Fetch total number of liabilities in chain.
@@ -306,6 +308,7 @@ class RobonomicsInterface:
 
         return self.custom_chainstate("Liability", "LatestIndex", block_hash=block_hash)
 
+    #########################################
     def liability_report(self, report_index: int, block_hash: tp.Optional[str] = None) -> ReportTyping:
         """
         Fetch information about existing liability reports.
@@ -534,6 +537,7 @@ class RobonomicsInterface:
 
         return f"0x{b58decode(ipfs_qm).hex()[4:]}"
 
+    ##################################
     def create_liability(
         self,
         technics_hash: str,
@@ -594,6 +598,7 @@ class RobonomicsInterface:
 
         return index, liability_creation_transaction_hash
 
+    ####################################
     def sign_create_liability(self, technics_hash: str, economics: int) -> str:
         """
         Sign liability params approve message with a private key. This function is meant to sign technics and economics
@@ -623,6 +628,7 @@ class RobonomicsInterface:
 
         return f"0x{self.keypair.sign(technics_scale + economics_scale).hex()}"
 
+    ##################################
     def finalize_liability(
         self,
         index: int,
@@ -666,6 +672,7 @@ class RobonomicsInterface:
             },
         )
 
+    #################################
     def sign_liability_finalize(self, index: int, report_hash: str) -> str:
         """
         Sing liability finalization parameters proof message with a private key. This is meant to state that the job is

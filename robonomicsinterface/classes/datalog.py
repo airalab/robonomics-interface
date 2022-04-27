@@ -87,7 +87,7 @@ class Datalog:
         """
         Write any string to datalog. It has 512 bytes length limit.
 
-        :param data: String to be stored in datalog.
+        :param data: String to be stored in datalog. It has 512 bytes length limit.
         :param nonce: Nonce of the transaction. Due to the feature of substrate-interface lib, to create an extrinsic
             with incremented nonce, pass account's current nonce. See
             https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535

@@ -123,7 +123,7 @@ class DigitalTwin:
         a get_source function which transforms given string to the format as saved in the chain for comparing.
 
         :param dt_id: Digital Twin ID, which should have been created by account, calling this function.
-        :param topic: Topic to add. The string is sha256 hashed and stored in blockchain.
+        :param topic: Topic to add. Any string you want. It will be sha256 hashed and stored in blockchain.
         :param source: Source address in ss58 format.
         :param nonce: Account nonce. Due to the feature of substrate-interface lib, to create an extrinsic with
             incremented nonce, pass account's current nonce. See
