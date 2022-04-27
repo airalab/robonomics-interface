@@ -5,15 +5,6 @@ import substrateinterface as substrate
 import typing as tp
 
 from base58 import b58decode, b58encode
-from enum import Enum
-from scalecodec.types import GenericCall, GenericExtrinsic
-from scalecodec.base import RuntimeConfiguration, ScaleBytes, ScaleType
-from substrateinterface.exceptions import ExtrinsicFailedException
-from websocket import WebSocketConnectionClosedException
-
-from .constants import REMOTE_WS, TYPE_REGISTRY
-from .decorators import connect_close_substrate_node
-from .exceptions import NoPrivateKey, DigitalTwinMapError
 
 DatalogTyping = tp.Tuple[int, tp.Union[int, str]]
 LiabilityTyping = tp.Dict[str, tp.Union[tp.Dict[str, tp.Union[str, int]], str]]
