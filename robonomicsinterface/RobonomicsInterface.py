@@ -976,6 +976,8 @@ class SubEvent(Enum):
     NewRecord = "NewRecord"
     NewLaunch = "NewLaunch"
     Transfer = "Transfer"
+    TopicChanged = "TopicChanged"
+    NewDevices = "NewDevices"
 
 
 class Subscriber:
