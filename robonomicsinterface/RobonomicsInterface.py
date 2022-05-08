@@ -1047,7 +1047,9 @@ class Subscriber:
                     if self._target_address is None:
                         self._callback(events["event"]["attributes"])  # All events
                     elif (
-                        events["event"]["attributes"][0 if self._event == SubEvent.NewRecord else 1]
+                        events["event"]["attributes"][
+                            0 if self._event in [SubEvent.NewRecord, SubEvent.TopicChanged, SubEvent.NewDevices] else 1
+                        ]
                         in self._target_address
                     ):
                         self._callback(events["event"]["attributes"])  # address-targeted
