@@ -1,13 +1,9 @@
 import typing as tp
 
 from logging import getLogger
-from sys import path
 
-from base import BaseClass
-
-path.append("../")
-
-from robonomicsinterface.utils import ipfs_qm_hash_to_32_bytes
+from .base import BaseClass
+from ..utils import ipfs_qm_hash_to_32_bytes
 
 logger = getLogger(__name__)
 

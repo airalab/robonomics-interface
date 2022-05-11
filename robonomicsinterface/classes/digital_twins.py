@@ -1,15 +1,11 @@
 import typing as tp
 
 from logging import getLogger
-from sys import path
 
-from base import BaseClass
-
-path.append("../")
-
-from robonomicsinterface.exceptions import DigitalTwinMapError
-from robonomicsinterface.types import DigitalTwinTyping
-from robonomicsinterface.utils import dt_encode_topic
+from .base import BaseClass
+from ..exceptions import DigitalTwinMapError
+from ..types import DigitalTwinTyping
+from ..utils import dt_encode_topic
 
 logger = getLogger(__name__)
 

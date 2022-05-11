@@ -4,8 +4,8 @@ from enum import Enum
 from logging import getLogger
 from websocket import WebSocketConnectionClosedException
 
-from account import Account
-from service_functions import ServiceFunctions
+from .account import Account
+from .service_functions import ServiceFunctions
 
 logger = getLogger(__name__)
 
@@ -73,7 +73,7 @@ class Subscriber:
         """
 
         if update_nr != 0:
-            chain_events: list = self._custom_functions.chainstate_query("System", "Events").value
+            chain_events: list = self._custom_functions.chainstate_query("System", "Events")
             for events in chain_events:
                 if events["event_id"] == self._event.value:
                     if self._target_address is None:

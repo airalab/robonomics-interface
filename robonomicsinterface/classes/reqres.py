@@ -1,12 +1,8 @@
 import typing as tp
 
 from logging import getLogger
-from sys import path
 
-from base import BaseClass
-
-path.append("../")
-
+from .base import BaseClass
 
 logger = getLogger(__name__)
 

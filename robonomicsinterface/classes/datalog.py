@@ -1,13 +1,9 @@
 import typing as tp
 
 from logging import getLogger
-from sys import path
 
-from base import BaseClass
-
-path.append("../")
-
-from robonomicsinterface.types import DatalogTyping
+from .base import BaseClass
+from ..types import DatalogTyping
 
 logger = getLogger(__name__)
 

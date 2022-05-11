@@ -1,17 +1,14 @@
 import typing as tp
 
-from account import Account
 from logging import getLogger
 from scalecodec.types import GenericCall, GenericExtrinsic
 from substrateinterface import Keypair, SubstrateInterface, ExtrinsicReceipt
 from substrateinterface.exceptions import ExtrinsicFailedException
-from sys import path
 
-path.append("../")
-
-from robonomicsinterface.decorators import connect_close_substrate_node
-from robonomicsinterface.types import TypeRegistryTyping, RWSParamsTyping
-from robonomicsinterface.exceptions import NoPrivateKey
+from .account import Account
+from ..decorators import connect_close_substrate_node
+from ..types import TypeRegistryTyping, RWSParamsTyping
+from ..exceptions import NoPrivateKey
 
 logger = getLogger(__name__)
 

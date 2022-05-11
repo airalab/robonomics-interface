@@ -2,8 +2,8 @@ import typing as tp
 
 from logging import getLogger
 
-from account import Account
-from service_functions import ServiceFunctions
+from .account import Account
+from .service_functions import ServiceFunctions
 
 logger = getLogger(__name__)
 

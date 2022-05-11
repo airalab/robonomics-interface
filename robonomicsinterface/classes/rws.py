@@ -1,13 +1,9 @@
 import typing as tp
 
 from logging import getLogger
-from sys import path
 
-from base import BaseClass
-
-path.append("../")
-
-from robonomicsinterface.types import AuctionTyping, LedgerTyping
+from .base import BaseClass
+from ..types import AuctionTyping, LedgerTyping
 
 logger = getLogger(__name__)
 

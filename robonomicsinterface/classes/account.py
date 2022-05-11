@@ -3,14 +3,11 @@ import typing as tp
 from dataclasses import dataclass
 from logging import getLogger
 from substrateinterface import Keypair
-from sys import path
 
-path.append("../")
-
-from robonomicsinterface.constants import REMOTE_WS, TYPE_REGISTRY
-from robonomicsinterface.exceptions import NoPrivateKey
-from robonomicsinterface.types import TypeRegistryTyping
-from robonomicsinterface.utils import create_keypair
+from ..constants import REMOTE_WS, TYPE_REGISTRY
+from ..exceptions import NoPrivateKey
+from ..types import TypeRegistryTyping
+from ..utils import create_keypair
 
 logger = getLogger(__name__)
 
@@ -41,8 +38,10 @@ class Account:
         self.remote_ws: tp.Optional[str] = remote_ws or REMOTE_WS
         self.type_registry: tp.Optional[TypeRegistryTyping] = type_registry or TYPE_REGISTRY
         if seed:
-            self.keypair: Keypair = create_keypair(seed)
+            self.keypair: tp.Optional[Keypair] = create_keypair(seed)
             self._address: str = self.keypair.ss58_address
+        else:
+            self.keypair: tp.Optional[Keypair] = None
 
     def get_address(self) -> str:
         """

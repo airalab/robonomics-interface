@@ -2,15 +2,11 @@ import typing as tp
 
 from logging import getLogger
 from scalecodec.base import RuntimeConfiguration, ScaleBytes, ScaleType
-from sys import path
 
-from base import BaseClass
-
-path.append("../")
-
-from robonomicsinterface.exceptions import NoPrivateKey
-from robonomicsinterface.types import LiabilityTyping, ReportTyping
-from robonomicsinterface.utils import ipfs_qm_hash_to_32_bytes
+from .base import BaseClass
+from ..exceptions import NoPrivateKey
+from ..types import LiabilityTyping, ReportTyping
+from ..utils import ipfs_qm_hash_to_32_bytes
 
 logger = getLogger(__name__)
 
