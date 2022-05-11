@@ -6,7 +6,7 @@ from substrateinterface import Keypair, SubstrateInterface, ExtrinsicReceipt
 from substrateinterface.exceptions import ExtrinsicFailedException
 
 from .account import Account
-from ..decorators import connect_close_substrate_node
+from ..decorators import check_socket_opened
 from ..types import TypeRegistryTyping, RWSParamsTyping
 from ..exceptions import NoPrivateKey
 
@@ -33,7 +33,7 @@ class ServiceFunctions:
         self.interface: tp.Optional[SubstrateInterface] = None
         self.rws_sub_owner: tp.Optional[str] = rws_sub_owner
 
-    @connect_close_substrate_node
+    @check_socket_opened
     def chainstate_query(
         self,
         module: str,
@@ -68,7 +68,7 @@ class ServiceFunctions:
             subscription_handler=subscription_handler,
         ).value
 
-    @connect_close_substrate_node
+    @check_socket_opened
     def extrinsic(
         self,
         call_module: str,
@@ -128,7 +128,7 @@ class ServiceFunctions:
 
         return str(receipt.extrinsic_hash)
 
-    @connect_close_substrate_node
+    @check_socket_opened
     def rpc_request(
         self, method: str, params: tp.Optional[tp.List[str]], result_handler: tp.Optional[tp.Callable]
     ) -> dict:
@@ -146,7 +146,7 @@ class ServiceFunctions:
 
         return self.interface.rpc_request(method, params, result_handler)
 
-    @connect_close_substrate_node
+    @check_socket_opened
     def subscribe_block_headers(self, callback: callable) -> dict:
         """
         Get chain head block headers.
