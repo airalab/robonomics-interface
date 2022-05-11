@@ -5,7 +5,7 @@ from logging import getLogger
 from websocket import WebSocketConnectionClosedException
 
 from account import Account
-from custom_functions import CustomFunctions
+from service_functions import ServiceFunctions
 
 logger = getLogger(__name__)
 
@@ -43,7 +43,7 @@ class Subscriber:
 
         """
 
-        self._custom_functions: CustomFunctions = CustomFunctions(account)
+        self._custom_functions: ServiceFunctions = ServiceFunctions(account)
         self._event: SubEvent = subscribed_event
         self._callback: callable = subscription_handler
         self._target_address: tp.Optional[tp.Union[tp.List[str], str]] = addr
@@ -73,7 +73,7 @@ class Subscriber:
         """
 
         if update_nr != 0:
-            chain_events: list = self._custom_functions.custom_chainstate("System", "Events").value
+            chain_events: list = self._custom_functions.chainstate_query("System", "Events").value
             for events in chain_events:
                 if events["event_id"] == self._event.value:
                     if self._target_address is None:

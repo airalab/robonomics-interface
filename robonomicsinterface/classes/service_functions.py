@@ -16,7 +16,7 @@ from robonomicsinterface.exceptions import NoPrivateKey
 logger = getLogger(__name__)
 
 
-class CustomFunctions:
+class ServiceFunctions:
     """
     Class for custom queries, extrinsics and RPC calls to Robonomics parachain network.
     """
@@ -37,7 +37,7 @@ class CustomFunctions:
         self.rws_sub_owner: tp.Optional[str] = rws_sub_owner
 
     @connect_close_substrate_node
-    def custom_chainstate(
+    def chainstate_query(
         self,
         module: str,
         storage_function: str,
@@ -72,7 +72,7 @@ class CustomFunctions:
         ).value
 
     @connect_close_substrate_node
-    def custom_extrinsic(
+    def extrinsic(
         self,
         call_module: str,
         call_function: str,
@@ -132,7 +132,7 @@ class CustomFunctions:
         return str(receipt.extrinsic_hash)
 
     @connect_close_substrate_node
-    def custom_rpc_request(
+    def rpc_request(
         self, method: str, params: tp.Optional[tp.List[str]], result_handler: tp.Optional[tp.Callable]
     ) -> dict:
         """

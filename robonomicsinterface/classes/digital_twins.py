@@ -31,7 +31,7 @@ class DigitalTwin(BaseClass):
         """
         logger.info(f"Fetching info about Digital Twin with ID {dt_id}")
 
-        return self.custom_functions.custom_chainstate("DigitalTwin", "DigitalTwin", dt_id, block_hash=block_hash)
+        return self.service_functions.chainstate_query("DigitalTwin", "DigitalTwin", dt_id, block_hash=block_hash)
 
     def get_owner(self, dt_id: int, block_hash: tp.Optional[str] = None) -> tp.Optional[str]:
         """
@@ -46,7 +46,7 @@ class DigitalTwin(BaseClass):
 
         logger.info(f"Fetching owner of Digital Twin with ID {dt_id}")
 
-        return self.custom_functions.custom_chainstate("DigitalTwin", "Owner", dt_id, block_hash=block_hash)
+        return self.service_functions.chainstate_query("DigitalTwin", "Owner", dt_id, block_hash=block_hash)
 
     def get_total(self, block_hash: tp.Optional[str] = None) -> tp.Optional[int]:
         """
@@ -59,7 +59,7 @@ class DigitalTwin(BaseClass):
         """
         logger.info("Fetching Total number of Digital Twins")
 
-        return self.custom_functions.custom_chainstate("DigitalTwin", "Total", block_hash=block_hash)
+        return self.service_functions.chainstate_query("DigitalTwin", "Total", block_hash=block_hash)
 
     def get_source(self, dt_id: int, topic: str, block_hash: tp.Optional[str] = None) -> str:
         """
@@ -95,7 +95,7 @@ class DigitalTwin(BaseClass):
 
         """
 
-        tr_hash: str = self.custom_functions.custom_extrinsic("DigitalTwin", "create", nonce=nonce)
+        tr_hash: str = self.service_functions.extrinsic("DigitalTwin", "create", nonce=nonce)
         dt_total: int = self.get_total()
         dt_id: int = dt_total
         for ids in reversed(range(dt_total)):
@@ -126,7 +126,7 @@ class DigitalTwin(BaseClass):
         topic_hashed = dt_encode_topic(topic)
         return (
             topic_hashed,
-            self.custom_functions.custom_extrinsic(
+            self.service_functions.extrinsic(
                 "DigitalTwin", "set_source", {"id": dt_id, "topic": topic_hashed, "source": source}, nonce=nonce
             ),
         )

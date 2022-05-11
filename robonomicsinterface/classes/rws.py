@@ -29,7 +29,7 @@ class RWS(BaseClass):
         """
 
         logger.info(f"Fetching auction {index} information")
-        return self.custom_functions.custom_chainstate("RWS", "Auction", index, block_hash=block_hash)
+        return self.service_functions.chainstate_query("RWS", "Auction", index, block_hash=block_hash)
 
     def get_auction_next(self, block_hash: tp.Optional[str] = None) -> int:
         """
@@ -42,7 +42,7 @@ class RWS(BaseClass):
         """
 
         logger.info("Fetching index of the next auction to be unlocked")
-        return self.custom_functions.custom_chainstate("RWS", "AuctionNext", block_hash=block_hash)
+        return self.service_functions.chainstate_query("RWS", "AuctionNext", block_hash=block_hash)
 
     def get_auction_queue(self, block_hash: tp.Optional[str] = None) -> tp.List[tp.Optional[int]]:
         """
@@ -55,7 +55,7 @@ class RWS(BaseClass):
         """
 
         logger.info("Fetching auctions queue list")
-        return self.custom_functions.custom_chainstate("RWS", "AuctionQueue", block_hash=block_hash)
+        return self.service_functions.chainstate_query("RWS", "AuctionQueue", block_hash=block_hash)
 
     def get_devices(self, addr: str, block_hash: tp.Optional[str] = None) -> tp.List[tp.Optional[str]]:
         """
@@ -69,7 +69,7 @@ class RWS(BaseClass):
         """
 
         logger.info(f"Fetching list of RWS devices set by owner {addr}")
-        return self.custom_functions.custom_chainstate("RWS", "Devices", addr, block_hash=block_hash)
+        return self.service_functions.chainstate_query("RWS", "Devices", addr, block_hash=block_hash)
 
     def get_ledger(self, addr: str, block_hash: tp.Optional[str] = None) -> tp.Optional[LedgerTyping]:
         """
@@ -83,7 +83,7 @@ class RWS(BaseClass):
         """
 
         logger.info(f"Fetching subscription information by owner {addr}")
-        return self.custom_functions.custom_chainstate("RWS", "Ledger", addr, block_hash=block_hash)
+        return self.service_functions.chainstate_query("RWS", "Ledger", addr, block_hash=block_hash)
 
     def bid(self, index: int, amount: int) -> str:
         """
@@ -97,7 +97,7 @@ class RWS(BaseClass):
         """
 
         logger.info(f"Bidding on auction {index} with {amount} Weiners (appx. {round(amount / 10 ** 9, 2)} XRT)")
-        return self.custom_functions.custom_extrinsic("RWS", "bid", {"index": index, "amount": amount})
+        return self.service_functions.extrinsic("RWS", "bid", {"index": index, "amount": amount})
 
     def set_devices(self, devices: tp.List[str]) -> str:
         """
@@ -110,4 +110,4 @@ class RWS(BaseClass):
         """
 
         logger.info(f"Allowing {devices} to use {self.account.get_address()} subscription")
-        return self.custom_functions.custom_extrinsic("RWS", "set_devices", {"devices": devices})
+        return self.service_functions.extrinsic("RWS", "set_devices", {"devices": devices})

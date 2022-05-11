@@ -32,7 +32,7 @@ class CommonFunctions(BaseClass):
 
         logger.info(f"Getting account {account_address} data")
 
-        return self.custom_functions.custom_chainstate("System", "Account", account_address, block_hash=block_hash)
+        return self.service_functions.chainstate_query("System", "Account", account_address, block_hash=block_hash)
 
     def get_account_nonce(self, account_address: tp.Optional[str] = None) -> int:
         """
@@ -48,7 +48,7 @@ class CommonFunctions(BaseClass):
         """
 
         logger.info(f"Fetching nonce of account {account_address or self.account.get_address()}")
-        return self.custom_functions.custom_rpc_request(
+        return self.service_functions.rpc_request(
             "system_accountNextIndex", [account_address or self.account.get_address()]
         ).get("result", 0)
 
@@ -70,6 +70,6 @@ class CommonFunctions(BaseClass):
 
         logger.info(f"Sending tokens to {target_address}")
 
-        return self.custom_functions.custom_extrinsic(
+        return self.service_functions.extrinsic(
             "Balances", "transfer", {"dest": {"Id": target_address}, "value": tokens}, nonce
         )

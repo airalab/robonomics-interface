@@ -33,7 +33,7 @@ class Datalog(BaseClass):
 
         logger.info(f"Fetching datalog index of {address}")
 
-        return self.custom_functions.custom_chainstate("Datalog", "DatalogIndex", address, block_hash=block_hash)
+        return self.service_functions.chainstate_query("Datalog", "DatalogIndex", address, block_hash=block_hash)
 
     def get_item(
         self, addr: tp.Optional[str] = None, index: tp.Optional[int] = None, block_hash: tp.Optional[str] = None
@@ -58,14 +58,14 @@ class Datalog(BaseClass):
         )
 
         if index:
-            record: DatalogTyping = self.custom_functions.custom_chainstate(
+            record: DatalogTyping = self.service_functions.chainstate_query(
                 "Datalog", "DatalogItem", [address, index], block_hash=block_hash
             )
             return record if record[0] != 0 else None
         else:
             index_latest: int = self.get_index(address)["end"] - 1
             return (
-                self.custom_functions.custom_chainstate(
+                self.service_functions.chainstate_query(
                     "Datalog", "DatalogItem", [address, index_latest], block_hash=block_hash
                 )
                 if index_latest != -1
@@ -87,7 +87,7 @@ class Datalog(BaseClass):
         """
 
         logger.info(f"Writing datalog {data}")
-        return self.custom_functions.custom_extrinsic("Datalog", "record", {"record": data}, nonce)
+        return self.service_functions.extrinsic("Datalog", "record", {"record": data}, nonce)
 
     def erase(self, nonce: tp.Optional[int] = None) -> str:
         """
@@ -103,4 +103,4 @@ class Datalog(BaseClass):
         """
 
         logger.info(f"Erasing all datalogs of Account")
-        return self.custom_functions.custom_extrinsic("Datalog", "erase", nonce)
+        return self.service_functions.extrinsic("Datalog", "erase", nonce)

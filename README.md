@@ -32,8 +32,9 @@ Here, no need to pass any arguments, by
 interface = RI.RobonomicsInterface()
 ```
 you will be able to read any Chainstate info from the Frontier parachain:
+
 ```python
-num_dt = interface.custom_chainstate("DigitalTwin", "Total")
+num_dt = interface.chainstate_query("DigitalTwin", "Total")
 ```
 you can also specify an argument for the query. Several arguments should be put in a list. Block hash parameter is 
 also available via `block_hash` argument if you want to make a query as of a specified block.
@@ -53,9 +54,10 @@ info calling `account_info` with no arguments.
 
 ## Extrinsics
 **Providing seed** (any raw or mnemonic) while initializing **will let you create and submit extrinsics**:
+
 ```python
-interface = RI.RobonmicsInterface(seed:str = <seed>)
-hash = interface.custom_extrinsic("DigitalTwin", "create")
+interface = RI.RobonmicsInterface(seed:str = < seed >)
+hash = interface.extrinsic("DigitalTwin", "create")
 ```
 `hash` here is the transaction hash of the succeeded extrinsic. You can also specify arguments for the extrinsic as a dictionary.
 

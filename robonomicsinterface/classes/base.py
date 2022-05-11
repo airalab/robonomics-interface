@@ -3,14 +3,14 @@ import typing as tp
 from logging import getLogger
 
 from account import Account
-from custom_functions import CustomFunctions
+from service_functions import ServiceFunctions
 
 logger = getLogger(__name__)
 
 
 class BaseClass:
     """
-    Base class for different modules to initialize `custom_functions` instance for further work.
+    Base class for different modules to initialize `service_functions` instance for further work.
     """
 
     def __init__(self, account: Account, rws_sub_owner: tp.Optional[str] = None):
@@ -23,4 +23,4 @@ class BaseClass:
 
         """
         self.account: Account = account
-        self.custom_functions: CustomFunctions = CustomFunctions(account, rws_sub_owner=rws_sub_owner)
+        self.service_functions: ServiceFunctions = ServiceFunctions(account, rws_sub_owner=rws_sub_owner)

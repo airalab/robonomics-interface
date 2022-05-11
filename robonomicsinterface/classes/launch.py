@@ -38,6 +38,6 @@ class Launch(BaseClass):
         if parameter.startswith("Qm"):
             parameter = ipfs_qm_hash_to_32_bytes(parameter)
 
-        return self.custom_functions.custom_extrinsic(
+        return self.service_functions.extrinsic(
             "Launch", "launch", {"robot": target_address, "param": parameter}, nonce
         )
