@@ -174,6 +174,7 @@ class RobonomicsInterface:
                 else None
             )
 
+    ###############################
     def rws_auction_queue(self, block_hash: tp.Optional[str] = None) -> tp.List[tp.Optional[int]]:
         """
         Get an auction queue of Robonomics Web Services subscriptions.
@@ -187,6 +188,7 @@ class RobonomicsInterface:
         logger.info("Fetching auctions queue list")
         return self.custom_chainstate("RWS", "AuctionQueue", block_hash=block_hash)
 
+    ###################################
     def rws_auction(self, index: int, block_hash: tp.Optional[str] = None) -> tp.Dict[str, tp.Union[str, int, dict]]:
         """
         Get to now information about subscription auction.
@@ -201,6 +203,7 @@ class RobonomicsInterface:
         logger.info(f"Fetching auction {index} information")
         return self.custom_chainstate("RWS", "Auction", index, block_hash=block_hash)
 
+    ####################################33
     def rws_list_devices(self, addr: str, block_hash: tp.Optional[str] = None) -> tp.List[tp.Optional[str]]:
         """
         Fetch list of RWS added devices.
@@ -215,6 +218,7 @@ class RobonomicsInterface:
         logger.info(f"Fetching list of RWS devices set by owner {addr}")
 
         return self.custom_chainstate("RWS", "Devices", addr, block_hash=block_hash)
+
     ################################################
     def dt_info(self, dt_id: int, block_hash: tp.Optional[str] = None) -> tp.Optional[tp.List[tp.Tuple[str, str]]]:
         """
@@ -702,6 +706,7 @@ class RobonomicsInterface:
 
         return f"0x{self.keypair.sign(index_scale + technics_scale).hex()}"
 
+    ##########################################
     def rws_bid(self, index: int, amount: int) -> str:
         """
         Bid to win a subscription!
@@ -716,6 +721,7 @@ class RobonomicsInterface:
         logger.info(f"Bidding on auction {index} with {amount} Weiners (appx. {round(amount / 10 ** 9, 2)} XRT)")
         return self.custom_extrinsic("RWS", "bid", {"index": index, "amount": amount})
 
+    #########################################
     def rws_set_devices(self, devices: tp.List[str]) -> str:
         """
         Set devices which are authorized to use RWS subscriptions held by the extrinsic author.
@@ -729,6 +735,7 @@ class RobonomicsInterface:
         logger.info(f"Allowing {devices} to use {self.define_address()} subscription")
         return self.custom_extrinsic("RWS", "set_devices", {"devices": devices})
 
+    ##########################################
     def rws_custom_call(
         self,
         subscription_owner_addr: str,
@@ -761,6 +768,7 @@ class RobonomicsInterface:
             },
         )
 
+    ##########################################
     def rws_record_datalog(self, subscription_owner_addr: str, data: str) -> str:
         """
         Write any string to datalog from a device which was granted a subscription.
@@ -775,6 +783,7 @@ class RobonomicsInterface:
 
         return self.rws_custom_call(subscription_owner_addr, "Datalog", "record", {"record": data})
 
+    ##########################################
     def rws_send_launch(self, subscription_owner_addr: str, target_address: str, parameter: str) -> str:
         """
         Send Launch command to device from another device which was granted a subscription.
@@ -796,6 +805,7 @@ class RobonomicsInterface:
             subscription_owner_addr, "Launch", "launch", {"robot": target_address, "param": parameter}
         )
 
+    ##########################################
     def rws_dt_create(self, subscription_owner_addr: str) -> tp.Tuple[int, str]:
         """
         Create a Digital Twin from a device which was granted a subscription.
@@ -817,6 +827,7 @@ class RobonomicsInterface:
 
         return dt_id, tr_hash
 
+    ##########################################
     def rws_dt_set_source(
         self, subscription_owner_addr: str, dt_id: int, topic: str, source: str
     ) -> tp.Tuple[str, str]:
@@ -846,6 +857,7 @@ class RobonomicsInterface:
                 {"id": dt_id, "topic": topic_hashed, "source": source},
             ),
         )
+
     #########################################
     @connect_close_substrate_node
     def custom_rpc_request(

@@ -1,10 +1,9 @@
 import typing as tp
 
-from account import Account
 from logging import getLogger
 from sys import path
 
-from custom_functions import CustomFunctions
+from base import BaseClass
 
 path.append("../")
 
@@ -13,20 +12,10 @@ from robonomicsinterface.utils import ipfs_qm_hash_to_32_bytes
 logger = getLogger(__name__)
 
 
-class Launch:
+class Launch(BaseClass):
     """
     Class for sending launch transactions.
     """
-
-    def __init__(self, account: Account):
-        """
-        Assign Account dataclass parameters and create a custom_functions attribute to be used.
-
-        :param account: Account dataclass with seed, ws address and node type_registry
-
-        """
-        self.account: Account = account
-        self.custom_functions: CustomFunctions = CustomFunctions(account)
 
     def launch(self, target_address: str, parameter: str, nonce: tp.Optional[int] = None) -> str:
         """

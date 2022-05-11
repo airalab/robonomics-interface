@@ -1,10 +1,9 @@
 import typing as tp
 
-from account import Account
 from logging import getLogger
 from sys import path
 
-from custom_functions import CustomFunctions
+from base import BaseClass
 
 path.append("../")
 
@@ -13,20 +12,10 @@ from robonomicsinterface.types import DatalogTyping
 logger = getLogger(__name__)
 
 
-class Datalog:
+class Datalog(BaseClass):
     """
     Class for datalog chainstate queries and extrinsic executions.
     """
-
-    def __init__(self, account: Account):
-        """
-        Assign Account dataclass parameters and create a custom_functions attribute to be used.
-
-        :param account: Account dataclass with seed, ws address and node type_registry
-
-        """
-        self.account: Account = account
-        self.custom_functions: CustomFunctions = CustomFunctions(account)
 
     def get_index(self, addr: tp.Optional[str] = None, block_hash: tp.Optional[str] = None) -> tp.Dict[str, int]:
         """

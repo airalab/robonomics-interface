@@ -10,7 +10,7 @@ from sys import path
 path.append("../")
 
 from robonomicsinterface.decorators import connect_close_substrate_node
-from robonomicsinterface.types import TypeRegistryTyping
+from robonomicsinterface.types import TypeRegistryTyping, RWSParamsTyping
 from robonomicsinterface.exceptions import NoPrivateKey
 
 logger = getLogger(__name__)
@@ -21,26 +21,29 @@ class CustomFunctions:
     Class for custom queries, extrinsics and RPC calls to Robonomics parachain network.
     """
 
-    def __init__(self, account: Account):
+    def __init__(self, account: Account, rws_sub_owner: tp.Optional[str] = None):
         """
         Assign Account dataclass parameters and create an empty interface attribute for a decorator.
 
-        :param account: Account dataclass with seed, ws address and node type_registry
+        :param account: Account dataclass with seed, ws address and node type_registry.
+        :param rws_sub_owner: Subscription owner address. If passed, all extrinsics will be executed via RWS
+            subscriptions.
 
         """
         self.remote_ws: str = account.remote_ws
         self.type_registry: TypeRegistryTyping = account.type_registry
         self.keypair: Keypair = account.keypair
         self.interface: tp.Optional[SubstrateInterface] = None
+        self.rws_sub_owner: tp.Optional[str] = rws_sub_owner
 
     @connect_close_substrate_node
     def custom_chainstate(
-            self,
-            module: str,
-            storage_function: str,
-            params: tp.Optional[tp.Union[tp.List[tp.Union[str, int]], str, int]] = None,
-            block_hash: tp.Optional[str] = None,
-            subscription_handler: tp.Optional[callable] = None,
+        self,
+        module: str,
+        storage_function: str,
+        params: tp.Optional[tp.Union[tp.List[tp.Union[str, int]], str, int]] = None,
+        block_hash: tp.Optional[str] = None,
+        subscription_handler: tp.Optional[callable] = None,
     ) -> tp.Any:
         """
         Create custom queries to fetch data from the Chainstate. Module names and storage functions, as well as required
@@ -95,10 +98,22 @@ class CustomFunctions:
         if not self.keypair:
             raise NoPrivateKey("No seed was provided, unable to use extrinsics.")
 
-        logger.info(f"Creating a call {call_module}:{call_function}")
-        call: GenericCall = self.interface.compose_call(
-            call_module=call_module, call_function=call_function, call_params=params or None
-        )
+        if not self.rws_sub_owner:
+            logger.info(f"Creating a call {call_module}:{call_function}")
+            call: GenericCall = self.interface.compose_call(
+                call_module=call_module, call_function=call_function, call_params=params or None
+            )
+        else:
+            logger.info(f"Creating an RWS call {call_module}:{call_function}")
+
+            rws_params: RWSParamsTyping = {
+                "subscription_id": self.rws_sub_owner,
+                "call": {"call_module": call_module, "call_function": call_function, "call_args": params},
+            }
+
+            call: GenericCall = self.interface.compose_call(
+                call_module="RWS", call_function="call", call_params=rws_params
+            )
 
         logger.info("Creating extrinsic")
         extrinsic: GenericExtrinsic = self.interface.create_signed_extrinsic(

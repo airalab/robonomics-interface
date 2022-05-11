@@ -1,10 +1,9 @@
 import typing as tp
 
-from account import Account
 from logging import getLogger
 from sys import path
 
-from custom_functions import CustomFunctions
+from base import BaseClass
 
 path.append("../")
 
@@ -15,20 +14,10 @@ from robonomicsinterface.utils import dt_encode_topic
 logger = getLogger(__name__)
 
 
-class DigitalTwin:
+class DigitalTwin(BaseClass):
     """
     Class for interacting with `Digital Twins <https://wiki.robonomics.network/docs/en/digital-twins/>`_..
     """
-
-    def __init__(self, account: Account):
-        """
-        Assign Account dataclass parameters and create a custom_functions attribute to be used.
-
-        :param account: Account dataclass with seed, ws address and node type_registry
-
-        """
-        self.account: Account = account
-        self.custom_functions: CustomFunctions = CustomFunctions(account)
 
     def get_info(self, dt_id: int, block_hash: tp.Optional[str] = None) -> tp.Optional[DigitalTwinTyping]:
         """
