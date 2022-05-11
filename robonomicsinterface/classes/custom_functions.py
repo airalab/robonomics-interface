@@ -148,3 +148,14 @@ class CustomFunctions:
         """
 
         return self.interface.rpc_request(method, params, result_handler)
+
+    @connect_close_substrate_node
+    def subscribe_block_headers(self, callback: callable) -> dict:
+        """
+        Get chain head block headers.
+
+        :return: Chain head block headers.
+
+        """
+
+        return self.interface.subscribe_block_headers(subscription_handler=callback)
