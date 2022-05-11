@@ -22,7 +22,7 @@ NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
 
 logger = logging.getLogger(__name__)
 
-
+#######################################
 class RobonomicsInterface:
     """
     A class for establishing connection to the Robonomics nodes and interacting with them.
@@ -891,6 +891,7 @@ class RobonomicsInterface:
         return self.interface.subscribe_block_headers(subscription_handler=callback)
 
 
+#######################################
 class PubSub:
     """
     Class for handling Robonomics pubsub rpc requests
@@ -1006,18 +1007,20 @@ class PubSub:
 
         return self._pubsub_interface.custom_rpc_request("pubsub_unsubscribe", [subscription_id], result_handler)
 
-
+#######################################
 class SubEvent(Enum):
     NewRecord = "NewRecord"
     NewLaunch = "NewLaunch"
     Transfer = "Transfer"
 
 
+#######################################
 class Subscriber:
     """
     Class intended for use in cases when needed to subscribe on chainstate updates/events. Blocks current thread!
     """
 
+    #######################################
     def __init__(
         self,
         interface: RobonomicsInterface,
@@ -1051,6 +1054,7 @@ class Subscriber:
 
         self._subscribe_event()
 
+    #######################################
     def _subscribe_event(self) -> None:
         """
         Subscribe to events targeted to a certain account (launch, transfer). Call subscription_handler when updated.
@@ -1062,6 +1066,7 @@ class Subscriber:
         except WebSocketConnectionClosedException:
             self._subscribe_event()
 
+    #######################################
     def _event_callback(self, index_obj: tp.Any, update_nr: int, subscription_id: int) -> None:
         """
         Function, processing updates in event list storage. On update filters events to a desired account

@@ -5,5 +5,7 @@ from datalog import Datalog
 from digital_twins import DigitalTwin
 from launch import Launch
 from liability import Liability
+from pubsub import PubSub
+from reqres import ReqRes
 from rws import RWS
 from service_functions import ServiceFunctions
