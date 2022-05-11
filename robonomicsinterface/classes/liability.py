@@ -65,14 +65,14 @@ class Liability(BaseClass):
         return self.service_functions.chainstate_query("Liability", "ReportOf", index, block_hash=block_hash)
 
     def create(
-            self,
-            technics_hash: str,
-            economics: int,
-            promisee: str,
-            promisor: str,
-            promisee_params_signature: str,
-            promisor_params_signature: str,
-            nonce: tp.Optional[int] = None
+        self,
+        technics_hash: str,
+        economics: int,
+        promisee: str,
+        promisor: str,
+        promisee_params_signature: str,
+        promisor_params_signature: str,
+        nonce: tp.Optional[int] = None,
     ) -> tp.Tuple[int, str]:
         """
         Create a liability to ensure economical relationships between robots! This is a contract to be assigned to a
@@ -118,7 +118,7 @@ class Liability(BaseClass):
                     "promisor_signature": {"Sr25519": promisor_params_signature},
                 }
             },
-            nonce=nonce
+            nonce=nonce,
         )
 
         liability_total: int = self.get_latest_index()
@@ -160,19 +160,19 @@ class Liability(BaseClass):
         return f"0x{self.account.keypair.sign(technics_scale + economics_scale).hex()}"
 
     def finalize(
-            self,
-            index: int,
-            report_hash: str,
-            promisor: tp.Optional[str] = None,
-            promisor_finalize_signature: tp.Optional[str] = None,
-            nonce: tp.Optional[int] = None
+        self,
+        index: int,
+        report_hash: str,
+        promisor: tp.Optional[str] = None,
+        promisor_finalize_signature: tp.Optional[str] = None,
+        nonce: tp.Optional[int] = None,
     ) -> str:
         """
         Report on a completed job to receive a deserved award. This may be done by another address, but there should be
         a liability promisor signature.
 
         :param index: Liability item index.
-        :param report_hash: IPFS hash of a report data (videos, text, etc). Accepts any 32-bytes data or a base58
+        :param report_hash: IPFS hash of a report data (videos, text, etc.). Accepts any 32-bytes data or a base58
             (Qm...) IPFS hash.
         :param promisor: Promisor (worker) ss58_address. If not passed, replaced with transaction author address.
         :param promisor_finalize_signature: 'Job done' proof. A message containing liability index and report data
@@ -200,12 +200,10 @@ class Liability(BaseClass):
                     "index": index,
                     "sender": promisor or self.account.get_address(),
                     "payload": {"hash": report_hash},
-                    "signature": {
-                        "Sr25519": promisor_finalize_signature or self.sign_report(index, report_hash)
-                    },
+                    "signature": {"Sr25519": promisor_finalize_signature or self.sign_report(index, report_hash)},
                 }
             },
-            nonce=nonce
+            nonce=nonce,
         )
 
     def sign_report(self, index: int, report_hash: str) -> str:
@@ -214,7 +212,7 @@ class Liability(BaseClass):
         done by promisor.
 
         :param index: Liability item index.
-        :param report_hash: IPFS hash of a report data (videos, text, etc). Accepts any 32-bytes data or a base58
+        :param report_hash: IPFS hash of a report data (videos, text, etc.). Accepts any 32-bytes data or a base58
             (Qm...) IPFS hash.
 
         :return: Signed message 64-byte hash in sting form.

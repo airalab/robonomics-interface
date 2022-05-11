@@ -21,6 +21,7 @@ class Account:
     Dataclass to hold account info and node connection parameters
 
     """
+
     def __init__(
         self,
         seed: tp.Optional[str] = None,
