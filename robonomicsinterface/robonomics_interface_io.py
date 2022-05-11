@@ -1,7 +1,7 @@
 import click
 import sys
 
-from robonomicsinterface import RobonomicsInterface as RI, constants, Subscriber, SubEvent
+from robonomicsinterface import Account, constants, Datalog, Launch, SubEvent, Subscriber
 
 
 def callback(data):
@@ -50,8 +50,9 @@ def datalog(input_string: sys.stdin, remote_ws: str, s: str) -> None:
     Save string into account's datalog using pipeline:  <echo "blah" | robonomics_interface io write datalog (params)>
     If nothing passed, waits for a string in a new line.
     """
-    interface: RI = RI(remote_ws=remote_ws, seed=s)
-    transaction_hash: str = interface.record_datalog(input_string.readline()[:-1])
+    account: Account = Account(remote_ws=remote_ws, seed=s)
+    datalog_: Datalog = Datalog(account)
+    transaction_hash: str = datalog_.record(input_string.readline()[:-1])
     click.echo(transaction_hash)
 
 
@@ -78,10 +79,11 @@ def launch(command, remote_ws, s, r) -> None:
     <echo "Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z" | robonomics_interface io write launch (params)>
     If nothing passed, waits for a string in a new line.
     """
-    interface: RI = RI(remote_ws=remote_ws, seed=s)
+    account: Account = Account(remote_ws=remote_ws, seed=s)
+    launch_: Launch = Launch(account)
     parameter: str = command.readline()[:-1]
-    transaction_hash: str = interface.send_launch(r, parameter)
-    click.echo((transaction_hash, f"{interface.define_address()} -> {r}: {parameter}"))
+    transaction_hash: str = launch_.launch(r, parameter)
+    click.echo((transaction_hash, f"{account.get_address()} -> {r}: {parameter}"))
 
 
 @read.command()
@@ -97,8 +99,8 @@ def datalog(remote_ws: str, r: str):
     """
     Listen to datalogs in the chain whether address-specified or all of them
     """
-    interface: RI = RI(remote_ws=remote_ws)
-    subscriber: Subscriber = Subscriber(interface, SubEvent.NewRecord, subscription_handler=callback, addr=r)
+    account: Account = Account(remote_ws=remote_ws)
+    subscriber: Subscriber = Subscriber(account, SubEvent.NewRecord, subscription_handler=callback, addr=r)
     pass
 
 
@@ -115,8 +117,8 @@ def launch(remote_ws: str, r: str):
     """
     Listen to datalogs in the chain whether address-specified or all of them
     """
-    interface: RI = RI(remote_ws=remote_ws)
-    subscriber: Subscriber = Subscriber(interface, SubEvent.NewLaunch, subscription_handler=callback, addr=r)
+    account: Account = Account(remote_ws=remote_ws)
+    subscriber: Subscriber = Subscriber(account, SubEvent.NewLaunch, subscription_handler=callback, addr=r)
     pass
 
 
