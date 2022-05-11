@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 
 project = 'robonomics-interface'
-copyright = '2022, PavelTarasov'
-author = 'PavelTarasov'
+copyright = '2022, Pavel Tarasov'
+author = 'Pavel Tarasov'
 
 # -- General configuration ---------------------------------------------------
 
