@@ -48,3 +48,11 @@ black -l 120 <modified_file>
 ```
 - Check how the docs look via `make html` from the docs folder and checking the `docs/build/html/index.html` page.
 - Do not bump version.
+- One may test the code by
+```bash
+# in project root
+poetry build
+pip3 uninstall robonomcis_interface -y  #if was installed previously
+pip3 install pip3 install dist/robonomics_interface-<version>-py3-none-any.whl 
+python3 <testing_script>
+```
