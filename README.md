@@ -26,20 +26,24 @@ poetry install
 ```
 Installing `substrate_interface` may require [Rust](https://www.rust-lang.org/tools/install) and 
 [Rustup nightly](https://rust-lang.github.io/rustup/concepts/channels.html).
-4. Add functions/edit code/fix issues
-5. If needed, install dependencies with
+4. Add functions/edit code/fix issues.
+5. Make a PR.
+6. ...
+7. Profit!
+
+
+## Some important rules
+- If needed, install dependencies with
 ```bash
 poetry add <lib>
 ```
-6. Use `ReStructuredText` docstrings
-7. Add documentation. Please take in consideration that if a new class was created, add it to `docs/source/modules.rst`.
+- Use `ReStructuredText` docstrings.
+- Respect typing annotation.
+- Add documentation. Please take in consideration that if a new class was created, add it to `docs/source/modules.rst`.
 Other functionality is better to be described in `docs/source/usage.rst`
-8. Black it:
+- Black it:
 ```bash
 black -l 120 <modified_file>
 ```
-9. Check how the docs look via `make html` from the docs folder and checking the `docs/build/html/index.html` page.
-10. Do not bump version
-11. Make a PR
-12. ...
-13. Profit!
+- Check how the docs look via `make html` from the docs folder and checking the `docs/build/html/index.html` page.
+- Do not bump version.
