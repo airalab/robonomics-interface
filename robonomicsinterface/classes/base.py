@@ -23,4 +23,4 @@ class BaseClass:
 
         """
         self.account: Account = account
-        self.service_functions: ServiceFunctions = ServiceFunctions(account, rws_sub_owner=rws_sub_owner)
+        self._service_functions: ServiceFunctions = ServiceFunctions(account, rws_sub_owner=rws_sub_owner)

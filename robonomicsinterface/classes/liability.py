@@ -29,7 +29,7 @@ class Liability(BaseClass):
         """
         logger.info(f"Fetching information about liability with index {index}")
 
-        return self.service_functions.chainstate_query("Liability", "AgreementOf", index, block_hash=block_hash)
+        return self._service_functions.chainstate_query("Liability", "AgreementOf", index, block_hash=block_hash)
 
     def get_latest_index(self, block_hash: tp.Optional[str] = None) -> tp.Optional[int]:
         """
@@ -44,7 +44,7 @@ class Liability(BaseClass):
 
         logger.info("Fetching total number of liabilities in chain.")
 
-        return self.service_functions.chainstate_query("Liability", "LatestIndex", block_hash=block_hash)
+        return self._service_functions.chainstate_query("Liability", "LatestIndex", block_hash=block_hash)
 
     def get_report(self, index: int, block_hash: tp.Optional[str] = None) -> tp.Optional[ReportTyping]:
         """
@@ -60,7 +60,7 @@ class Liability(BaseClass):
 
         logger.info(f"Fetching information about reported liability with index {index}")
 
-        return self.service_functions.chainstate_query("Liability", "ReportOf", index, block_hash=block_hash)
+        return self._service_functions.chainstate_query("Liability", "ReportOf", index, block_hash=block_hash)
 
     def create(
         self,
@@ -104,7 +104,7 @@ class Liability(BaseClass):
         if technics_hash.startswith("Qm"):
             technics_hash = ipfs_qm_hash_to_32_bytes(technics_hash)
 
-        liability_creation_transaction_hash: str = self.service_functions.extrinsic(
+        liability_creation_transaction_hash: str = self._service_functions.extrinsic(
             "Liability",
             "create",
             {
@@ -191,7 +191,7 @@ class Liability(BaseClass):
         if report_hash.startswith("Qm"):
             report_hash = ipfs_qm_hash_to_32_bytes(report_hash)
 
-        return self.service_functions.extrinsic(
+        return self._service_functions.extrinsic(
             "Liability",
             "finalize",
             {

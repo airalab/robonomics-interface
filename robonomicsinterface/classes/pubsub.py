@@ -27,7 +27,7 @@ class PubSub(BaseClass):
 
         """
 
-        return self.service_functions.rpc_request("pubsub_connect", [address], result_handler)
+        return self._service_functions.rpc_request("pubsub_connect", [address], result_handler)
 
     def listen(
         self, address: str, result_handler: tp.Optional[tp.Callable] = None
@@ -42,7 +42,7 @@ class PubSub(BaseClass):
 
         """
 
-        return self.service_functions.rpc_request("pubsub_listen", [address], result_handler)
+        return self._service_functions.rpc_request("pubsub_listen", [address], result_handler)
 
     def listeners(
         self, result_handler: tp.Optional[tp.Callable] = None
@@ -56,7 +56,7 @@ class PubSub(BaseClass):
 
         """
 
-        return self.service_functions.rpc_request("pubsub_listeners", None, result_handler)
+        return self._service_functions.rpc_request("pubsub_listeners", None, result_handler)
 
     def peer(self, result_handler: tp.Optional[tp.Callable] = None) -> tp.Dict[str, tp.Union[str, int]]:
         """
@@ -66,7 +66,7 @@ class PubSub(BaseClass):
 
         """
 
-        return self.service_functions.rpc_request("pubsub_peer", None, result_handler)
+        return self._service_functions.rpc_request("pubsub_peer", None, result_handler)
 
     def publish(self, topic_name: str, message: str, result_handler: tp.Optional[tp.Callable] = None) -> tp.Any:
         """
@@ -80,7 +80,7 @@ class PubSub(BaseClass):
 
         """
 
-        return self.service_functions.rpc_request("pubsub_publish", [topic_name, message], result_handler)
+        return self._service_functions.rpc_request("pubsub_publish", [topic_name, message], result_handler)
 
     def subscribe(
         self, topic_name: str, result_handler: tp.Optional[tp.Callable] = None
@@ -95,7 +95,7 @@ class PubSub(BaseClass):
 
         """
 
-        return self.service_functions.rpc_request("pubsub_subscribe", [topic_name], result_handler)
+        return self._service_functions.rpc_request("pubsub_subscribe", [topic_name], result_handler)
 
     def unsubscribe(
         self, subscription_id: str, result_handler: tp.Optional[tp.Callable] = None
@@ -110,4 +110,4 @@ class PubSub(BaseClass):
 
         """
 
-        return self.service_functions.rpc_request("pubsub_unsubscribe", [subscription_id], result_handler)
+        return self._service_functions.rpc_request("pubsub_unsubscribe", [subscription_id], result_handler)

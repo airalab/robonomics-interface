@@ -25,7 +25,7 @@ class ReqRes(BaseClass):
 
         """
 
-        return self.service_functions.rpc_request("p2p_get", [address, message], result_handler)
+        return self._service_functions.rpc_request("p2p_get", [address, message], result_handler)
 
     def p2p_ping(self, address: str, result_handler: tp.Optional[tp.Callable] = None):
 
@@ -40,4 +40,4 @@ class ReqRes(BaseClass):
 
         """
 
-        return self.service_functions.rpc_request("p2p_ping", [address], result_handler)
+        return self._service_functions.rpc_request("p2p_ping", [address], result_handler)
