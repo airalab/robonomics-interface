@@ -53,33 +53,43 @@ class RWS(BaseClass):
         logger.info("Fetching auctions queue list")
         return self._service_functions.chainstate_query("RWS", "AuctionQueue", block_hash=block_hash)
 
-    def get_devices(self, addr: str, block_hash: tp.Optional[str] = None) -> tp.List[tp.Optional[str]]:
+    def get_devices(
+        self, addr: tp.Optional[str] = None, block_hash: tp.Optional[str] = None
+    ) -> tp.List[tp.Optional[str]]:
         """
         Fetch list of RWS added devices.
 
-        :param addr: Subscription owner.
+        :param addr: Subscription owner. If ``None`` - account address.
         :param block_hash: Retrieves data as of passed block hash.
 
         :return: List of added devices. Empty if none.
 
         """
 
-        logger.info(f"Fetching list of RWS devices set by owner {addr}")
-        return self._service_functions.chainstate_query("RWS", "Devices", addr, block_hash=block_hash)
+        address: str = addr or self.account.get_address()
 
-    def get_ledger(self, addr: str, block_hash: tp.Optional[str] = None) -> tp.Optional[LedgerTyping]:
+        logger.info(f"Fetching list of RWS devices set by owner {address}")
+
+        return self._service_functions.chainstate_query("RWS", "Devices", address, block_hash=block_hash)
+
+    def get_ledger(
+        self, addr: tp.Optional[str] = None, block_hash: tp.Optional[str] = None
+    ) -> tp.Optional[LedgerTyping]:
         """
         Subscription information.
 
-        :param addr: Subscription owner.
+        :param addr: Subscription owner. If ``None`` - account address.
         :param block_hash: Retrieves data as of passed block hash.
 
         :return: Subscription information. Empty if none.
 
         """
 
-        logger.info(f"Fetching subscription information by owner {addr}")
-        return self._service_functions.chainstate_query("RWS", "Ledger", addr, block_hash=block_hash)
+        address: str = addr or self.account.get_address()
+
+        logger.info(f"Fetching subscription information by owner {address}")
+
+        return self._service_functions.chainstate_query("RWS", "Ledger", address, block_hash=block_hash)
 
     def bid(self, index: int, amount: int) -> str:
         """
