@@ -56,7 +56,7 @@ also available via ``block_hash`` argument if you want to make a query as of a s
 .. code-block:: python
 
     address = "4CqaroZnr25e43Ypi8Qe5NwbUYXzhxKqrfY5opnRzK4yG1mg"
-    imdex = 8
+    index = 8
     block_hash = "0x7bdd8ae3d9a2976a4d2a534071d076a5b8caf24f8f0447587d1cbc901f07892e"
     some_record = service_functions.chainstate_query("Datalog", "DatalogItem", [address, index], block_hash=block_hash)
 
