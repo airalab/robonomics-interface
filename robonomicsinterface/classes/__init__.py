@@ -2,7 +2,7 @@ from .account import Account
 from .base import BaseClass
 from .common_functions import CommonFunctions
 from .datalog import Datalog
-from .digital_twins import DigitalTwin
+from .digital_twin import DigitalTwin
 from .launch import Launch
 from .liability import Liability
 from .pubsub import PubSub

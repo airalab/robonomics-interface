@@ -19,7 +19,7 @@ class ReqRes(BaseClass):
         :param address: Multiaddr address of the peer to connect to. For example:
             "/ip4/127.0.0.1/tcp/61240/<Peer ID of server>."
             This ID may be obtained on node/server initialization.
-        :param message: Request message. "GET" for example.
+        :param message: Request message. ``GET`` for example.
         :param result_handler: Callback function that processes the result received from the node. This function accepts
             one argument - response.
 

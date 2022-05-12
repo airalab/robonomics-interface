@@ -47,7 +47,7 @@ class Account:
         """
         Determine account address if seed was passed when creating an instance
 
-        :return: Account ss58_address
+        :return: Account ss58 address
 
         """
         if not self.keypair:

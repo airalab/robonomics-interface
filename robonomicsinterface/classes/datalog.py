@@ -17,8 +17,8 @@ class Datalog(BaseClass):
         """
         Get account datalog index dictionary.
 
-        :param addr: ss58 type 32 address of an account which datalog index is to be obtained. If None, tries to get
-            Account datalog index if keypair was created, else raises NoPrivateKey.
+        :param addr: ss58 type ``32`` address of an account which datalog index is to be obtained. If ``None``, tries to
+            get Account datalog index if keypair was created, else raises ``NoPrivateKey``.
         :param block_hash: Retrieves data as of passed block hash.
 
         :return: Tuple of form {'start': <int>, 'end': <int>}
@@ -38,12 +38,12 @@ class Datalog(BaseClass):
         Fetch datalog record of a provided account. Fetch self datalog if no address provided and interface was
         initialized with a seed.
 
-        :param addr: ss58 type 32 address of an account which datalog is to be fetched. If None, tries to fetch self
-            datalog if keypair was created, else raises NoPrivateKey.
-        :param index: record index. case int: fetch datalog by specified index case None: fetch latest datalog.
+        :param addr: ss58 type ``32`` address of an account which datalog is to be fetched. If ``None``, tries to fetch
+            self datalog if keypair was created, else raises ``NoPrivateKey``.
+        :param index: record index. case ``int``: fetch datalog by specified index case ``None``: fetch latest datalog.
         :param block_hash: Retrieves data as of passed block hash.
 
-        :return: Tuple. Datalog of the account with a timestamp, None if no records.
+        :return: Tuple. Datalog of the account with a timestamp, ``None`` if no records.
 
         """
 

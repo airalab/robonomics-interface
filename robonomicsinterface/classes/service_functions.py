@@ -22,7 +22,7 @@ class ServiceFunctions:
         """
         Assign Account dataclass parameters and create an empty interface attribute for a decorator.
 
-        :param account: Account dataclass with seed, ws address and node type_registry.
+        :param account: Account dataclass with ``seed``, ``remote_ws`` and node ``type_registry``.
         :param rws_sub_owner: Subscription owner address. If passed, all extrinsics will be executed via RWS
             subscriptions.
 
@@ -82,7 +82,7 @@ class ServiceFunctions:
 
         :param call_module: Call module from extrinsic tab on portal.
         :param call_function: Call function from extrinsic tab on portal.
-        :param params: Call parameters as a dictionary. None for no parameters.
+        :param params: Call parameters as a dictionary. ``None`` for no parameters.
         :param nonce: Transaction nonce, defined automatically if None. Due to the feature of substrate-interface lib,
             to create an extrinsic with incremented nonce, pass account's current nonce. See
             https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
@@ -136,8 +136,8 @@ class ServiceFunctions:
         Method that handles the actual RPC request to the Substrate node. The other implemented functions eventually
         use this method to perform the request.
 
-        :param method: Method of the JSONRPC request.
-        :param params: A list containing the parameters of the JSONRPC request.
+        :param method: Method of the ``JSONRPC`` request.
+        :param params: A list containing the parameters of the ``JSONRPC`` request.
         :param result_handler: Callback function that processes the result received from the node.
 
         :return: Result of the request.

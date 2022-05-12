@@ -18,8 +18,8 @@ class Launch(BaseClass):
         Send Launch command to device.
 
         :param target_address: Device to be triggered with launch.
-        :param parameter: Launch command accompanying parameter. Should be a 32 bytes data. Also, IPFS Qm... hash is
-            supported. It will be transformed into a 32 bytes string without heading '0x' bytes.
+        :param parameter: Launch command accompanying parameter. Should be a 32 bytes data. Also, IPFS ``Qm...`` hash is
+            supported. It will be transformed into a 32 bytes string without heading ``0x`` bytes.
         :param nonce: Account nonce. Due to the feature of substrate-interface lib, to create an extrinsic with
             incremented nonce, pass account's current nonce. See
             https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535

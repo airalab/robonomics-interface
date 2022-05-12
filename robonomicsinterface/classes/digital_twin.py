@@ -22,7 +22,7 @@ class DigitalTwin(BaseClass):
         :param dt_id: Digital Twin object ID.
         :param block_hash: Retrieves data as of passed block hash.
 
-        :return: List of DigitalTwin associated mapping. None if no Digital Twin with such id.
+        :return: List of DigitalTwin associated mapping. ``None`` if no Digital Twin with such id.
 
         """
         logger.info(f"Fetching info about Digital Twin with ID {dt_id}")
@@ -36,7 +36,7 @@ class DigitalTwin(BaseClass):
         :param dt_id: Digital Twin object ID.
         :param block_hash: Retrieves data as of passed block hash.
 
-        :return: Owner address. None if no Digital Twin with such id.
+        :return: Owner address. ``None`` if no Digital Twin with such id.
 
         """
 
@@ -50,7 +50,7 @@ class DigitalTwin(BaseClass):
 
         :param block_hash: Retrieves data as of passed block hash.
 
-        :return: Total number of Digital Twins. None if no Digital Twins.
+        :return: Total number of Digital Twins. ``None`` if no Digital Twins.
 
         """
         logger.info("Fetching Total number of Digital Twins")
@@ -103,9 +103,9 @@ class DigitalTwin(BaseClass):
 
     def set_source(self, dt_id: int, topic: str, source: str, nonce: tp.Optional[int] = None) -> tp.Tuple[str, str]:
         """
-        Set DT topics and their sources. Since topic_name is byte encoded and then sha256-hashed, it's considered as
+        Set DT topics and their sources. Since ``topic_name`` is byte encoded and then sha256-hashed, it's considered as
         good practice saving the map of digital twin in human-readable format in the very first DT topic. Still there is
-        a get_source function which transforms given string to the format as saved in the chain for comparing.
+        a ``get_source`` function which transforms given string to the format as saved in the chain for comparing.
 
         :param dt_id: Digital Twin ID, which should have been created by account, calling this function.
         :param topic: Topic to add. Any string you want. It will be sha256 hashed and stored in blockchain.

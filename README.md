@@ -46,8 +46,9 @@ record = interface.fetch_datalog(<ss58_addr>)
 This will give you the latest datalog record of the specified account with its timestamp. You may pass an index argument to fetch specific record. If you create an interface with a provided seed, you'll be able to fetch self-datalog calling `fetch_datalog` with no arguments (or just the `index` argument). 
 
 Another dedicated function is for **Account information**:
+
 ```python
-account_info = interface.account_info(<ss58_addr>)
+account_info = interface.get_account_info( < ss58_addr >)
 ```
 This will return account information of the specified address. If an interface was created with a seed passed seed, you'll be able to get self-account 
 info calling `account_info` with no arguments. 

@@ -21,9 +21,10 @@ class Liability(BaseClass):
         Fetch information about existing liabilities.
 
         :param index: Liability item index.
-        :param block_hash: block_hash: Retrieves data as of passed block hash.
+        :param block_hash: Retrieves data as of passed block hash.
 
-        :return: Liability information: technics, economics, promisee, promisor, signatures. None if no such liability.
+        :return: Liability information: ``technics``, ``economics``, ``promisee``, ``promisor``, ``signatures``.
+            ``None`` if no such liability.
 
         """
         logger.info(f"Fetching information about liability with index {index}")
@@ -52,7 +53,8 @@ class Liability(BaseClass):
         :param index: Reported liability item index.
         :param block_hash: block_hash: Retrieves data as of passed block hash.
 
-        :return: Liability report information: index, promisor, report, signature. None if no such liability report.
+        :return: Liability report information: ``index``, ``promisor``, ``report``, ``signature``. ``None`` if no such
+            liability report.
 
         """
 
@@ -72,18 +74,19 @@ class Liability(BaseClass):
     ) -> tp.Tuple[int, str]:
         """
         Create a liability to ensure economical relationships between robots! This is a contract to be assigned to a
-        promisor by promisee. As soon as the job is done and reported, the promisor gets his reward.
-        This extrinsic may be submitted by another address, but there should be promisee and promisor signatures.
+        ``promisor`` by ``promisee``. As soon as the job is done and reported, the ``promisor`` gets his reward.
+        This extrinsic may be submitted by another address, but there should be ``promisee`` and ``promisor``
+        signatures.
 
-        :param technics_hash: Details of the liability, where the promisee order is described. Accepts any 32-bytes data
-            or a base58 (Qm...) IPFS hash.
-        :param economics: Promisor reward in Weiners.
-        :param promisee: Promisee (customer) ss58_address
-        :param promisor: Promisor (worker) ss58_address
-        :param promisee_params_signature: An agreement proof. This is a private key signed message containing technics
-            and economics. Both sides need to do this. Signed by promisee.
-        :param promisor_params_signature: An agreement proof. This is a private key signed message containing the same
-            technics and economics. Both sides need to do this. Signed by promisor.
+        :param technics_hash: Details of the liability, where the ``promisee`` order is described.
+            Accepts any 32-bytes data or a base58 (``Qm...``) IPFS hash.
+        :param economics: ``Promisor`` reward in Weiners.
+        :param promisee: ``Promisee`` (customer) ss58 address
+        :param promisor: ``Promisor`` (worker) ss58 address
+        :param promisee_params_signature: An agreement proof. This is a private key signed message containing
+            ``technics`` and ``economics``. Both sides need to do this. Signed by ``promisee``.
+        :param promisor_params_signature: An agreement proof. This is a private key signed message containing
+            ``technics`` and ``economics``. Both sides need to do this. Signed by ``promisor``.
         :param nonce: Account nonce. Due to the feature of substrate-interface lib, to create an extrinsic with
             incremented nonce, pass account's current nonce. See
             https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
@@ -128,12 +131,12 @@ class Liability(BaseClass):
 
     def sign_liability(self, technics_hash: str, economics: int) -> str:
         """
-        Sign liability params approve message with a private key. This function is meant to sign technics and economics
-        details message to state the agreement of promisee and promisor. Both sides need to do this.
+        Sign liability params approve message with a private key. This function is meant to sign ``technics`` and
+        ``economics``details message to state the agreement of ``promisee`` and ``promisor``. Both sides need to do this.
 
-        :param technics_hash: Details of the liability, where the promisee order is described. Accepts any 32-bytes data
-            or a base58 (Qm...) IPFS hash.
-        :param economics: Promisor reward in Weiners.
+        :param technics_hash: Details of the liability, where the ``promisee`` order is described.
+            Accepts any 32-bytes data or a base58 (``Qm...``) IPFS hash.
+        :param economics: ``Promisor`` reward in Weiners.
 
         :return: Signed message 64-byte hash in sting form.
 
@@ -165,15 +168,15 @@ class Liability(BaseClass):
     ) -> str:
         """
         Report on a completed job to receive a deserved award. This may be done by another address, but there should be
-        a liability promisor signature.
+        a liability ``promisor`` signature.
 
         :param index: Liability item index.
         :param report_hash: IPFS hash of a report data (videos, text, etc.). Accepts any 32-bytes data or a base58
-            (Qm...) IPFS hash.
-        :param promisor: Promisor (worker) ss58_address. If not passed, replaced with transaction author address.
+            (``Qm...``) IPFS hash.
+        :param promisor: ``Promisor`` (worker) ss58 address. If not passed, replaced with transaction author address.
         :param promisor_finalize_signature: 'Job done' proof. A message containing liability index and report data
-            signed by promisor. If not passed, this message is signed by a transaction author which should be a promisor
-            so.
+            signed by ``promisor``. If not passed, this message is signed by a transaction author which should be a
+            ``promisor`` so.
         :param nonce: Account nonce. Due to the feature of substrate-interface lib, to create an extrinsic with
             incremented nonce, pass account's current nonce. See
             https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
@@ -205,11 +208,11 @@ class Liability(BaseClass):
     def sign_report(self, index: int, report_hash: str) -> str:
         """
         Sing liability finalization parameters proof message with a private key. This is meant to state that the job is
-        done by promisor.
+        done by ``promisor``.
 
         :param index: Liability item index.
         :param report_hash: IPFS hash of a report data (videos, text, etc.). Accepts any 32-bytes data or a base58
-            (Qm...) IPFS hash.
+            (``Qm...``) IPFS hash.
 
         :return: Signed message 64-byte hash in sting form.
 

@@ -13,11 +13,11 @@ class CommonFunctions(BaseClass):
     Class for common functions such as getting account information or transferring tokens
     """
 
-    def account_info(self, addr: tp.Optional[str] = None, block_hash: tp.Optional[str] = None) -> AccountTyping:
+    def get_account_info(self, addr: tp.Optional[str] = None, block_hash: tp.Optional[str] = None) -> AccountTyping:
         """
         Get account information.
 
-        :param addr: Explored account ss_58 address. Account dataclass address if None.
+        :param addr: Explored account ss58 address. Account dataclass address if None.
         :param block_hash: Retrieves data as of passed block hash.
 
         :return: Account information dictionary.
@@ -30,11 +30,11 @@ class CommonFunctions(BaseClass):
 
         return self.service_functions.chainstate_query("System", "Account", account_address, block_hash=block_hash)
 
-    def get_account_nonce(self, account_address: tp.Optional[str] = None) -> int:
+    def get_account_nonce(self, addr: tp.Optional[str] = None) -> int:
         """
         Get current account nonce.
 
-        :param account_address: Account ss58_address. Self address via private key is obtained if not passed.
+        :param addr: Account ss58 address. Self address via private key is obtained if not passed.
 
         :return Account nonce. Due to the feature of substrate-interface lib, to create an extrinsic with incremented
             nonce, pass account's current nonce. See
@@ -43,10 +43,11 @@ class CommonFunctions(BaseClass):
 
         """
 
-        logger.info(f"Fetching nonce of account {account_address or self.account.get_address()}")
-        return self.service_functions.rpc_request(
-            "system_accountNextIndex", [account_address or self.account.get_address()]
-        ).get("result", 0)
+        account_address: str = addr or self.account.get_address()
+
+        logger.info(f"Fetching nonce of account {account_address}")
+
+        return self.service_functions.rpc_request("system_accountNextIndex", [account_address]).get("result", 0)
 
     def transfer_tokens(self, target_address: str, tokens: int, nonce: tp.Optional[int] = None) -> str:
         """
