@@ -26,6 +26,7 @@ poetry install
 ```
 Installing `substrate_interface` may require [Rust](https://www.rust-lang.org/tools/install) and 
 [Rustup nightly](https://rust-lang.github.io/rustup/concepts/channels.html).
+
 4. Add functions/edit code/fix issues.
 5. Make a PR.
 6. ...
