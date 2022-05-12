@@ -47,7 +47,9 @@ class CommonFunctions(BaseClass):
 
         logger.info(f"Fetching nonce of account {account_address}")
 
-        return self.service_functions.rpc_request("system_accountNextIndex", [account_address]).get("result", 0)
+        return self.service_functions.rpc_request(
+            "system_accountNextIndex", [account_address], result_handler=None
+        ).get("result", 0)
 
     def transfer_tokens(self, target_address: str, tokens: int, nonce: tp.Optional[int] = None) -> str:
         """
@@ -68,5 +70,8 @@ class CommonFunctions(BaseClass):
         logger.info(f"Sending tokens to {target_address}")
 
         return self.service_functions.extrinsic(
-            "Balances", "transfer", {"dest": {"Id": target_address}, "value": tokens}, nonce
+            "Balances",
+            "transfer",
+            {"dest": {"Id": target_address}, "value": tokens},
+            nonce,
         )
