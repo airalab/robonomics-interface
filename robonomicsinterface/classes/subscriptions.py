@@ -75,16 +75,18 @@ class Subscriber:
 
         """
 
-        if update_nr != 0:
-            chain_events: list = self._custom_functions.chainstate_query("System", "Events")
-            for events in chain_events:
-                if events["event_id"] == self._event.value:
-                    if self._target_address is None:
-                        self._callback(events["event"]["attributes"])  # All events
-                    elif (
-                        events["event"]["attributes"][
-                            0 if self._event in [SubEvent.NewRecord, SubEvent.TopicChanged, SubEvent.NewDevices] else 1
-                        ]
-                        in self._target_address
-                    ):
-                        self._callback(events["event"]["attributes"])  # address-targeted
+        if update_nr == 0:
+            return None
+
+        chain_events: list = self._custom_functions.chainstate_query("System", "Events")
+        for events in chain_events:
+            if events["event_id"] == self._event.value:
+                if self._target_address is None:
+                    self._callback(events["event"]["attributes"])  # All events
+                elif (
+                    events["event"]["attributes"][
+                        0 if self._event in [SubEvent.NewRecord, SubEvent.TopicChanged, SubEvent.NewDevices] else 1
+                    ]
+                    in self._target_address
+                ):
+                    self._callback(events["event"]["attributes"])  # address-targeted

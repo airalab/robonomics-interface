@@ -7,8 +7,8 @@ from substrateinterface.exceptions import ExtrinsicFailedException
 
 from .account import Account
 from ..decorators import check_socket_opened
-from ..types import TypeRegistryTyping, RWSParamsTyping
-from ..exceptions import NoPrivateKey
+from ..types import QueryParams, TypeRegistryTyping, RWSParamsTyping
+from ..exceptions import NoPrivateKeyException
 
 logger = getLogger(__name__)
 
@@ -38,7 +38,7 @@ class ServiceFunctions:
         self,
         module: str,
         storage_function: str,
-        params: tp.Optional[tp.Union[tp.List[tp.Union[str, int]], str, int]] = None,
+        params: QueryParams = None,
         block_hash: tp.Optional[str] = None,
         subscription_handler: tp.Optional[callable] = None,
     ) -> tp.Any:
@@ -93,7 +93,7 @@ class ServiceFunctions:
         """
 
         if not self.keypair:
-            raise NoPrivateKey("No seed was provided, unable to use extrinsics.")
+            raise NoPrivateKeyException("No seed was provided, unable to use extrinsics.")
 
         if not self.rws_sub_owner:
             logger.info(f"Creating a call {call_module}:{call_function}")

@@ -5,7 +5,7 @@ from logging import getLogger
 from substrateinterface import Keypair
 
 from ..constants import REMOTE_WS, TYPE_REGISTRY
-from ..exceptions import NoPrivateKey
+from ..exceptions import NoPrivateKeyException
 from ..types import TypeRegistryTyping
 from ..utils import create_keypair
 
@@ -51,5 +51,5 @@ class Account:
 
         """
         if not self.keypair:
-            raise NoPrivateKey("No private key was provided, unable to determine account address")
+            raise NoPrivateKeyException("No private key was provided, unable to determine account address")
         return str(self.keypair.ss58_address)

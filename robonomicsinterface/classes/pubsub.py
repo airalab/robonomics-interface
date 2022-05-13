@@ -3,6 +3,7 @@ import typing as tp
 from logging import getLogger
 
 from .base import BaseClass
+from ..types import ListenersResponse
 
 logger = getLogger(__name__)
 
@@ -44,9 +45,9 @@ class PubSub(BaseClass):
 
         return self._service_functions.rpc_request("pubsub_listen", [address], result_handler)
 
-    def listeners(
+    def get_listeners(
         self, result_handler: tp.Optional[tp.Callable] = None
-    ) -> tp.Dict[str, tp.Union[str, tp.List[str], int]]:
+    ) -> ListenersResponse:
         """
         Returns a list of node addresses.
 
@@ -58,7 +59,7 @@ class PubSub(BaseClass):
 
         return self._service_functions.rpc_request("pubsub_listeners", None, result_handler)
 
-    def peer(self, result_handler: tp.Optional[tp.Callable] = None) -> tp.Dict[str, tp.Union[str, int]]:
+    def get_peer(self, result_handler: tp.Optional[tp.Callable] = None) -> tp.Dict[str, tp.Union[str, int]]:
         """
         Returns local peer ID.
 

@@ -3,7 +3,7 @@ import typing as tp
 from logging import getLogger
 
 from .base import BaseClass
-from ..exceptions import DigitalTwinMapError
+from ..exceptions import DigitalTwinMapException
 from ..types import DigitalTwinTyping
 from ..utils import dt_encode_topic
 
@@ -69,14 +69,14 @@ class DigitalTwin(BaseClass):
 
         """
 
-        topic_hashed: str = dt_encode_topic(topic)
         dt_map: tp.Optional[DigitalTwinTyping] = self.get_info(dt_id, block_hash=block_hash)
         if not dt_map:
-            raise DigitalTwinMapError("No Digital Twin was created or Digital Twin map is empty.")
+            raise DigitalTwinMapException("No Digital Twin was created or Digital Twin map is empty.")
+        topic_hashed: str = dt_encode_topic(topic)
         for source in dt_map:
             if source[0] == topic_hashed:
                 return source[1]
-        raise DigitalTwinMapError(f"No topic {topic} was found in Digital Twin with id {dt_id}")
+        raise DigitalTwinMapException(f"No topic {topic} was found in Digital Twin with id {dt_id}")
 
     def create(self, nonce: tp.Optional[int] = None) -> tp.Tuple[int, str]:
         """

@@ -1,12 +1,12 @@
 import typing as tp
 
 from logging import getLogger
-from scalecodec.base import RuntimeConfiguration, ScaleBytes, ScaleType
+from scalecodec.base import ScaleBytes
 
 from .base import BaseClass
-from ..exceptions import NoPrivateKey
+from ..exceptions import NoPrivateKeyException
 from ..types import LiabilityTyping, ReportTyping
-from ..utils import ipfs_qm_hash_to_32_bytes
+from ..utils import ipfs_qm_hash_to_32_bytes, str_to_scalebytes
 
 logger = getLogger(__name__)
 
@@ -143,20 +143,18 @@ class Liability(BaseClass):
         """
 
         if not self.account.keypair:
-            raise NoPrivateKey("No private key, unable to sign a liability")
+            raise NoPrivateKeyException("No private key, unable to sign a liability")
 
         if technics_hash.startswith("Qm"):
             technics_hash = ipfs_qm_hash_to_32_bytes(technics_hash)
 
         logger.info(f"Signing proof with technics {technics_hash} and economics {economics}.")
 
-        h256_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("H256")
-        technics_scale: ScaleBytes = h256_scale_obj.encode(technics_hash)
+        signed_data: ScaleBytes = str_to_scalebytes(technics_hash, "H256") + str_to_scalebytes(
+            economics, "Compact<Balance>"
+        )
 
-        compact_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("Compact<Balance>")
-        economics_scale: ScaleBytes = compact_scale_obj.encode(economics)
-
-        return f"0x{self.account.keypair.sign(technics_scale + economics_scale).hex()}"
+        return f"0x{self.account.keypair.sign(signed_data).hex()}"
 
     def finalize(
         self,
@@ -219,17 +217,13 @@ class Liability(BaseClass):
         """
 
         if not self.account.keypair:
-            raise NoPrivateKey("No private key, unable to sign a report")
+            raise NoPrivateKeyException("No private key, unable to sign a report")
 
         if report_hash.startswith("Qm"):
             report_hash = ipfs_qm_hash_to_32_bytes(report_hash)
 
         logger.info(f"Signing report for liability {index} with report_hash {report_hash}.")
 
-        u64_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("U32")
-        index_scale: ScaleBytes = u64_scale_obj.encode(index)
+        signed_data: ScaleBytes = str_to_scalebytes(index, "U32") + str_to_scalebytes(report_hash, "H256")
 
-        h256_scale_obj: ScaleType = RuntimeConfiguration().create_scale_object("H256")
-        technics_scale: ScaleBytes = h256_scale_obj.encode(report_hash)
-
-        return f"0x{self.account.keypair.sign(index_scale + technics_scale).hex()}"
+        return f"0x{self.account.keypair.sign(signed_data).hex()}"

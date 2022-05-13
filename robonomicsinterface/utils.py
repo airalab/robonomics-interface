@@ -1,15 +1,11 @@
 import hashlib
 import logging
-
-import substrateinterface as substrate
 import typing as tp
 
-from base58 import b58decode, b58encode
+import substrateinterface as substrate
 
-DatalogTyping = tp.Tuple[int, tp.Union[int, str]]
-LiabilityTyping = tp.Dict[str, tp.Union[tp.Dict[str, tp.Union[str, int]], str]]
-ReportTyping = tp.Dict[str, tp.Union[int, str, tp.Dict[str, str]]]
-NodeTypes = tp.Dict[str, tp.Dict[str, tp.Union[str, tp.Any]]]
+from base58 import b58decode, b58encode
+from scalecodec.base import RuntimeConfiguration, ScaleBytes, ScaleType
 
 logger = logging.getLogger(__name__)
 
@@ -69,3 +65,18 @@ def ipfs_qm_hash_to_32_bytes(ipfs_qm: str) -> str:
     """
 
     return f"0x{b58decode(ipfs_qm).hex()[4:]}"
+
+
+def str_to_scalebytes(data: tp.Union[int, str], type_str: str) -> ScaleBytes:
+    """
+    Encode string to a desired ScaleBytes data.
+
+    :param data: String to encode.
+    :param type_str: Type (``U32``, ``Compact<Balance>``, etc.).
+
+    :return: ScaleBytes object
+
+    """
+
+    scale_obj: ScaleType = RuntimeConfiguration().create_scale_object(type_str)
+    return scale_obj.encode(data)
