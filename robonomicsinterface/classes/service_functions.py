@@ -131,7 +131,7 @@ class ServiceFunctions:
     @check_socket_opened
     def rpc_request(
         self, method: str, params: tp.Optional[tp.List[str]], result_handler: tp.Optional[tp.Callable]
-    ) -> dict:
+    ) -> tp.Dict[tp.Any]:
         """
         Method that handles the actual RPC request to the Substrate node. The other implemented functions eventually
         use this method to perform the request.
