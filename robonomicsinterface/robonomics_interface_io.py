@@ -1,10 +1,12 @@
 import click
 import sys
 
+import typing as tp
+
 from robonomicsinterface import Account, constants, Datalog, Launch, SubEvent, Subscriber
 
 
-def callback(data):
+def callback(data: tp.Tuple[tp.Union[str, int]]) -> None:
     """
     callback executed when subscription event triggered. Simply outputs incoming info to console
 
@@ -15,17 +17,17 @@ def callback(data):
 
 
 @click.group()
-def cli():
+def cli() -> None:
     pass
 
 
 @cli.group(help="Send various extrinsics (launch commands or record datalogs)")
-def write():
+def write() -> None:
     pass
 
 
 @cli.group(help="Subscribe to datalog/launch events in the chain")
-def read():
+def read() -> None:
     pass
 
 
@@ -73,7 +75,7 @@ def datalog(input_string: sys.stdin, remote_ws: str, s: str) -> None:
 )
 @click.option("-s", type=str, required=True, help="Account seed in mnemonic/raw form.")
 @click.option("-r", type=str, required=True, help="Target account ss58_address.")
-def launch(command, remote_ws, s, r) -> None:
+def launch(command: sys.stdin, remote_ws: str, s: str, r: str) -> None:
     """
     Send launch command accompanied by parameter in IPFS Qm... form or just 32 bytes data using pipeline:
     <echo "Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z" | robonomics_interface io write launch (params)>
@@ -95,7 +97,7 @@ def launch(command, remote_ws, s, r) -> None:
     "wss://kusama.rpc.robonomics.network",
 )
 @click.option("-r", type=str, help="Target account ss58_address.")
-def datalog(remote_ws: str, r: str):
+def datalog(remote_ws: str, r: str) -> None:
     """
     Listen to datalogs in the chain whether address-specified or all of them
     """
@@ -113,7 +115,7 @@ def datalog(remote_ws: str, r: str):
     "wss://kusama.rpc.robonomics.network",
 )
 @click.option("-r", type=str, help="Target account ss58_address.")
-def launch(remote_ws: str, r: str):
+def launch(remote_ws: str, r: str) -> None:
     """
     Listen to datalogs in the chain whether address-specified or all of them
     """
