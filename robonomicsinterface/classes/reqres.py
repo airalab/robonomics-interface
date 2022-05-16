@@ -12,7 +12,9 @@ class ReqRes(BaseClass):
     Class for handling Robonomics reqres rpc requests
     """
 
-    def p2p_get(self, address: str, message: str, result_handler: tp.Optional[tp.Callable] = None):
+    def p2p_get(
+        self, address: str, message: str, result_handler: tp.Optional[tp.Callable] = None
+    ) -> tp.Dict[str, tp.Union[str, int]]:
         """
         Returns for p2p rpc get response.
 
@@ -27,7 +29,9 @@ class ReqRes(BaseClass):
 
         return self._service_functions.rpc_request("p2p_get", [address, message], result_handler)
 
-    def p2p_ping(self, address: str, result_handler: tp.Optional[tp.Callable] = None):
+    def p2p_ping(
+        self, address: str, result_handler: tp.Optional[tp.Callable] = None
+    ) -> tp.Dict[str, tp.Union[str, int]]:
 
         """
         Returns for reqres p2p rpc ping to server response
