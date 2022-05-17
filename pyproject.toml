@@ -1,12 +1,13 @@
 [tool.poetry]
 name = "robonomics-interface"
-version = "0.11.3"
+version = "1.0.0"
 description = "Robonomics wrapper over https://github.com/polkascan/py-substrate-interface created to facilitate programming with Robonomics"
 authors = ["Pavel Tarasov <p040399@outlook.com>"]
 license = "Apache-2.0"
 
 homepage = "https://github.com/Multi-Agent-io/robonomics-interface"
 repository = "https://github.com/Multi-Agent-io/robonomics-interface"
+documentation = "https://multi-agent-io.github.io/robonomics-interface/"
 
 readme = "README.md"
 
@@ -19,7 +20,7 @@ keywords = [
     "pypi-package"
 ]
 classifiers = [
-    "Operating System :: OS Independent",
+    "Operating System :: Unix",
     "Topic :: Scientific/Engineering :: Human Machine Interfaces",
     "Topic :: Software Development :: Documentation",
     "Topic :: Software Development :: Libraries :: Python Modules",

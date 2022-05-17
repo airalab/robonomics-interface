@@ -6,26 +6,53 @@ Code Documentation
 Classes
 -------
 
-RobonomicsInterface
+Account
 ___________________
 
-.. autoclass:: robonomicsinterface.RobonomicsInterface
+.. autoclass:: robonomicsinterface.Account
     :members:
     :private-members:
+    :inherited-members:
 
-SubEvent
+BaseClass
 ___________________
 
-.. autoclass:: robonomicsinterface.SubEvent
+.. autoclass:: robonomicsinterface.BaseClass
     :members:
     :private-members:
+    :inherited-members:
 
-Subscriber
+CommonFunctions
 ___________________
 
-.. autoclass:: robonomicsinterface.Subscriber
+.. autoclass:: robonomicsinterface.CommonFunctions
     :members:
     :private-members:
+    :inherited-members:
+
+Datalog
+___________________
+
+.. autoclass:: robonomicsinterface.Datalog
+    :members:
+    :private-members:
+    :inherited-members:
+
+Launch
+___________________
+
+.. autoclass:: robonomicsinterface.Launch
+    :members:
+    :private-members:
+    :inherited-members:
+
+Liability
+___________________
+
+.. autoclass:: robonomicsinterface.Liability
+    :members:
+    :private-members:
+    :inherited-members:
 
 PubSub
 ___________________
@@ -33,6 +60,42 @@ ___________________
 .. autoclass:: robonomicsinterface.PubSub
     :members:
     :private-members:
+    :inherited-members:
+
+ReqRes
+___________________
+
+.. autoclass:: robonomicsinterface.ReqRes
+    :members:
+    :private-members:
+    :inherited-members:
+
+RWS
+___________________
+
+.. autoclass:: robonomicsinterface.RWS
+    :members:
+    :private-members:
+    :inherited-members:
+
+ServiceFunctions
+___________________
+
+.. autoclass:: robonomicsinterface.ServiceFunctions
+    :members:
+    :private-members:
+    :inherited-members:
+
+
+Subscriber
+___________________
+
+.. autoclass:: robonomicsinterface.Subscriber
+    :members:
+    :private-members:
+    :inherited-members:
+
+
 
 Console tool
 ------------
@@ -48,4 +111,9 @@ Exceptions
 Decorators
 ----------
 .. automodule:: robonomicsinterface.decorators
+    :members:
+
+Utils
+----------
+.. automodule:: robonomicsinterface.utils
     :members:

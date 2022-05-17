@@ -1,10 +1,12 @@
 import click
 import sys
 
-from robonomicsinterface import RobonomicsInterface as RI, constants, Subscriber, SubEvent
+import typing as tp
+
+from robonomicsinterface import Account, constants, Datalog, Launch, SubEvent, Subscriber
 
 
-def callback(data):
+def callback(data: tp.Tuple[tp.Union[str, int]]) -> None:
     """
     callback executed when subscription event triggered. Simply outputs incoming info to console
 
@@ -15,17 +17,17 @@ def callback(data):
 
 
 @click.group()
-def cli():
+def cli() -> None:
     pass
 
 
 @cli.group(help="Send various extrinsics (launch commands or record datalogs)")
-def write():
+def write() -> None:
     pass
 
 
 @cli.group(help="Subscribe to datalog/launch events in the chain")
-def read():
+def read() -> None:
     pass
 
 
@@ -50,8 +52,9 @@ def datalog(input_string: sys.stdin, remote_ws: str, s: str) -> None:
     Save string into account's datalog using pipeline:  <echo "blah" | robonomics_interface io write datalog (params)>
     If nothing passed, waits for a string in a new line.
     """
-    interface: RI = RI(remote_ws=remote_ws, seed=s)
-    transaction_hash: str = interface.record_datalog(input_string.readline()[:-1])
+    account: Account = Account(remote_ws=remote_ws, seed=s)
+    datalog_: Datalog = Datalog(account)
+    transaction_hash: str = datalog_.record(input_string.readline()[:-1])
     click.echo(transaction_hash)
 
 
@@ -72,16 +75,17 @@ def datalog(input_string: sys.stdin, remote_ws: str, s: str) -> None:
 )
 @click.option("-s", type=str, required=True, help="Account seed in mnemonic/raw form.")
 @click.option("-r", type=str, required=True, help="Target account ss58_address.")
-def launch(command, remote_ws, s, r) -> None:
+def launch(command: sys.stdin, remote_ws: str, s: str, r: str) -> None:
     """
     Send launch command accompanied by parameter in IPFS Qm... form or just 32 bytes data using pipeline:
     <echo "Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z" | robonomics_interface io write launch (params)>
     If nothing passed, waits for a string in a new line.
     """
-    interface: RI = RI(remote_ws=remote_ws, seed=s)
+    account: Account = Account(remote_ws=remote_ws, seed=s)
+    launch_: Launch = Launch(account)
     parameter: str = command.readline()[:-1]
-    transaction_hash: str = interface.send_launch(r, parameter)
-    click.echo((transaction_hash, f"{interface.define_address()} -> {r}: {parameter}"))
+    transaction_hash: str = launch_.launch(r, parameter)
+    click.echo((transaction_hash, f"{account.get_address()} -> {r}: {parameter}"))
 
 
 @read.command()
@@ -93,12 +97,12 @@ def launch(command, remote_ws, s, r) -> None:
     "wss://kusama.rpc.robonomics.network",
 )
 @click.option("-r", type=str, help="Target account ss58_address.")
-def datalog(remote_ws: str, r: str):
+def datalog(remote_ws: str, r: str) -> None:
     """
     Listen to datalogs in the chain whether address-specified or all of them
     """
-    interface: RI = RI(remote_ws=remote_ws)
-    subscriber: Subscriber = Subscriber(interface, SubEvent.NewRecord, subscription_handler=callback, addr=r)
+    account: Account = Account(remote_ws=remote_ws)
+    subscriber: Subscriber = Subscriber(account, SubEvent.NewRecord, subscription_handler=callback, addr=r)
     pass
 
 
@@ -111,12 +115,12 @@ def datalog(remote_ws: str, r: str):
     "wss://kusama.rpc.robonomics.network",
 )
 @click.option("-r", type=str, help="Target account ss58_address.")
-def launch(remote_ws: str, r: str):
+def launch(remote_ws: str, r: str) -> None:
     """
     Listen to datalogs in the chain whether address-specified or all of them
     """
-    interface: RI = RI(remote_ws=remote_ws)
-    subscriber: Subscriber = Subscriber(interface, SubEvent.NewLaunch, subscription_handler=callback, addr=r)
+    account: Account = Account(remote_ws=remote_ws)
+    subscriber: Subscriber = Subscriber(account, SubEvent.NewLaunch, subscription_handler=callback, addr=r)
     pass
 
 
