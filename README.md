@@ -46,7 +46,7 @@ Other functionality is better to be described in `docs/source/usage.rst`
 ```bash
 black -l 120 <modified_file>
 ```
-- Check how the docs look via `make html` from the docs folder and checking the `docs/build/html/index.html` page.
+- Check how the docs look via `make html` from the `docs` folder and checking the `docs/build/html/index.html` page.
 - Do not bump version.
 - One may test the code by
 ```bash
