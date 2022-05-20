@@ -103,9 +103,15 @@ as a dictionary and set transaction nonce.</p>
 <span class="n">service_functions</span><span class="o">.</span><span class="n">rpc_request</span><span class="p">(</span><span class="s2">&quot;pubsub_peer&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">result_handler</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>There are a lot of dedicated classes for the most frequently used queries, extrinsics and rpc calls. More on that below.
-It is worth to mention that any query in these classes may accept <code class="docutils literal notranslate"><span class="pre">block_hash</span></code> argument and eny extrinsic may accept
+<p>There are a lot of dedicated classes for the most frequently used queries, extrinsics and rpc calls. More on that below.</p>
+</section>
+<section id="notice-on-below-listed-classes">
+<h3>Notice on Below-Listed Classes<a class="headerlink" href="#notice-on-below-listed-classes" title="Permalink to this headline">¶</a></h3>
+<p>It is worth to mention that any query in these classes may accept <code class="docutils literal notranslate"><span class="pre">block_hash</span></code> argument and eny extrinsic may accept
 <code class="docutils literal notranslate"><span class="pre">nonce</span></code> argument. Also, if some method implies query, it name starts with <code class="docutils literal notranslate"><span class="pre">get_</span></code>.</p>
+<p>More that, each time one initialize a class, they may pass <code class="docutils literal notranslate"><span class="pre">wait_for_inclusion=False</span></code> argument to avoid waiting for
+future transactions to be included in block. It saves time, but one may not know if the transaction was not successful
+(e.g. <a class="reference internal" href="#digital-twins"><span class="std std-ref">DigitalTwin.set_source</span></a>  was submitted by unauthorized account).</p>
 </section>
 <section id="common-functions">
 <h3>Common Functions<a class="headerlink" href="#common-functions" title="Permalink to this headline">¶</a></h3>
@@ -348,6 +354,7 @@ string and vice-versa.</p>
 <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#initialization">Initialization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#service-functions">Service Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#notice-on-below-listed-classes">Notice on Below-Listed Classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#common-functions">Common Functions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#datalog">Datalog</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#digital-twins">Digital Twins</a></li>
