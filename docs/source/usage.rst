@@ -92,8 +92,17 @@ One nay also perform custom rpc calls:
     service_functions.rpc_request("pubsub_peer", None, result_handler)
 
 There are a lot of dedicated classes for the most frequently used queries, extrinsics and rpc calls. More on that below.
+
+
+Notice on Below-Listed Classes
+++++++++++++++++++++++++++++++
+
 It is worth to mention that any query in these classes may accept ``block_hash`` argument and eny extrinsic may accept
 ``nonce`` argument. Also, if some method implies query, it name starts with ``get_``.
+
+More that, each time one initialize a class, they may pass ``wait_for_inclusion=False`` argument to avoid waiting for
+future transactions to be included in block. It saves time, but one may not know if the transaction was not successful
+(e.g. :ref:`DigitalTwin.set_source <Digital Twins>`  was submitted by unauthorized account).
 
 Common Functions
 ++++++++++++++++
