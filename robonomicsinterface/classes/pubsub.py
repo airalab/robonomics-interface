@@ -45,9 +45,7 @@ class PubSub(BaseClass):
 
         return self._service_functions.rpc_request("pubsub_listen", [address], result_handler)
 
-    def get_listeners(
-        self, result_handler: tp.Optional[tp.Callable] = None
-    ) -> ListenersResponse:
+    def get_listeners(self, result_handler: tp.Optional[tp.Callable] = None) -> ListenersResponse:
         """
         Returns a list of node addresses.
 

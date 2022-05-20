@@ -18,11 +18,12 @@ class ServiceFunctions:
     Class for custom queries, extrinsics and RPC calls to Robonomics parachain network.
     """
 
-    def __init__(self, account: Account, rws_sub_owner: tp.Optional[str] = None):
+    def __init__(self, account: Account, wait_for_inclusion: bool = True, rws_sub_owner: tp.Optional[str] = None):
         """
         Assign Account dataclass parameters and create an empty interface attribute for a decorator.
 
         :param account: Account dataclass with ``seed``, ``remote_ws`` and node ``type_registry``.
+        :param wait_for_inclusion: Whether wait for a transaction to included in block. You will get the hash anyway.
         :param rws_sub_owner: Subscription owner address. If passed, all extrinsics will be executed via RWS
             subscriptions.
 
@@ -31,6 +32,7 @@ class ServiceFunctions:
         self.type_registry: TypeRegistryTyping = account.type_registry
         self.keypair: Keypair = account.keypair
         self.interface: tp.Optional[SubstrateInterface] = None
+        self.wait_for_inclusion: bool = wait_for_inclusion
         self.rws_sub_owner: tp.Optional[str] = rws_sub_owner
 
     @check_socket_opened
@@ -118,9 +120,13 @@ class ServiceFunctions:
         )
 
         logger.info("Submitting extrinsic")
-        receipt: ExtrinsicReceipt = self.interface.submit_extrinsic(extrinsic, wait_for_inclusion=True)
-        if not receipt.is_success:
+        receipt: ExtrinsicReceipt = self.interface.submit_extrinsic(
+            extrinsic, wait_for_inclusion=self.wait_for_inclusion
+        )
+
+        if self.wait_for_inclusion is True and not receipt.is_success:
             raise ExtrinsicFailedException()
+
         logger.info(
             f"Extrinsic {receipt.extrinsic_hash} for RPC {call_module}:{call_function} submitted and "
             f"included in block {receipt.block_hash}"
