@@ -53,7 +53,7 @@
 <p>By default, you will only be able to fetch Chainstate info from
 <a class="reference external" href="https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fkusama.rpc.robonomics.network%2F#/explorer">Robonomics Kusama parachain</a>
 and use <a class="reference internal" href="#pubsub"><span class="std std-ref">PubSub</span></a> and <a class="reference internal" href="#reqres-api"><span class="std std-ref">ReqRes</span></a> patterns.</p>
-<p>You can specify another <code class="docutils literal notranslate"><span class="pre">remote_ws</span></code> (e.g. local), <code class="docutils literal notranslate"><span class="pre">seed</span></code> to sign extrinsics and custom <code class="docutils literal notranslate"><span class="pre">type_registry</span></code>.</p>
+<p>You can specify another <code class="docutils literal notranslate"><span class="pre">remote_ws</span></code> (e.g. local), <code class="docutils literal notranslate"><span class="pre">seed</span></code> to sign extrinsics, custom <code class="docutils literal notranslate"><span class="pre">type_registry</span></code> and <code class="docutils literal notranslate"><span class="pre">crypto_type</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">account_local_dev_node</span> <span class="o">=</span> <span class="n">Account</span><span class="p">(</span><span class="n">remote_ws</span><span class="o">=</span><span class="s2">&quot;ws://127.0.0.1:9944&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -255,7 +255,14 @@ events are <code class="docutils literal notranslate"><span class="pre">NewRecor
 <span class="n">subscriber</span> <span class="o">=</span> <span class="n">Subscriber</span><span class="p">(</span><span class="n">account</span><span class="p">,</span> <span class="n">SubEvent</span><span class="o">.</span><span class="n">NewRecord</span><span class="p">,</span> <span class="n">subscription_handler</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>One may also pass a list of addresses or one address as a parameter to filter trigger situations.</p>
+<p>One may also pass a list of addresses or one address as a parameter to filter trigger situations.
+There is a way to subscribe to multiple events by using side package <code class="docutils literal notranslate"><span class="pre">aenum</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aenum</span> <span class="kn">import</span> <span class="n">extend_enum</span>
+<span class="n">extend_enum</span><span class="p">(</span><span class="n">SubEvent</span><span class="p">,</span> <span class="s2">&quot;MultiEvent&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SubEvent</span><span class="o">.</span><span class="n">NewRecord</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">SubEvent</span><span class="o">.</span><span class="n">NewLaunch</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">subscriber</span> <span class="o">=</span> <span class="n">Subscriber</span><span class="p">(</span><span class="n">acc</span><span class="p">,</span> <span class="n">SubEvent</span><span class="o">.</span><span class="n">MultiEvent</span><span class="p">,</span> <span class="n">subscription_handler</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="io">
 <h3>IO<a class="headerlink" href="#io" title="Permalink to this headline">¶</a></h3>

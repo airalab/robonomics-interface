@@ -27,7 +27,7 @@ By default, you will only be able to fetch Chainstate info from
 `Robonomics Kusama parachain <https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fkusama.rpc.robonomics.network%2F#/explorer>`_
 and use :ref:`PubSub <PubSub>` and :ref:`ReqRes <ReqRes API>` patterns.
 
-You can specify another ``remote_ws`` (e.g. local), ``seed`` to sign extrinsics and custom ``type_registry``.
+You can specify another ``remote_ws`` (e.g. local), ``seed`` to sign extrinsics, custom ``type_registry`` and ``crypto_type``.
 
 .. code-block:: python
 
@@ -262,6 +262,14 @@ events are ``NewRecord``, ``NewLaunch``, ``Transfer``, ``TopicChanged`` and ``Ne
     subscriber = Subscriber(account, SubEvent.NewRecord, subscription_handler=callback)
 
 One may also pass a list of addresses or one address as a parameter to filter trigger situations.
+There is a way to subscribe to multiple events by using side package ``aenum``.
+
+.. code-block:: python
+
+    from aenum import extend_enum
+    extend_enum(SubEvent, "MultiEvent", f"{SubEvent.NewRecord.value, SubEvent.NewLaunch.value}")
+
+    subscriber = Subscriber(acc, SubEvent.MultiEvent, subscription_handler=callback)
 
 IO
 ++
