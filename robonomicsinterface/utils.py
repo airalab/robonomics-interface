@@ -2,28 +2,28 @@ import hashlib
 import logging
 import typing as tp
 
-import substrateinterface as substrate
-
 from base58 import b58decode, b58encode
 from scalecodec.base import RuntimeConfiguration, ScaleBytes, ScaleType
+from substrateinterface import Keypair, KeypairType
 
 logger = logging.getLogger(__name__)
 
 
-def create_keypair(seed: str) -> substrate.Keypair:
+def create_keypair(seed: str, crypto_type: int = KeypairType.SR25519) -> Keypair:
     """
     Create a keypair for further use.
 
     :param seed: Account seed (mnemonic or raw) as a key to sign transactions.
+    :param crypto_type: Use KeypairType.SR25519 or KeypairType.ED25519 cryptography for generating the Keypair.
 
     :return: A Keypair instance used by substrate to sign transactions.
 
     """
 
     if seed.startswith("0x"):
-        return substrate.Keypair.create_from_seed(seed_hex=hex(int(seed, 16)), ss58_format=32)
+        return Keypair.create_from_seed(seed_hex=hex(int(seed, 16)), ss58_format=32, crypto_type=crypto_type)
     else:
-        return substrate.Keypair.create_from_mnemonic(seed, ss58_format=32)
+        return Keypair.create_from_mnemonic(seed, ss58_format=32, crypto_type=crypto_type)
 
 
 def dt_encode_topic(topic: str) -> str:
