@@ -80,7 +80,7 @@ class Subscriber:
 
         chain_events: list = self._custom_functions.chainstate_query("System", "Events")
         for events in chain_events:
-            if events["event_id"] == self._event.value:
+            if events["event_id"] in self._event.value:
                 if self._target_address is None:
                     self._callback(events["event"]["attributes"])  # All events
                 elif (
