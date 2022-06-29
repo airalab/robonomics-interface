@@ -19,12 +19,6 @@ class SubEvent(Enum):
     NewDevices = "NewDevices"
 
 
-SubscriptionHandler = tp.Union[
-    tp.Callable[[tp.Tuple[str, str, str]], tp.Any],
-    tp.Callable[[tp.Tuple[str, str, str], str], tp.Any],
-]
-
-
 class Subscriber:
     """
     Class intended for use in cases when needed to subscribe on chainstate updates/events. **Blocks current thread**!
@@ -34,7 +28,7 @@ class Subscriber:
         self,
         account: Account,
         subscribed_event: SubEvent,
-        subscription_handler: SubscriptionHandler,
+        subscription_handler: callable,
         pass_event_id: bool = False,
         addr: tp.Optional[tp.Union[tp.List[str], str]] = None,
     ) -> None:
@@ -59,7 +53,7 @@ class Subscriber:
         self._event: SubEvent = subscribed_event
         self._callback: callable = subscription_handler
         self._target_address: tp.Optional[tp.Union[tp.List[str], str]] = addr
-        self._pass_event_id = pass_event_id
+        self._pass_event_id: bool = pass_event_id
 
         self._subscribe_event()
 
@@ -93,9 +87,11 @@ class Subscriber:
         chain_events: list = self._custom_functions.chainstate_query("System", "Events")
         for events in chain_events:
             if events["event_id"] in self._event.value:
-                should_callback = (self._target_address is None) or (
+                should_callback: bool = (self._target_address is None) or (
                     events["event"]["attributes"][
-                        0 if self._event in [
+                        0
+                        if self._event
+                        in [
                             SubEvent.NewRecord,
                             SubEvent.TopicChanged,
                             SubEvent.NewDevices,
@@ -108,7 +104,7 @@ class Subscriber:
                     continue
                 callback = partial(self._callback, events["event"]["attributes"])
                 if self._pass_event_id:
-                    block_num = index_obj["header"]["number"]
-                    event_id = "{}-{}".format(block_num, events["extrinsic_idx"])
+                    block_num: int = index_obj["header"]["number"]
+                    event_id: str = "{}-{}".format(block_num, events["extrinsic_idx"])
                     callback = partial(callback, event_id)
                 callback()
