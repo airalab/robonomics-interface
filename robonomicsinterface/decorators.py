@@ -3,6 +3,7 @@ import substrateinterface as substrate
 from functools import wraps
 from websocket._exceptions import WebSocketConnectionClosedException
 
+
 def check_socket_opened(func):
     """
     Open and substrate node connection each time needed.
