@@ -1,4 +1,5 @@
 import typing as tp
+from functools import partial
 
 from enum import Enum
 from logging import getLogger
@@ -28,6 +29,7 @@ class Subscriber:
         account: Account,
         subscribed_event: SubEvent,
         subscription_handler: callable,
+        pass_event_id: bool = False,
         addr: tp.Optional[tp.Union[tp.List[str], str]] = None,
     ) -> None:
         """
@@ -38,7 +40,10 @@ class Subscriber:
             ``Transfer``, ``TopicChanged``, ``NewDevices``]. This parameter should be a ``SubEvent`` class attribute.
             This also requires importing this class.
         :param subscription_handler: Callback function that processes the updates of the storage.
-            THIS FUNCTION IS MEANT TO ACCEPT ONLY ONE ARGUMENT (THE NEW EVENT DESCRIPTION TUPLE).
+            THIS FUNCTION IS MEANT TO ACCEPT ONLY ONE ARGUMENT (THE NEW EVENT DESCRIPTION TUPLE) by default.
+            It will receive event ID as a second parameter if ``pass_event_id`` is True.
+        :param pass_event_id: The ``subscription_handler`` will receive event ID as a second parameter
+            if ``pass_event_id`` is True. Format is ``{block_number}-{event_idx}``.
         :param addr: ss58 type 32 address(-es) of an account(-s) which is(are) meant to be event target. If ``None``,
             will subscribe to all such events never-mind target address(-es).
 
@@ -48,6 +53,7 @@ class Subscriber:
         self._event: SubEvent = subscribed_event
         self._callback: callable = subscription_handler
         self._target_address: tp.Optional[tp.Union[tp.List[str], str]] = addr
+        self._pass_event_id: bool = pass_event_id
 
         self._subscribe_event()
 
@@ -81,12 +87,24 @@ class Subscriber:
         chain_events: list = self._custom_functions.chainstate_query("System", "Events")
         for events in chain_events:
             if events["event_id"] in self._event.value:
-                if self._target_address is None:
-                    self._callback(events["event"]["attributes"])  # All events
-                elif (
+                should_callback: bool = (self._target_address is None) or (
                     events["event"]["attributes"][
-                        0 if self._event in [SubEvent.NewRecord, SubEvent.TopicChanged, SubEvent.NewDevices] else 1
+                        0
+                        if self._event
+                        in [
+                            SubEvent.NewRecord,
+                            SubEvent.TopicChanged,
+                            SubEvent.NewDevices,
+                        ]
+                        else 1
                     ]
                     in self._target_address
-                ):
-                    self._callback(events["event"]["attributes"])  # address-targeted
+                )
+                if not should_callback:
+                    continue
+                callback = partial(self._callback, events["event"]["attributes"])
+                if self._pass_event_id:
+                    block_num: int = index_obj["header"]["number"]
+                    event_id: str = "{}-{}".format(block_num, events["extrinsic_idx"])
+                    callback = partial(callback, event_id)
+                callback()
