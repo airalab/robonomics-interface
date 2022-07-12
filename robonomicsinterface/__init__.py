@@ -5,6 +5,7 @@ from .utils import *
 from .classes import (
     BaseClass,
     Account,
+    ChainUtils,
     CommonFunctions,
     Datalog,
     DigitalTwin,

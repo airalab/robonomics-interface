@@ -93,6 +93,19 @@ One nay also perform custom rpc calls:
 
 There are a lot of dedicated classes for the most frequently used queries, extrinsics and rpc calls. More on that below.
 
+Chain Utils
++++++++++++
+
+This class is dedicated to some utilities to obtain valuable information from the node of the blockchain which is not
+module-specific. For example, transaction search or transforming a block hash in a block number an vice versa.
+
+.. code-block:: python
+
+    from robonomicsinterface import ChainUtils
+
+    cu = ChainUtils()
+    print(cu.get_block_number("0xef9ca7a02b8ab2df373b1f86f336474947df05455a1076a3c64b034319bd7152"))  # 2875
+    print(cu.get_block_hash(2875))  # 0xef9ca7a02b8ab2df373b1f86f336474947df05455a1076a3c64b034319bd7152
 
 Notice on Below-Listed Classes
 ++++++++++++++++++++++++++++++

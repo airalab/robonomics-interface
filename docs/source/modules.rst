@@ -22,6 +22,14 @@ ___________________
     :private-members:
     :inherited-members:
 
+ChainUtils
+___________________
+
+.. autoclass:: robonomicsinterface.ChainUtils
+    :members:
+    :private-members:
+    :inherited-members:
+
 CommonFunctions
 ___________________
 
