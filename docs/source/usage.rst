@@ -104,6 +104,9 @@ More that, each time one initialize a class, they may pass ``wait_for_inclusion=
 future transactions to be included in block. It saves time, but one may not know if the transaction was not successful
 (e.g. :ref:`DigitalTwin.set_source <Digital Twins>`  was submitted by unauthorized account).
 
+One more argument while initializing is ``return_block_num``. If Set to ``True`` ALONG WITH ``wait_for_inclusion``, the
+``extrinsic`` function will return a string of form ``<block_number>-<extrinsic_hash>``.
+
 Common Functions
 ++++++++++++++++
 

@@ -37,13 +37,13 @@ class Account:
         :param crypto_type: Use KeypairType.SR25519 or KeypairType.ED25519 cryptography for generating the Keypair.
 
         """
-        self.remote_ws: tp.Optional[str] = remote_ws or REMOTE_WS
-        self.type_registry: tp.Optional[TypeRegistryTyping] = type_registry or TYPE_REGISTRY
+        self.remote_ws: str = remote_ws or REMOTE_WS
+        self.type_registry: TypeRegistryTyping = type_registry or TYPE_REGISTRY
         if seed:
-            self.keypair: tp.Optional[Keypair] = create_keypair(seed, crypto_type)
+            self.keypair: Keypair = create_keypair(seed, crypto_type)
             self._address: str = self.keypair.ss58_address
         else:
-            self.keypair: tp.Optional[Keypair] = None
+            self.keypair = None
 
     def get_address(self) -> str:
         """
