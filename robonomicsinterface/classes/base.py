@@ -25,8 +25,8 @@ class BaseClass:
 
         :param account: Account dataclass with seed, websocket address and node type_registry.
         :param wait_for_inclusion: Whether wait for a transaction to included in block. You will get the hash anyway.
-        :param return_block_num: If set to True, any executed extrinsic function will return a string of form
-            <block_number>-<extrinsic_hash>. ONLY WORKS WHEN wait_for_inclusion IS SET TO TRUE.
+        :param return_block_num: If set to True, any executed extrinsic function will return a tuple of form
+            ``(<extrinsic_hash>, <block_number-idx>)``. ONLY WORKS WHEN ``wait_for_inclusion`` IS SET TO TRUE.
         :param rws_sub_owner: Subscription owner address. If passed, all extrinsics will be executed via RWS
             subscriptions.
 

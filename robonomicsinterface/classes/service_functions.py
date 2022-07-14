@@ -30,8 +30,8 @@ class ServiceFunctions:
 
         :param account: Account dataclass with ``seed``, ``remote_ws`` and node ``type_registry``.
         :param wait_for_inclusion: Whether wait for a transaction to included in block. You will get the hash anyway.
-        :param return_block_num: If set to True, any executed extrinsic function will return a string of form
-            <block_number>-<extrinsic_hash>. ONLY WORKS WHEN wait_for_inclusion IS SET TO TRUE.
+        :param return_block_num: If set to True, any executed extrinsic function will return a tuple of form
+            ``(<extrinsic_hash>, <block_number-idx>)``. ONLY WORKS WHEN ``wait_for_inclusion`` IS SET TO TRUE.
         :param rws_sub_owner: Subscription owner address. If passed, all extrinsics will be executed via RWS
             subscriptions.
 
@@ -86,7 +86,7 @@ class ServiceFunctions:
         call_function: str,
         params: tp.Optional[tp.Dict[str, tp.Any]] = None,
         nonce: tp.Optional[int] = None,
-    ) -> str:
+    ) -> tp.Union[str, tp.Tuple[str, str]]:
         """
         Create an extrinsic, sign&submit it. Module names and functions, as well as required parameters are available
         at https://parachain.robonomics.network/#/extrinsics.
@@ -99,8 +99,8 @@ class ServiceFunctions:
             https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
             for example.
 
-        :return: A string of form <block_number>-<extrinsic_hash> if return_block_num and wait_for_inclusion in __init__
-            were set to True.
+        :return: A tuple of form ``(<extrinsic_hash>, <block_number-idx>)`` if ``return_block_num`` and
+            ``wait_for_inclusion`` in ``__init__`` were set to ``True``. String ``<extrinsic_hash>`` otherwise.
         """
 
         if not self.keypair:
@@ -150,7 +150,7 @@ class ServiceFunctions:
             logger.info(f"Extrinsic included in block {block_num}")
 
             if self.return_block_num:
-                return f"{block_num}-{receipt.extrinsic_hash}"
+                return receipt.extrinsic_hash, f"{block_num}-{receipt.extrinsic_idx}"
 
             else:
                 return receipt.extrinsic_hash

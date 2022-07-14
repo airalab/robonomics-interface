@@ -118,7 +118,7 @@ future transactions to be included in block. It saves time, but one may not know
 (e.g. :ref:`DigitalTwin.set_source <Digital Twins>`  was submitted by unauthorized account).
 
 One more argument while initializing is ``return_block_num``. If Set to ``True`` ALONG WITH ``wait_for_inclusion``, the
-``extrinsic`` function will return a string of form ``<block_number>-<extrinsic_hash>``.
+``extrinsic`` function will return a tuple of form ``(<extrinsic_hash>, <block_number-idx>)``.
 
 Common Functions
 ++++++++++++++++
