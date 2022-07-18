@@ -107,6 +107,15 @@ module-specific. For example, transaction search or transforming a block hash in
     print(cu.get_block_number("0xef9ca7a02b8ab2df373b1f86f336474947df05455a1076a3c64b034319bd7152"))  # 2875
     print(cu.get_block_hash(2875))  # 0xef9ca7a02b8ab2df373b1f86f336474947df05455a1076a3c64b034319bd7152
 
+Extrinsic search function here is implemented by ``get_extrinsic_in_block`` method. It accepts block hash/number and
+extrinsic hash/idx as arguments:
+
+.. code-block:: python
+
+    print(cu.get_extrinsic_in_block(1054910, 4))  # RWS call info.
+    print(cu.get_extrinsic_in_block("0x97ff645b2035a0ad62ed5f438ebd5ee91cbfe3d197ba221c6c03c614c6dc1dfe",
+                                    "0xbc2180c1773838ccf2f1e79302bec500c3c5ed7da8ea9471f5e40667574eed9f"))  # The same.
+
 Notice on Below-Listed Classes
 ++++++++++++++++++++++++++++++
 
