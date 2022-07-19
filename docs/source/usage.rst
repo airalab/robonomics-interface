@@ -97,7 +97,7 @@ Chain Utils
 +++++++++++
 
 This class is dedicated to some utilities to obtain valuable information from the node of the blockchain which is not
-module-specific. For example, transaction search or transforming a block hash in a block number an vice versa.
+module-specific. For example, transaction search or transforming a block hash in a block number and vice versa.
 
 .. code-block:: python
 
