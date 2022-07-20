@@ -7,8 +7,8 @@ from substrateinterface.exceptions import ExtrinsicFailedException
 
 from .account import Account
 from ..decorators import check_socket_opened
-from ..types import QueryParams, TypeRegistryTyping, RWSParamsTyping
 from ..exceptions import NoPrivateKeyException
+from ..types import QueryParams, TypeRegistryTyping, RWSParamsTyping
 
 logger = getLogger(__name__)
 
@@ -18,12 +18,20 @@ class ServiceFunctions:
     Class for custom queries, extrinsics and RPC calls to Robonomics parachain network.
     """
 
-    def __init__(self, account: Account, wait_for_inclusion: bool = True, rws_sub_owner: tp.Optional[str] = None):
+    def __init__(
+        self,
+        account: Account,
+        wait_for_inclusion: bool = True,
+        return_block_num: bool = False,
+        rws_sub_owner: tp.Optional[str] = None,
+    ):
         """
         Assign Account dataclass parameters and create an empty interface attribute for a decorator.
 
         :param account: Account dataclass with ``seed``, ``remote_ws`` and node ``type_registry``.
         :param wait_for_inclusion: Whether wait for a transaction to included in block. You will get the hash anyway.
+        :param return_block_num: If set to True, any executed extrinsic function will return a tuple of form
+            ``(<extrinsic_hash>, <block_number-idx>)``. ONLY WORKS WHEN ``wait_for_inclusion`` IS SET TO TRUE.
         :param rws_sub_owner: Subscription owner address. If passed, all extrinsics will be executed via RWS
             subscriptions.
 
@@ -33,6 +41,7 @@ class ServiceFunctions:
         self.keypair: Keypair = account.keypair
         self.interface: tp.Optional[SubstrateInterface] = None
         self.wait_for_inclusion: bool = wait_for_inclusion
+        self.return_block_num: bool = return_block_num
         self.rws_sub_owner: tp.Optional[str] = rws_sub_owner
 
     @check_socket_opened
@@ -77,7 +86,7 @@ class ServiceFunctions:
         call_function: str,
         params: tp.Optional[tp.Dict[str, tp.Any]] = None,
         nonce: tp.Optional[int] = None,
-    ) -> str:
+    ) -> tp.Union[str, tp.Tuple[str, str]]:
         """
         Create an extrinsic, sign&submit it. Module names and functions, as well as required parameters are available
         at https://parachain.robonomics.network/#/extrinsics.
@@ -90,8 +99,8 @@ class ServiceFunctions:
             https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
             for example.
 
-        :return: Extrinsic hash.
-
+        :return: A tuple of form ``(<extrinsic_hash>, <block_number-idx>)`` if ``return_block_num`` and
+            ``wait_for_inclusion`` in ``__init__`` were set to ``True``. String ``<extrinsic_hash>`` otherwise.
         """
 
         if not self.keypair:
@@ -100,14 +109,20 @@ class ServiceFunctions:
         if not self.rws_sub_owner:
             logger.info(f"Creating a call {call_module}:{call_function}")
             call: GenericCall = self.interface.compose_call(
-                call_module=call_module, call_function=call_function, call_params=params or None
+                call_module=call_module,
+                call_function=call_function,
+                call_params=params or None,
             )
         else:
             logger.info(f"Creating an RWS call {call_module}:{call_function}")
 
             rws_params: RWSParamsTyping = {
                 "subscription_id": self.rws_sub_owner,
-                "call": {"call_module": call_module, "call_function": call_function, "call_args": params},
+                "call": {
+                    "call_module": call_module,
+                    "call_function": call_function,
+                    "call_args": params,
+                },
             }
 
             call: GenericCall = self.interface.compose_call(
@@ -124,19 +139,31 @@ class ServiceFunctions:
             extrinsic, wait_for_inclusion=self.wait_for_inclusion
         )
 
-        if self.wait_for_inclusion is True and not receipt.is_success:
-            raise ExtrinsicFailedException()
+        logger.info(f"Extrinsic {receipt.extrinsic_hash} for RPC {call_module}:{call_function} submitted.")
 
-        logger.info(
-            f"Extrinsic {receipt.extrinsic_hash} for RPC {call_module}:{call_function} submitted and "
-            f"included in block {receipt.block_hash}"
-        )
+        if self.wait_for_inclusion:
 
-        return str(receipt.extrinsic_hash)
+            if not receipt.is_success:
+                raise ExtrinsicFailedException()
+
+            block_num: int = self.interface.get_block_number(receipt.block_hash)
+            logger.info(f"Extrinsic included in block {block_num}")
+
+            if self.return_block_num:
+                return receipt.extrinsic_hash, f"{block_num}-{receipt.extrinsic_idx}"
+
+            else:
+                return receipt.extrinsic_hash
+
+        else:
+            return receipt.extrinsic_hash
 
     @check_socket_opened
     def rpc_request(
-        self, method: str, params: tp.Optional[tp.List[str]], result_handler: tp.Optional[tp.Callable]
+        self,
+        method: str,
+        params: tp.Optional[tp.List[str]],
+        result_handler: tp.Optional[tp.Callable],
     ) -> tp.Dict[str, tp.Any]:
         """
         Method that handles the actual RPC request to the Substrate node. The other implemented functions eventually

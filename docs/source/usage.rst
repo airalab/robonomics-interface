@@ -93,6 +93,28 @@ One nay also perform custom rpc calls:
 
 There are a lot of dedicated classes for the most frequently used queries, extrinsics and rpc calls. More on that below.
 
+Chain Utils
++++++++++++
+
+This class is dedicated to some utilities to obtain valuable information from the node of the blockchain which is not
+module-specific. For example, transaction search or transforming a block hash in a block number and vice versa.
+
+.. code-block:: python
+
+    from robonomicsinterface import ChainUtils
+
+    cu = ChainUtils()
+    print(cu.get_block_number("0xef9ca7a02b8ab2df373b1f86f336474947df05455a1076a3c64b034319bd7152"))  # 2875
+    print(cu.get_block_hash(2875))  # 0xef9ca7a02b8ab2df373b1f86f336474947df05455a1076a3c64b034319bd7152
+
+Extrinsic search function here is implemented by ``get_extrinsic_in_block`` method. It accepts block hash/number and
+extrinsic hash/idx as arguments:
+
+.. code-block:: python
+
+    print(cu.get_extrinsic_in_block(1054910, 4))  # RWS call info.
+    print(cu.get_extrinsic_in_block("0x97ff645b2035a0ad62ed5f438ebd5ee91cbfe3d197ba221c6c03c614c6dc1dfe",
+                                    "0xbc2180c1773838ccf2f1e79302bec500c3c5ed7da8ea9471f5e40667574eed9f"))  # The same.
 
 Notice on Below-Listed Classes
 ++++++++++++++++++++++++++++++
@@ -103,6 +125,9 @@ It is worth to mention that any query in these classes may accept ``block_hash``
 More that, each time one initialize a class, they may pass ``wait_for_inclusion=False`` argument to avoid waiting for
 future transactions to be included in block. It saves time, but one may not know if the transaction was not successful
 (e.g. :ref:`DigitalTwin.set_source <Digital Twins>`  was submitted by unauthorized account).
+
+One more argument while initializing is ``return_block_num``. If Set to ``True`` ALONG WITH ``wait_for_inclusion``, the
+``extrinsic`` function will return a tuple of form ``(<extrinsic_hash>, <block_number-idx>)``.
 
 Common Functions
 ++++++++++++++++
