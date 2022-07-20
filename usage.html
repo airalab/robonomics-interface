@@ -105,6 +105,25 @@ as a dictionary and set transaction nonce.</p>
 </div>
 <p>There are a lot of dedicated classes for the most frequently used queries, extrinsics and rpc calls. More on that below.</p>
 </section>
+<section id="chain-utils">
+<h3>Chain Utils<a class="headerlink" href="#chain-utils" title="Permalink to this headline">¶</a></h3>
+<p>This class is dedicated to some utilities to obtain valuable information from the node of the blockchain which is not
+module-specific. For example, transaction search or transforming a block hash in a block number and vice versa.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">robonomicsinterface</span> <span class="kn">import</span> <span class="n">ChainUtils</span>
+
+<span class="n">cu</span> <span class="o">=</span> <span class="n">ChainUtils</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cu</span><span class="o">.</span><span class="n">get_block_number</span><span class="p">(</span><span class="s2">&quot;0xef9ca7a02b8ab2df373b1f86f336474947df05455a1076a3c64b034319bd7152&quot;</span><span class="p">))</span>  <span class="c1"># 2875</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cu</span><span class="o">.</span><span class="n">get_block_hash</span><span class="p">(</span><span class="mi">2875</span><span class="p">))</span>  <span class="c1"># 0xef9ca7a02b8ab2df373b1f86f336474947df05455a1076a3c64b034319bd7152</span>
+</pre></div>
+</div>
+<p>Extrinsic search function here is implemented by <code class="docutils literal notranslate"><span class="pre">get_extrinsic_in_block</span></code> method. It accepts block hash/number and
+extrinsic hash/idx as arguments:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">cu</span><span class="o">.</span><span class="n">get_extrinsic_in_block</span><span class="p">(</span><span class="mi">1054910</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>  <span class="c1"># RWS call info.</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cu</span><span class="o">.</span><span class="n">get_extrinsic_in_block</span><span class="p">(</span><span class="s2">&quot;0x97ff645b2035a0ad62ed5f438ebd5ee91cbfe3d197ba221c6c03c614c6dc1dfe&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;0xbc2180c1773838ccf2f1e79302bec500c3c5ed7da8ea9471f5e40667574eed9f&quot;</span><span class="p">))</span>  <span class="c1"># The same.</span>
+</pre></div>
+</div>
+</section>
 <section id="notice-on-below-listed-classes">
 <h3>Notice on Below-Listed Classes<a class="headerlink" href="#notice-on-below-listed-classes" title="Permalink to this headline">¶</a></h3>
 <p>It is worth to mention that any query in these classes may accept <code class="docutils literal notranslate"><span class="pre">block_hash</span></code> argument and eny extrinsic may accept
@@ -112,6 +131,8 @@ as a dictionary and set transaction nonce.</p>
 <p>More that, each time one initialize a class, they may pass <code class="docutils literal notranslate"><span class="pre">wait_for_inclusion=False</span></code> argument to avoid waiting for
 future transactions to be included in block. It saves time, but one may not know if the transaction was not successful
 (e.g. <a class="reference internal" href="#digital-twins"><span class="std std-ref">DigitalTwin.set_source</span></a>  was submitted by unauthorized account).</p>
+<p>One more argument while initializing is <code class="docutils literal notranslate"><span class="pre">return_block_num</span></code>. If Set to <code class="docutils literal notranslate"><span class="pre">True</span></code> ALONG WITH <code class="docutils literal notranslate"><span class="pre">wait_for_inclusion</span></code>, the
+<code class="docutils literal notranslate"><span class="pre">extrinsic</span></code> function will return a tuple of form <code class="docutils literal notranslate"><span class="pre">(&lt;extrinsic_hash&gt;,</span> <span class="pre">&lt;block_number-idx&gt;)</span></code>.</p>
 </section>
 <section id="common-functions">
 <h3>Common Functions<a class="headerlink" href="#common-functions" title="Permalink to this headline">¶</a></h3>
@@ -361,6 +382,7 @@ string and vice-versa.</p>
 <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#initialization">Initialization</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#service-functions">Service Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#chain-utils">Chain Utils</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#notice-on-below-listed-classes">Notice on Below-Listed Classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#common-functions">Common Functions</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#datalog">Datalog</a></li>
