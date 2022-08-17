@@ -333,14 +333,53 @@ Start this server with local ip (Rust (with cargo) installation process describe
 </section>
 <section id="pubsub">
 <h3>PubSub<a class="headerlink" href="#pubsub" title="Permalink to this headline">¶</a></h3>
-<p><em>WARNING: THIS MODULE IS UNDER CONSTRUCTIONS, USE AT YOUR OWN RISK! TO BE UPDATED SOON.</em></p>
-<p>There is a way to implement robonomics pubsub rpc calls:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">robonomicsinterface</span> <span class="kn">import</span> <span class="n">PubSub</span>
-
-<span class="n">pubsub</span> <span class="o">=</span> <span class="n">PubSub</span><span class="p">(</span><span class="n">account</span><span class="p">)</span>
-<span class="n">pubsub</span><span class="o">.</span><span class="n">peer</span><span class="p">()</span>
+<p>There is a way to implement robonomics pubsub rpc calls. Below is a sample example of how to send messages from one
+script and listen to them on another one. For this two developer nodes on one machine were launched with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./robonomics --dev --tmp -l <span class="nv">rpc</span><span class="o">=</span>trace
+./robonomics --dev --tmp --ws-port <span class="m">9991</span> -l <span class="nv">rpc</span><span class="o">=</span>trace
 </pre></div>
 </div>
+<p>After that a subscriber and publisher scripts were created. Subscriber:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">robonomicsinterface</span> <span class="kn">import</span> <span class="n">Account</span><span class="p">,</span> <span class="n">PubSub</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="k">def</span> <span class="nf">subscription_handler</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">update_nr</span><span class="p">,</span> <span class="n">subscription_id</span><span class="p">):</span>
+    <span class="n">rawdata</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="s1">&#39;result&#39;</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rawdata</span><span class="p">)):</span>
+        <span class="n">rawdata</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">(</span><span class="n">rawdata</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rawdata</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+
+<span class="n">remote_ws</span> <span class="o">=</span> <span class="s2">&quot;ws://127.0.0.1:9944&quot;</span>
+<span class="n">account</span> <span class="o">=</span> <span class="n">Account</span><span class="p">(</span><span class="n">remote_ws</span><span class="o">=</span><span class="n">remote_ws</span><span class="p">)</span>
+<span class="n">pubsub</span> <span class="o">=</span> <span class="n">PubSub</span><span class="p">(</span><span class="n">account</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">pubsub</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="s2">&quot;/ip4/127.0.0.1/tcp/44440&quot;</span><span class="p">))</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pubsub</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="s2">&quot;topic_name&quot;</span><span class="p">,</span> <span class="n">result_handler</span><span class="o">=</span><span class="n">subscription_handler</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Subscriber:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">robonomicsinterface</span> <span class="kn">import</span> <span class="n">Account</span><span class="p">,</span> <span class="n">PubSub</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="n">remote_ws</span> <span class="o">=</span> <span class="s2">&quot;ws://127.0.0.1:9991&quot;</span>
+<span class="n">account</span> <span class="o">=</span> <span class="n">Account</span><span class="p">(</span><span class="n">remote_ws</span><span class="o">=</span><span class="n">remote_ws</span><span class="p">)</span>
+<span class="n">pubsub</span> <span class="o">=</span> <span class="n">PubSub</span><span class="p">(</span><span class="n">account</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">pubsub</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;/ip4/127.0.0.1/tcp/44440&quot;</span><span class="p">))</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;publish:&quot;</span><span class="p">,</span> <span class="n">pubsub</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="s2">&quot;topic_name&quot;</span><span class="p">,</span> <span class="s2">&quot;message_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())))</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>First, launch the subscriber script, then the publisher one. You should see published messages in listener’s script
+console.</p>
 </section>
 <section id="utils">
 <h3>Utils<a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h3>
