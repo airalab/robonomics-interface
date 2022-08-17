@@ -67,7 +67,9 @@ class PubSub(BaseClass):
 
         return self._service_functions.rpc_request("pubsub_peer", None, result_handler)
 
-    def publish(self, topic_name: str, message: str, result_handler: tp.Optional[tp.Callable] = None) -> tp.Any:
+    def publish(
+        self, topic_name: str, message: str, result_handler: tp.Optional[tp.Callable] = None
+    ) -> tp.Dict[str, tp.Union[str, bool, int]]:
         """
         Publish message into the topic by name.
 
@@ -75,7 +77,7 @@ class PubSub(BaseClass):
         :param message: Message to be published.
         :param result_handler: Callback function that processes the result received from the node.
 
-        :return: TODO
+        :return: Success flag in JSON message.
 
         """
 
