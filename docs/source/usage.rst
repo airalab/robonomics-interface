@@ -356,16 +356,62 @@ This code sample requires local node launched. ``PeerId`` is obtained when launc
 
 PubSub
 ++++++++
-*WARNING: THIS MODULE IS UNDER CONSTRUCTIONS, USE AT YOUR OWN RISK! TO BE UPDATED SOON.*
 
-There is a way to implement robonomics pubsub rpc calls:
+There is a way to implement robonomics pubsub rpc calls. Below is a sample example of how to send messages from one
+script and listen to them on another one. For this two developer nodes on one machine were launched with:
+
+.. code-block:: bash
+
+    ./robonomics --dev --tmp -l rpc=trace
+    ./robonomics --dev --tmp --ws-port 9991 -l rpc=trace
+
+After that a subscriber and publisher scripts were created. Subscriber:
 
 .. code-block:: python
 
-    from robonomicsinterface import PubSub
+    from robonomicsinterface import Account, PubSub
+    import time
 
+
+    def subscription_handler(obj, update_nr, subscription_id):
+        rawdata = obj['params']['result']['data']
+        for i in range(len(rawdata)):
+            rawdata[i] = chr(rawdata[i])
+        data = "".join(rawdata)
+        print(data)
+
+
+    remote_ws = "ws://127.0.0.1:9944"
+    account = Account(remote_ws=remote_ws)
     pubsub = PubSub(account)
-    pubsub.peer()
+
+    print(pubsub.listen("/ip4/127.0.0.1/tcp/44440"))
+    time.sleep(2)
+    print(pubsub.subscribe("topic_name", result_handler=subscription_handler))
+
+
+Subscriber:
+
+.. code-block:: python
+
+    from robonomicsinterface import Account, PubSub
+    import time
+
+
+    remote_ws = "ws://127.0.0.1:9991"
+    account = Account(remote_ws=remote_ws)
+    pubsub = PubSub(account)
+
+    print(pubsub.connect("/ip4/127.0.0.1/tcp/44440"))
+    time.sleep(2)
+
+    while True:
+        print("publish:", pubsub.publish("topic_name", "message_" + str(time.time())))
+        time.sleep(2)
+
+First, launch the subscriber script, then the publisher one. You should see published messages in listener's script
+console.
+
 
 Utils
 ++++++++
