@@ -17,6 +17,8 @@ class SubEvent(Enum):
     Transfer = "Transfer"
     TopicChanged = "TopicChanged"
     NewDevices = "NewDevices"
+    NewLiability = "NewLiability"
+    NewReport = "NewReport"
 
 
 class Subscriber:
