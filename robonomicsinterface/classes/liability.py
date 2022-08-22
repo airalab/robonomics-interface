@@ -2,6 +2,7 @@ import typing as tp
 
 from logging import getLogger
 from scalecodec.base import ScaleBytes
+from substrateinterface import KeypairType
 
 from .base import BaseClass
 from ..exceptions import NoPrivateKeyException
@@ -9,6 +10,8 @@ from ..types import LiabilityTyping, ReportTyping
 from ..utils import ipfs_qm_hash_to_32_bytes, str_to_scalebytes
 
 logger = getLogger(__name__)
+
+KEYPAIR_TYPE = ["Ed25519", "Sr25519", "Ecdsa"]
 
 
 class Liability(BaseClass):
@@ -71,6 +74,8 @@ class Liability(BaseClass):
         promisee_params_signature: str,
         promisor_params_signature: str,
         nonce: tp.Optional[int] = None,
+        promisee_signature_crypto_type: int = KeypairType.SR25519,
+        promisor_signature_crypto_type: int = KeypairType.SR25519,
     ) -> tp.Tuple[int, str]:
         """
         Create a liability to ensure economical relationships between robots! This is a contract to be assigned to a
@@ -91,6 +96,8 @@ class Liability(BaseClass):
             incremented nonce, pass account's current nonce. See
             https://github.com/polkascan/py-substrate-interface/blob/85a52b1c8f22e81277907f82d807210747c6c583/substrateinterface/base.py#L1535
             for example.
+        :param promisee_signature_crypto_type: Crypto type used to create promisee account.
+        :param promisor_signature_crypto_type: Crypto type used to create promisor account.
 
         :return: New liability index and hash of the liability creation transaction.
 
@@ -113,17 +120,22 @@ class Liability(BaseClass):
                     "economics": {"price": economics},
                     "promisee": promisee,
                     "promisor": promisor,
-                    "promisee_signature": {"Sr25519": promisee_params_signature},
-                    "promisor_signature": {"Sr25519": promisor_params_signature},
+                    "promisee_signature": {KEYPAIR_TYPE[promisee_signature_crypto_type]: promisee_params_signature},
+                    "promisor_signature": {KEYPAIR_TYPE[promisor_signature_crypto_type]: promisor_params_signature},
                 }
             },
             nonce=nonce,
         )
 
         liability_total: int = self.get_latest_index()
+        if not liability_total:
+            liability_total = 1
         index: int = liability_total - 1
         for liabilities in reversed(range(liability_total)):
-            if self.get_agreement(liabilities)["promisee_signature"]["Sr25519"] == promisee_params_signature:
+            if (
+                self.get_agreement(liabilities)["promisee_signature"][KEYPAIR_TYPE[promisee_signature_crypto_type]]
+                == promisee_params_signature
+            ):
                 index = liabilities
                 break
 
@@ -150,17 +162,18 @@ class Liability(BaseClass):
 
         logger.info(f"Signing proof with technics {technics_hash} and economics {economics}.")
 
-        signed_data: ScaleBytes = str_to_scalebytes(technics_hash, "H256") + str_to_scalebytes(
+        data_to_sign: ScaleBytes = str_to_scalebytes(technics_hash, "H256") + str_to_scalebytes(
             economics, "Compact<Balance>"
         )
 
-        return f"0x{self.account.keypair.sign(signed_data).hex()}"
+        return f"0x{self.account.keypair.sign(data_to_sign).hex()}"
 
     def finalize(
         self,
         index: int,
         report_hash: str,
         promisor: tp.Optional[str] = None,
+        promisor_signature_crypto_type: int = KeypairType.SR25519,
         promisor_finalize_signature: tp.Optional[str] = None,
         nonce: tp.Optional[int] = None,
     ) -> str:
@@ -172,6 +185,7 @@ class Liability(BaseClass):
         :param report_hash: IPFS hash of a report data (videos, text, etc.). Accepts any 32-bytes data or a base58
             (``Qm...``) IPFS hash.
         :param promisor: ``Promisor`` (worker) ss58 address. If not passed, replaced with transaction author address.
+        :param promisor_signature_crypto_type: Crypto type used to create promisor account.
         :param promisor_finalize_signature: 'Job done' proof. A message containing liability index and report data
             signed by ``promisor``. If not passed, this message is signed by a transaction author which should be a
             ``promisor`` so.
@@ -197,7 +211,10 @@ class Liability(BaseClass):
                     "index": index,
                     "sender": promisor or self.account.get_address(),
                     "payload": {"hash": report_hash},
-                    "signature": {"Sr25519": promisor_finalize_signature or self.sign_report(index, report_hash)},
+                    "signature": {
+                        KEYPAIR_TYPE[promisor_signature_crypto_type]: promisor_finalize_signature
+                        or self.sign_report(index, report_hash)
+                    },
                 }
             },
             nonce=nonce,
@@ -224,6 +241,6 @@ class Liability(BaseClass):
 
         logger.info(f"Signing report for liability {index} with report_hash {report_hash}.")
 
-        signed_data: ScaleBytes = str_to_scalebytes(index, "U32") + str_to_scalebytes(report_hash, "H256")
+        data_to_sign: ScaleBytes = str_to_scalebytes(index, "U32") + str_to_scalebytes(report_hash, "H256")
 
-        return f"0x{self.account.keypair.sign(signed_data).hex()}"
+        return f"0x{self.account.keypair.sign(data_to_sign).hex()}"
