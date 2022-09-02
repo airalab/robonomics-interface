@@ -13,7 +13,7 @@ def create_keypair(seed: str, crypto_type: int = KeypairType.SR25519) -> Keypair
     """
     Create a keypair for further use.
 
-    :param seed: Account seed (mnemonic or raw) as a key to sign transactions.
+    :param seed: Account seed (mnemonic or raw) as a key to sign transactions. ``//Alice``, ``//Bob`` etc. supported.
     :param crypto_type: Use KeypairType.SR25519 or KeypairType.ED25519 cryptography for generating the Keypair.
 
     :return: A Keypair instance used by substrate to sign transactions.
@@ -22,6 +22,8 @@ def create_keypair(seed: str, crypto_type: int = KeypairType.SR25519) -> Keypair
 
     if seed.startswith("0x"):
         return Keypair.create_from_seed(seed_hex=hex(int(seed, 16)), ss58_format=32, crypto_type=crypto_type)
+    elif seed.startswith("//"):
+        return Keypair.create_from_uri(suri=seed, ss58_format=32, crypto_type=crypto_type)
     else:
         return Keypair.create_from_mnemonic(seed, ss58_format=32, crypto_type=crypto_type)
 
