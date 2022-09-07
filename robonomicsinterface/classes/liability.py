@@ -104,7 +104,7 @@ class Liability(BaseClass):
         """
 
         logger.info(
-            f"Creating new liability with promisee {promisee}, promisor {promisor}, technics {technics_hash} and"
+            f"Creating new liability with promisee {promisee}, promisor {promisor}, technics {technics_hash} and "
             f"economics {economics}."
         )
 
