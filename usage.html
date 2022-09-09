@@ -394,6 +394,30 @@ string and vice-versa.</p>
 <span class="c1"># &gt;&gt;&gt; &#39;Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z&#39;</span>
 </pre></div>
 </div>
+<p>There is one more useful functionality: Content upload to IPFS via Web3-auth gateway (and IPFS content fetch). The only
+thing needed - account seed to sign an authentication message.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">robonomicsinterface.utils</span> <span class="kn">import</span> <span class="n">ipfs_get_content</span><span class="p">,</span> <span class="n">ipfs_upload_content</span>
+
+<span class="n">seed</span> <span class="o">=</span> <span class="s2">&quot;seed&quot;</span>
+
+<span class="n">content</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Hello&quot;</span><span class="p">:</span> <span class="s2">&quot;World&quot;</span><span class="p">}</span>
+<span class="n">cid</span> <span class="o">=</span> <span class="n">ipfs_upload_content</span><span class="p">(</span><span class="n">tester_tokens_seed</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
+
+<span class="n">content_</span> <span class="o">=</span> <span class="n">ipfs_get_content</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">content_</span><span class="p">)</span>
+
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;path_to_file&quot;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">album</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">cid</span> <span class="o">=</span> <span class="n">ipfs_upload_content</span><span class="p">(</span><span class="n">tester_tokens_seed</span><span class="p">,</span> <span class="n">album</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
+
+<span class="n">content_</span> <span class="o">=</span> <span class="n">ipfs_get_content</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;path_to_the_fetched_file&quot;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content_</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 </section>
 </section>

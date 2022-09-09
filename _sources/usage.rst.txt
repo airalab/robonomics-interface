@@ -428,3 +428,29 @@ string and vice-versa.
     # >>> '0xcc2d976220820d023b7170f520d3490e811ed988ae3d6221474ee97e559b0361'
     ipfs_hash_decoded = ipfs_32_bytes_to_qm_hash("0xcc2d976220820d023b7170f520d3490e811ed988ae3d6221474ee97e559b0361")
     # >>> 'Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z'
+
+There is one more useful functionality: Content upload to IPFS via Web3-auth gateway (and IPFS content fetch). The only
+thing needed - account seed to sign an authentication message.
+
+.. code-block:: python
+
+    from robonomicsinterface.utils import ipfs_get_content, ipfs_upload_content
+
+    seed = "seed"
+
+    content = {"Hello": "World"}
+    cid = ipfs_upload_content(tester_tokens_seed, content)
+    print(cid)
+
+    content_ = ipfs_get_content(cid)
+    print(content_)
+
+
+    with open("path_to_file", 'rb') as f:
+        album = f.read()
+    cid = ipfs_upload_content(tester_tokens_seed, album)
+    print(cid)
+
+    content_ = ipfs_get_content(cid)
+    with open("path_to_the_fetched_file", 'wb') as f:
+        f.write(content_)

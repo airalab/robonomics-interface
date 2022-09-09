@@ -890,6 +890,18 @@ Better check out the <a class="reference external" href="https://github.com/Mult
 </dd></dl>
 
 <dl class="py exception">
+<dt class="sig sig-object py" id="robonomicsinterface.exceptions.FailedToPinFile">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">robonomicsinterface.exceptions.</span></span><span class="sig-name descname"><span class="pre">FailedToPinFile</span></span><a class="headerlink" href="#robonomicsinterface.exceptions.FailedToPinFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Failed to upload a file to Crust Network.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="robonomicsinterface.exceptions.FailedToUploadFile">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">robonomicsinterface.exceptions.</span></span><span class="sig-name descname"><span class="pre">FailedToUploadFile</span></span><a class="headerlink" href="#robonomicsinterface.exceptions.FailedToUploadFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Failed to upload a file to Crust Network.</p>
+</dd></dl>
+
+<dl class="py exception">
 <dt class="sig sig-object py" id="robonomicsinterface.exceptions.InvalidExtrinsicHash">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">robonomicsinterface.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidExtrinsicHash</span></span><a class="headerlink" href="#robonomicsinterface.exceptions.InvalidExtrinsicHash" title="Permalink to this definition">¶</a></dt>
 <dd><p>Invalid extrinsic hash format. Hash length is not 66 signs, or it doesn’t start from 0x.</p>
@@ -967,6 +979,20 @@ Better check out the <a class="reference external" href="https://github.com/Mult
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="robonomicsinterface.utils.ipfs_get_content">
+<span class="sig-prename descclassname"><span class="pre">robonomicsinterface.utils.</span></span><span class="sig-name descname"><span class="pre">ipfs_get_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#robonomicsinterface.utils.ipfs_get_content" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get content file in IPFS network</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>cid</strong> – IPFS cid.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Content of a file stored.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="robonomicsinterface.utils.ipfs_qm_hash_to_32_bytes">
 <span class="sig-prename descclassname"><span class="pre">robonomicsinterface.utils.</span></span><span class="sig-name descname"><span class="pre">ipfs_qm_hash_to_32_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ipfs_qm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#robonomicsinterface.utils.ipfs_qm_hash_to_32_bytes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform IPFS base58 Qm… hash to a 32 bytes sting (without 2 heading ‘0x’ bytes).</p>
@@ -976,6 +1002,26 @@ Better check out the <a class="reference external" href="https://github.com/Mult
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>32 bytes sting (without 2 heading bytes).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="robonomicsinterface.utils.ipfs_upload_content">
+<span class="sig-prename descclassname"><span class="pre">robonomicsinterface.utils.</span></span><span class="sig-name descname"><span class="pre">ipfs_upload_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#robonomicsinterface.utils.ipfs_upload_content" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Upload content to IPFS and pin the CID for some time via IPFS Web3 Gateway with private-key-signed message.</dt><dd><p>The signed message is user’s pubkey. <a class="reference external" href="https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW#usage">https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW#usage</a>.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seed</strong> – Account seed in raw/mnemonic form.</p></li>
+<li><p><strong>content</strong> – Content to upload to IPFS.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>IPFS cid.</p>
 </dd>
 </dl>
 </dd></dl>
