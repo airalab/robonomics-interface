@@ -1,10 +1,16 @@
 import hashlib
 import logging
+import pickle
+import requests
 import typing as tp
 
+from ast import literal_eval
 from base58 import b58decode, b58encode
 from scalecodec.base import RuntimeConfiguration, ScaleBytes, ScaleType
 from substrateinterface import Keypair, KeypairType
+
+from .constants import W3GW, W3PS
+from .exceptions import FailedToPinFile, FailedToUploadFile
 
 logger = logging.getLogger(__name__)
 
@@ -82,3 +88,73 @@ def str_to_scalebytes(data: tp.Union[int, str], type_str: str) -> ScaleBytes:
 
     scale_obj: ScaleType = RuntimeConfiguration().create_scale_object(type_str)
     return scale_obj.encode(data)
+
+
+def ipfs_upload_content(seed: str, content: tp.Any) -> str:
+    """
+    Upload content to IPFS and pin the CID for some time via IPFS Web3 Gateway with private-key-signed message.
+        The signed message is user's pubkey. https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW#usage.
+
+    :param seed: Account seed in raw/mnemonic form.
+    :param content: Content to upload to IPFS.
+
+    :return: IPFS cid.
+
+    """
+
+    keypair: Keypair = create_keypair(seed)
+    content_bytes = pickle.dumps(content)
+
+    response = requests.post(
+        W3GW + "/api/v0/add",
+        auth=(f"sub-{keypair.ss58_address}", f"0x{keypair.sign(keypair.ss58_address).hex()}"),
+        files={"file@": (None, content_bytes)},
+    )
+
+    if response.status_code == 200:
+        resp = literal_eval(response.content.decode("utf-8"))
+        cid = resp["Hash"]
+    else:
+        raise FailedToUploadFile(response.status_code)
+
+    _pin_ipfs_cid(keypair, cid)
+
+    return cid
+
+
+def _pin_ipfs_cid(keypair: Keypair, ipfs_cid: str) -> bool:
+    """
+    Pin file for some time via Web3 IPFS pinning service. This may help to spread the file wider across IPFS.
+
+    :param keypair: Account keypair.
+    :param ipfs_cid: Uploaded file cid.
+
+    :return: Server response flag.
+    """
+
+    body = {"cid": ipfs_cid}
+
+    response = requests.post(
+        W3PS + "/psa/pins",
+        auth=(f"sub-{keypair.ss58_address}", f"0x{keypair.sign(keypair.ss58_address).hex()}"),
+        json=body,
+    )
+
+    if response.status_code == 200:
+        return True
+    else:
+        raise FailedToPinFile(response.status_code)
+
+
+def ipfs_get_content(cid: str) -> tp.Any:
+    """
+    Get content file in IPFS network
+
+    :param cid: IPFS cid.
+
+    :return: Content of a file stored.
+
+    """
+
+    response = requests.get(W3GW + "/ipfs/" + cid)
+    return pickle.loads(response.content)
