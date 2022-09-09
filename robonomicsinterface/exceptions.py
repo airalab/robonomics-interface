@@ -23,3 +23,19 @@ class InvalidExtrinsicHash(Exception):
     """
 
     pass
+
+
+class FailedToUploadFile(Exception):
+    """
+    Failed to upload a file to Crust Network.
+    """
+
+    pass
+
+
+class FailedToPinFile(Exception):
+    """
+    Failed to upload a file to Crust Network.
+    """
+
+    pass
