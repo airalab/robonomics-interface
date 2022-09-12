@@ -36,18 +36,21 @@ class Liability(BaseClass):
 
     def get_latest_index(self, block_hash: tp.Optional[str] = None) -> tp.Optional[int]:
         """
-        Fetch total number of liabilities in chain (method returns the latest liability index +1).
+        Fetch the latest liability index.
 
         :param block_hash: Retrieves data as of passed block hash.
 
-        :return: Total number of liabilities in chain (method returns the latest liability index +1). None if no
-            liabilities.
+        :return: Latest liability index.
 
         """
 
         logger.info("Fetching total number of liabilities in chain.")
 
-        return self._service_functions.chainstate_query("Liability", "LatestIndex", block_hash=block_hash)
+        next_index: tp.Optional[int] = self._service_functions.chainstate_query("Liability", "NextIndex", block_hash=block_hash)
+        if not next_index:
+            return None
+        else:
+            return next_index - 1
 
     def get_report(self, index: int, block_hash: tp.Optional[str] = None) -> tp.Optional[ReportTyping]:
         """
@@ -127,11 +130,12 @@ class Liability(BaseClass):
             nonce=nonce,
         )
 
-        liability_total: int = self.get_latest_index()
-        if not liability_total:
-            liability_total = 1
-        index: int = liability_total - 1
-        for liabilities in reversed(range(liability_total)):
+        latest_index: int = self.get_latest_index()
+        if not latest_index:
+            latest_index = 0
+            return latest_index, liability_creation_transaction_hash
+        index: int = latest_index
+        for liabilities in reversed(range(latest_index+1)):
             if (
                 self.get_agreement(liabilities)["promisee_signature"][KEYPAIR_TYPE[promisee_signature_crypto_type]]
                 == promisee_params_signature
