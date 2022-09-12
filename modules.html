@@ -1007,7 +1007,7 @@ Better check out the <a class="reference external" href="https://github.com/Mult
 
 <dl class="py function">
 <dt class="sig sig-object py" id="robonomicsinterface.utils.ipfs_upload_content">
-<span class="sig-prename descclassname"><span class="pre">robonomicsinterface.utils.</span></span><span class="sig-name descname"><span class="pre">ipfs_upload_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#robonomicsinterface.utils.ipfs_upload_content" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">robonomicsinterface.utils.</span></span><span class="sig-name descname"><span class="pre">ipfs_upload_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pin</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#robonomicsinterface.utils.ipfs_upload_content" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="simple">
 <dt>Upload content to IPFS and pin the CID for some time via IPFS Web3 Gateway with private-key-signed message.</dt><dd><p>The signed message is user’s pubkey. <a class="reference external" href="https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW#usage">https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW#usage</a>.</p>
 </dd>
@@ -1017,6 +1017,7 @@ Better check out the <a class="reference external" href="https://github.com/Mult
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>seed</strong> – Account seed in raw/mnemonic form.</p></li>
 <li><p><strong>content</strong> – Content to upload to IPFS.</p></li>
+<li><p><strong>pin</strong> – Whether pin file or not.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
