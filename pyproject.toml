@@ -46,7 +46,7 @@ robonomics_interface = 'robonomicsinterface.robonomics_interface_io:cli'
 
 [tool.poetry.dependencies]
 python = ">=3.8, <4.0"
-substrate-interface = ">=1.3.2<2.0"
+substrate-interface = ">=1.3.2, <2.0"
 click = "^8.0.4"
 
 [tool.poetry.dev-dependencies]
