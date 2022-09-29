@@ -1,6 +1,5 @@
 import hashlib
 import logging
-import pickle
 import requests
 import typing as tp
 
@@ -96,7 +95,7 @@ def ipfs_upload_content(seed: str, content: tp.Any, pin: bool = False) -> str:
         The signed message is user's pubkey. https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW#usage.
 
     :param seed: Account seed in raw/mnemonic form.
-    :param content: Content to upload to IPFS.
+    :param content: Content to upload to IPFS. To upload media use open(.., "rb") and read().
     :param pin: Whether pin file or not.
 
     :return: IPFS cid.
@@ -104,12 +103,11 @@ def ipfs_upload_content(seed: str, content: tp.Any, pin: bool = False) -> str:
     """
 
     keypair: Keypair = create_keypair(seed)
-    content_bytes = pickle.dumps(content)
 
     response = requests.post(
         W3GW + "/api/v0/add",
         auth=(f"sub-{keypair.ss58_address}", f"0x{keypair.sign(keypair.ss58_address).hex()}"),
-        files={"file@": (None, content_bytes)},
+        files={"file@": (None, content)},
     )
 
     if response.status_code == 200:
@@ -158,5 +156,4 @@ def ipfs_get_content(cid: str) -> tp.Any:
 
     """
 
-    response = requests.get(W3GW + "/ipfs/" + cid)
-    return pickle.loads(response.content)
+    return requests.get(W3GW + "/ipfs/" + cid).content
