@@ -400,7 +400,7 @@ thing needed - account seed to sign an authentication message.</p>
 
 <span class="n">seed</span> <span class="o">=</span> <span class="s2">&quot;seed&quot;</span>
 
-<span class="n">content</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Hello&quot;</span><span class="p">:</span> <span class="s2">&quot;World&quot;</span><span class="p">}</span>
+<span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;Hello, World!&quot;</span>
 <span class="n">cid</span> <span class="o">=</span> <span class="n">ipfs_upload_content</span><span class="p">(</span><span class="n">tester_tokens_seed</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
 
@@ -409,8 +409,8 @@ thing needed - account seed to sign an authentication message.</p>
 
 
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;path_to_file&quot;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">album</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-<span class="n">cid</span> <span class="o">=</span> <span class="n">ipfs_upload_content</span><span class="p">(</span><span class="n">tester_tokens_seed</span><span class="p">,</span> <span class="n">album</span><span class="p">)</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="n">cid</span> <span class="o">=</span> <span class="n">ipfs_upload_content</span><span class="p">(</span><span class="n">tester_tokens_seed</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
 
 <span class="n">content_</span> <span class="o">=</span> <span class="n">ipfs_get_content</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
