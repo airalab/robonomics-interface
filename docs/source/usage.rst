@@ -438,7 +438,7 @@ thing needed - account seed to sign an authentication message.
 
     seed = "seed"
 
-    content = {"Hello": "World"}
+    content = "Hello, World!"
     cid = ipfs_upload_content(tester_tokens_seed, content)
     print(cid)
 
@@ -447,8 +447,8 @@ thing needed - account seed to sign an authentication message.
 
 
     with open("path_to_file", 'rb') as f:
-        album = f.read()
-    cid = ipfs_upload_content(tester_tokens_seed, album)
+        content = f.read()
+    cid = ipfs_upload_content(tester_tokens_seed, content)
     print(cid)
 
     content_ = ipfs_get_content(cid)
