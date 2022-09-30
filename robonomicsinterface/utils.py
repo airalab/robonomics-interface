@@ -89,7 +89,7 @@ def str_to_scalebytes(data: tp.Union[int, str], type_str: str) -> ScaleBytes:
     return scale_obj.encode(data)
 
 
-def ipfs_upload_content(seed: str, content: tp.Any, pin: bool = False) -> tp.Tuple[str]:
+def ipfs_upload_content(seed: str, content: tp.Any, pin: bool = False) -> tp.Tuple[str, int]:
     """
     Upload content to IPFS and pin the CID for some time via IPFS Web3 Gateway with private-key-signed message.
         The signed message is user's pubkey. https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW#usage.
@@ -112,8 +112,8 @@ def ipfs_upload_content(seed: str, content: tp.Any, pin: bool = False) -> tp.Tup
 
     if response.status_code == 200:
         resp = literal_eval(response.content.decode("utf-8"))
-        cid = resp["Hash"]
-        size = resp["Size"]
+        cid: str = resp["Hash"]
+        size: int = int(resp["Size"])
     else:
         raise FailedToUploadFile(response.status_code)
 
