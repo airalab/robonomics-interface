@@ -15,6 +15,26 @@ class DigitalTwin(BaseClass):
     Class for interacting with `Digital Twins <https://wiki.robonomics.network/docs/en/digital-twins/>`_..
     """
 
+    @staticmethod
+    def _process_topic(topic: str) -> str:
+        """
+        Hash topic to a certain length if it doesn't meet topic format requirements.
+
+        :param topic: Topic name to process.
+
+        :return: Processed topic name
+
+        """
+
+        try:
+            int(topic, 16)
+            if len(topic) == 66:
+                return topic
+            else:
+                return dt_encode_topic(topic)
+        except ValueError:
+            return dt_encode_topic(topic)
+
     def get_info(self, dt_id: int, block_hash: tp.Optional[str] = None) -> tp.Optional[DigitalTwinTyping]:
         """
         Fetch information about existing digital twin.
@@ -72,7 +92,7 @@ class DigitalTwin(BaseClass):
         dt_map: tp.Optional[DigitalTwinTyping] = self.get_info(dt_id, block_hash=block_hash)
         if not dt_map:
             raise DigitalTwinMapException("No Digital Twin was created or Digital Twin map is empty.")
-        topic_hashed: str = dt_encode_topic(topic)
+        topic_hashed: str = self._process_topic(topic)
         for source in dt_map:
             if source[0] == topic_hashed:
                 return source[1]
@@ -119,7 +139,7 @@ class DigitalTwin(BaseClass):
 
         """
 
-        topic_hashed = dt_encode_topic(topic)
+        topic_hashed = self._process_topic(topic)
         return (
             topic_hashed,
             self._service_functions.extrinsic(

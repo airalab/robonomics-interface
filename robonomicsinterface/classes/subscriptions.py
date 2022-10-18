@@ -39,8 +39,8 @@ class Subscriber:
 
         :param account: Account dataclass with ``seed``, ``remote_ws`` address and node ``type_registry``.
         :param subscribed_event: Event in substrate chain to be awaited. Choose from [``NewRecord``, ``NewLaunch``,
-            ``Transfer``, ``TopicChanged``, ``NewDevices``]. This parameter should be a ``SubEvent`` class attribute.
-            This also requires importing this class.
+            ``Transfer``, ``TopicChanged``, ``NewDevices``, ``NewLiability``, ``NewReport``]. This parameter should be a
+            ``SubEvent`` class attribute. This also requires importing this class.
         :param subscription_handler: Callback function that processes the updates of the storage.
             THIS FUNCTION IS MEANT TO ACCEPT ONLY ONE ARGUMENT (THE NEW EVENT DESCRIPTION TUPLE) by default.
             It will receive event ID as a second parameter if ``pass_event_id`` is True.
