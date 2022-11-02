@@ -11,3 +11,4 @@ from .rws import RWS
 from .service_functions import ServiceFunctions
 from .subscriptions import SubEvent, Subscriber
 from .chain_utils import ChainUtils
+from .xcm import XCM
