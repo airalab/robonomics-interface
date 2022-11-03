@@ -23,15 +23,13 @@ class XCM(BaseClass):
             found in 'utils' module.
         :return: Encoded (hex) call data for the xstorage.placeStorageOrderThroughParachain(cid, size) extrinsic in Crust
         """
-        interface = substrate.SubstrateInterface(
-            url="wss://rpc-shadow.crust.network/",
-            ss58_format=66,
-        )
-        call = interface.compose_call(
-            call_module="Xstorage",
-            call_function="place_storage_order_through_parachain",
-            call_params={"cid": file_ipfs_cid, "size": file_size_bytes},
-        )
+        url = "wss://rpc-shadow.crust.network/"
+        with substrate.SubstrateInterface(url=url, ss58_format=66) as interface:
+            call = interface.compose_call(
+                call_module="Xstorage",
+                call_function="place_storage_order_through_parachain",
+                call_params={"cid": file_ipfs_cid, "size": file_size_bytes},
+            )
         return str(call.data)
 
     def place_file_pin_order_in_crust(self, file_ipfs_cid: str, file_size_bytes: int) -> str:
@@ -54,7 +52,7 @@ class XCM(BaseClass):
                     "parents": 1,
                     "interior": {
                         "X1": {
-                            "Parachain": "2,012",
+                            "Parachain": 2012,
                         }
                     },
                 }
@@ -65,7 +63,7 @@ class XCM(BaseClass):
                         "WithdrawAsset": [
                             {
                                 "id": {"Concrete": {"parents": 0, "interior": "Here"}},
-                                "fun": {"Fungible": "1,000,000,000,000"},
+                                "fun": {"Fungible": 10**12},
                             }
                         ]
                     },
@@ -74,7 +72,7 @@ class XCM(BaseClass):
                             "fees": {
                                 "id": {"Concrete": {"parents": 0, "interior": "Here"}},
                                 "fun": {
-                                    "Fungible": "1,000,000,000,000",
+                                    "Fungible": 10**12,
                                 },
                             },
                             "weightLimit": "Unlimited",
@@ -83,7 +81,7 @@ class XCM(BaseClass):
                     {
                         "Transact": {
                             "originType": "Native",
-                            "requireWeightAtMost": "1,000,000,000",
+                            "requireWeightAtMost": 10**9,
                             "call": {
                                 "encoded": crust_encoded_call_data,
                             },
@@ -96,7 +94,7 @@ class XCM(BaseClass):
                             "maxAssets": 1,
                             "beneficiary": {
                                 "parents": 0,
-                                "interior": {"X1": {"Parachain": "2,048"}},
+                                "interior": {"X1": {"Parachain": 2048}},
                             },
                         }
                     },
