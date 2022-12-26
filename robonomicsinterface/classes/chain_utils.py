@@ -48,6 +48,7 @@ class ChainUtils:
 
         return self.interface.get_block_number(block_hash)
 
+    @check_socket_opened
     def get_block_hash(self, block_number: int) -> str:
         """
         Get block hash by its number.
