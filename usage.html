@@ -264,24 +264,29 @@ report messages, fetch information about current and completed liabilities:</p>
 </section>
 <section id="subscriptions">
 <h3>Subscriptions<a class="headerlink" href="#subscriptions" title="Permalink to this headline">¶</a></h3>
-<p>There is a subscriptions functional implemented. When initiated, blocks thread and processes new events with a user-passed
-callback function. Pay attention that this callback may only accept one argument - the event data. Up to now, the only supported
-events are <code class="docutils literal notranslate"><span class="pre">NewRecord</span></code>, <code class="docutils literal notranslate"><span class="pre">NewLaunch</span></code>, <code class="docutils literal notranslate"><span class="pre">Transfer</span></code>, <code class="docutils literal notranslate"><span class="pre">TopicChanged</span></code> and <code class="docutils literal notranslate"><span class="pre">NewDevices</span></code>.</p>
+<p>There is a subscriptions functional implemented. When initiated, processes new events with a user-passed
+callback function. Pay attention that this callback may only accept one argument - the event data. Up to now, the supported
+events are <code class="docutils literal notranslate"><span class="pre">NewRecord</span></code>, <code class="docutils literal notranslate"><span class="pre">NewLaunch</span></code>, <code class="docutils literal notranslate"><span class="pre">Transfer</span></code>, <code class="docutils literal notranslate"><span class="pre">TopicChanged</span></code>, <code class="docutils literal notranslate"><span class="pre">NewDevices</span></code>, <code class="docutils literal notranslate"><span class="pre">NewLiability</span></code> and <code class="docutils literal notranslate"><span class="pre">NewReport</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">robonomicsinterface</span> <span class="kn">import</span> <span class="n">Subscriber</span><span class="p">,</span> <span class="n">SubEvent</span>
 
 <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 
 <span class="n">account</span> <span class="o">=</span> <span class="n">Account</span><span class="p">()</span>
-<span class="n">subscriber</span> <span class="o">=</span> <span class="n">Subscriber</span><span class="p">(</span><span class="n">account</span><span class="p">,</span> <span class="n">SubEvent</span><span class="o">.</span><span class="n">NewRecord</span><span class="p">,</span> <span class="n">subscription_handler</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+<span class="n">subscriber</span> <span class="o">=</span> <span class="n">Subscriber</span><span class="p">(</span><span class="n">account</span><span class="p">,</span> <span class="n">SubEvent</span><span class="o">.</span><span class="n">MultiEvent</span><span class="p">,</span> <span class="n">subscription_handler</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+
+<span class="o">&lt;</span><span class="n">do</span> <span class="n">stuff</span><span class="o">&gt;</span>
+
+<span class="n">subscriber</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>One may also pass a list of addresses or one address as a parameter to filter trigger situations.
-There is a way to subscribe to multiple events by using side package <code class="docutils literal notranslate"><span class="pre">aenum</span></code>.</p>
+<p>One may also pass a list of addresses or one address as a parameter to filter trigger situation. Another option is to set
+<code class="docutils literal notranslate"><span class="pre">pass_event_id</span></code> to get block number and event ID as a second <code class="docutils literal notranslate"><span class="pre">callback</span></code> parameter.</p>
+<p>There is a way to subscribe to multiple events by using side package <code class="docutils literal notranslate"><span class="pre">aenum</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aenum</span> <span class="kn">import</span> <span class="n">extend_enum</span>
 <span class="n">extend_enum</span><span class="p">(</span><span class="n">SubEvent</span><span class="p">,</span> <span class="s2">&quot;MultiEvent&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SubEvent</span><span class="o">.</span><span class="n">NewRecord</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">SubEvent</span><span class="o">.</span><span class="n">NewLaunch</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="n">subscriber</span> <span class="o">=</span> <span class="n">Subscriber</span><span class="p">(</span><span class="n">acc</span><span class="p">,</span> <span class="n">SubEvent</span><span class="o">.</span><span class="n">MultiEvent</span><span class="p">,</span> <span class="n">subscription_handler</span><span class="o">=</span><span class="n">callback</span><span class="p">)</span>
+<span class="n">subscriber</span> <span class="o">=</span> <span class="n">Subscriber</span><span class="p">(</span><span class="n">acc</span><span class="p">,</span> <span class="n">SubEvent</span><span class="o">.</span><span class="n">MultiEvent</span><span class="p">,</span> <span class="n">subscription_handler</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="n">addr</span><span class="o">=&lt;</span><span class="n">ss58_addr</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">pass_event_id</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

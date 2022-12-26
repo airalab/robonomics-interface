@@ -847,10 +847,10 @@ use this method to perform the request.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="robonomicsinterface.Subscriber">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">robonomicsinterface.</span></span><span class="sig-name descname"><span class="pre">Subscriber</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">account</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#robonomicsinterface.Account" title="robonomicsinterface.classes.account.Account"><span class="pre">robonomicsinterface.classes.account.Account</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">subscribed_event</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">robonomicsinterface.classes.subscriptions.SubEvent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subscription_handler</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">callable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pass_event_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#robonomicsinterface.Subscriber" title="Permalink to this definition">¶</a></dt>
-<dd><p>Class intended for use in cases when needed to subscribe on chainstate updates/events. <strong>Blocks current thread</strong>!</p>
+<dd><p>Class intended for use in cases when needed to subscribe on chainstate updates/events.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="robonomicsinterface.Subscriber._event_callback">
-<span class="sig-name descname"><span class="pre">_event_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_nr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subscription_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#robonomicsinterface.Subscriber._event_callback" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">_event_callback</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_nr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subscription_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#robonomicsinterface.Subscriber._event_callback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function, processing updates in event list storage. On update filters events to a desired account
 and passes the event description to the user-provided <code class="docutils literal notranslate"><span class="pre">callback</span></code> method.</p>
 <dl class="field-list simple">
@@ -869,6 +869,26 @@ and passes the event description to the user-provided <code class="docutils lite
 <span class="sig-name descname"><span class="pre">_subscribe_event</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#robonomicsinterface.Subscriber._subscribe_event" title="Permalink to this definition">¶</a></dt>
 <dd><p>Subscribe to events targeted to a certain account (<code class="docutils literal notranslate"><span class="pre">launch</span></code>, <code class="docutils literal notranslate"><span class="pre">transfer</span></code>). Call <code class="docutils literal notranslate"><span class="pre">subscription_handler</span></code>
 when updated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="robonomicsinterface.Subscriber._target_address_in_event">
+<span class="sig-name descname"><span class="pre">_target_address_in_event</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#robonomicsinterface.Subscriber._target_address_in_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return whether call callback function or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>event</strong> – Occurred chain event.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Whether call callback function or not.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="robonomicsinterface.Subscriber.cancel">
+<span class="sig-name descname"><span class="pre">cancel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#robonomicsinterface.Subscriber.cancel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cancel subscription and join its thread.</p>
 </dd></dl>
 
 </dd></dl>

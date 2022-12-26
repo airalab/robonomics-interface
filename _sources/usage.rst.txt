@@ -272,9 +272,9 @@ There are as well dedicated methods for convenient usage of RWS.
 Subscriptions
 +++++++++++++
 
-There is a subscriptions functional implemented. When initiated, blocks thread and processes new events with a user-passed
-callback function. Pay attention that this callback may only accept one argument - the event data. Up to now, the only supported
-events are ``NewRecord``, ``NewLaunch``, ``Transfer``, ``TopicChanged`` and ``NewDevices``.
+There is a subscriptions functional implemented. When initiated, processes new events with a user-passed
+callback function. Pay attention that this callback may only accept one argument - the event data. Up to now, the supported
+events are ``NewRecord``, ``NewLaunch``, ``Transfer``, ``TopicChanged``, ``NewDevices``, ``NewLiability`` and ``NewReport``.
 
 .. code-block:: python
 
@@ -284,9 +284,15 @@ events are ``NewRecord``, ``NewLaunch``, ``Transfer``, ``TopicChanged`` and ``Ne
         print(data)
 
     account = Account()
-    subscriber = Subscriber(account, SubEvent.NewRecord, subscription_handler=callback)
+    subscriber = Subscriber(account, SubEvent.MultiEvent, subscription_handler=callback)
 
-One may also pass a list of addresses or one address as a parameter to filter trigger situations.
+    <do stuff>
+
+    subscriber.cancel()
+
+One may also pass a list of addresses or one address as a parameter to filter trigger situation. Another option is to set
+``pass_event_id`` to get block number and event ID as a second ``callback`` parameter.
+
 There is a way to subscribe to multiple events by using side package ``aenum``.
 
 .. code-block:: python
@@ -294,7 +300,7 @@ There is a way to subscribe to multiple events by using side package ``aenum``.
     from aenum import extend_enum
     extend_enum(SubEvent, "MultiEvent", f"{SubEvent.NewRecord.value, SubEvent.NewLaunch.value}")
 
-    subscriber = Subscriber(acc, SubEvent.MultiEvent, subscription_handler=callback)
+    subscriber = Subscriber(acc, SubEvent.MultiEvent, subscription_handler=callback, addr=<ss58_addr>, pass_event_id=True)
 
 IO
 ++
