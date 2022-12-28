@@ -7,6 +7,3 @@ TYPE_REGISTRY = {
         "RingBufferIndex": {"type": "struct", "type_mapping": [["start", "Compact<u64>"], ["end", "Compact<u64>"]]},
     }
 }
-
-W3GW = "https://crustwebsites.net"
-W3PS = "https://pin.crustcode.com"
