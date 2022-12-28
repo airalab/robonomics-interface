@@ -31,11 +31,3 @@ class FailedToUploadFile(Exception):
     """
 
     pass
-
-
-class FailedToPinFile(Exception):
-    """
-    Failed to upload a file to Crust Network.
-    """
-
-    pass

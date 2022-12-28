@@ -13,6 +13,7 @@ ___________________
     :members:
     :private-members:
     :inherited-members:
+    :special-members: __init__
 
 BaseClass
 ___________________
@@ -21,6 +22,7 @@ ___________________
     :members:
     :private-members:
     :inherited-members:
+    :special-members: __init__
 
 ChainUtils
 ___________________
@@ -29,6 +31,7 @@ ___________________
     :members:
     :private-members:
     :inherited-members:
+    :special-members: __init__
 
 CommonFunctions
 ___________________
@@ -37,6 +40,7 @@ ___________________
     :members:
     :private-members:
     :inherited-members:
+    :special-members: __init__
 
 Datalog
 ___________________
@@ -45,6 +49,7 @@ ___________________
     :members:
     :private-members:
     :inherited-members:
+    :special-members: __init__
 
 Launch
 ___________________
@@ -53,6 +58,7 @@ ___________________
     :members:
     :private-members:
     :inherited-members:
+    :special-members: __init__
 
 Liability
 ___________________
@@ -61,6 +67,7 @@ ___________________
     :members:
     :private-members:
     :inherited-members:
+    :special-members: __init__
 
 PubSub
 ___________________
@@ -69,6 +76,7 @@ ___________________
     :members:
     :private-members:
     :inherited-members:
+    :special-members: __init__
 
 ReqRes
 ___________________
@@ -77,6 +85,7 @@ ___________________
     :members:
     :private-members:
     :inherited-members:
+    :special-members: __init__
 
 RWS
 ___________________
@@ -85,6 +94,7 @@ ___________________
     :members:
     :private-members:
     :inherited-members:
+    :special-members: __init__
 
 ServiceFunctions
 ___________________
@@ -93,6 +103,7 @@ ___________________
     :members:
     :private-members:
     :inherited-members:
+    :special-members: __init__
 
 
 Subscriber
@@ -102,6 +113,7 @@ ___________________
     :members:
     :private-members:
     :inherited-members:
+    :special-members: __init__
 
 
 
@@ -125,3 +137,10 @@ Utils
 ----------
 .. automodule:: robonomicsinterface.utils
     :members:
+
+IPFS Utils
+----------
+.. automodule:: robonomicsinterface.ipfs_utils
+    :members: web_3_auth, ipfs_upload_content, ipfs_get_content
+
+
