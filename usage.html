@@ -399,28 +399,36 @@ string and vice-versa.</p>
 <span class="c1"># &gt;&gt;&gt; &#39;Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z&#39;</span>
 </pre></div>
 </div>
-<p>There is one more useful functionality: Content upload to IPFS via Web3-auth gateway (and IPFS content fetch). The only
-thing needed - account seed to sign an authentication message.</p>
+</section>
+<section id="ipfs-utils">
+<h3>IPFS Utils<a class="headerlink" href="#ipfs-utils" title="Permalink to this headline">¶</a></h3>
+<p>There is one more useful functionality: Content upload to IPFS via local or remote gateway (and IPFS content fetch). To use
+the local gateway no additional parameters needed:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">robonomicsinterface.utils</span> <span class="kn">import</span> <span class="n">ipfs_get_content</span><span class="p">,</span> <span class="n">ipfs_upload_content</span>
 
-<span class="n">seed</span> <span class="o">=</span> <span class="s2">&quot;seed&quot;</span>
-
-<span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;Hello, World!&quot;</span>
-<span class="n">cid</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">ipfs_upload_content</span><span class="p">(</span><span class="n">tester_tokens_seed</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">cid</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+<span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;heeelo&quot;</span>
+<span class="n">cid</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">ipfs_upload_content</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">QmeWzphuZbSqVKaxeYQ45VUeaHv18qSgPX4wpQAD44uuMt</span>
 
 <span class="n">content_</span> <span class="o">=</span> <span class="n">ipfs_get_content</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">content_</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="sa">b</span><span class="s1">&#39;heeelo&#39;</span>
+</pre></div>
+</div>
+<p>One may also pass a gateway address and use Web3-authenticate gateways! See more info
+<a class="reference external" href="https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW">on Crust Wiki</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">robonomicsinterface.utils</span> <span class="kn">import</span> <span class="n">ipfs_get_content</span><span class="p">,</span> <span class="n">ipfs_upload_content</span><span class="p">,</span> <span class="n">web_3_auth</span>
 
+<span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;heeelo&quot;</span>
+<span class="n">auth</span> <span class="o">=</span> <span class="n">web_3_auth</span><span class="p">(</span><span class="n">tester_tokens_seed</span><span class="p">)</span>
+<span class="n">cid</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">ipfs_upload_content</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">gateway</span><span class="o">=</span><span class="s2">&quot;web3_gateway_url&quot;</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">QmeWzphuZbSqVKaxeYQ45VUeaHv18qSgPX4wpQAD44uuMt</span>
 
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;path_to_file&quot;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-<span class="n">cid</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">ipfs_upload_content</span><span class="p">(</span><span class="n">tester_tokens_seed</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">cid</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
-
-<span class="n">content_</span> <span class="o">=</span> <span class="n">ipfs_get_content</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
-<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;path_to_the_fetched_file&quot;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content_</span><span class="p">)</span>
+<span class="n">content_</span> <span class="o">=</span> <span class="n">ipfs_get_content</span><span class="p">(</span><span class="n">cid</span><span class="p">,</span> <span class="n">gateway</span><span class="o">=</span><span class="s2">&quot;web3_gateway_url&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">content_</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="sa">b</span><span class="s1">&#39;heeelo&#39;</span>
 </pre></div>
 </div>
 </section>
@@ -466,6 +474,7 @@ thing needed - account seed to sign an authentication message.</p>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#pubsub">PubSub</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils">Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ipfs-utils">IPFS Utils</a></li>
 </ul>
 </li>
 </ul>

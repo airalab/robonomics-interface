@@ -435,28 +435,39 @@ string and vice-versa.
     ipfs_hash_decoded = ipfs_32_bytes_to_qm_hash("0xcc2d976220820d023b7170f520d3490e811ed988ae3d6221474ee97e559b0361")
     # >>> 'Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z'
 
-There is one more useful functionality: Content upload to IPFS via Web3-auth gateway (and IPFS content fetch). The only
-thing needed - account seed to sign an authentication message.
+
+IPFS Utils
+++++++++++
+
+There is one more useful functionality: Content upload to IPFS via local or remote gateway (and IPFS content fetch). To use
+the local gateway no additional parameters needed:
 
 .. code-block:: python
 
     from robonomicsinterface.utils import ipfs_get_content, ipfs_upload_content
 
-    seed = "seed"
-
-    content = "Hello, World!"
-    cid, size = ipfs_upload_content(tester_tokens_seed, content)
-    print(cid, size)
+    content = "heeelo"
+    cid, size = ipfs_upload_content(content=content)
+    print(cid)
+    >>> QmeWzphuZbSqVKaxeYQ45VUeaHv18qSgPX4wpQAD44uuMt
 
     content_ = ipfs_get_content(cid)
     print(content_)
+    >>> b'heeelo'
 
+One may also pass a gateway address and use Web3-authenticate gateways! See more info
+`on Crust Wiki <https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW>`__.
 
-    with open("path_to_file", 'rb') as f:
-        content = f.read()
-    cid, size = ipfs_upload_content(tester_tokens_seed, content)
-    print(cid, size)
+.. code-block:: python
 
-    content_ = ipfs_get_content(cid)
-    with open("path_to_the_fetched_file", 'wb') as f:
-        f.write(content_)
+    from robonomicsinterface.utils import ipfs_get_content, ipfs_upload_content, web_3_auth
+
+    content = "heeelo"
+    auth = web_3_auth(tester_tokens_seed)
+    cid, size = ipfs_upload_content(content=content, gateway="web3_gateway_url", auth=auth)
+    print(cid)
+    >>> QmeWzphuZbSqVKaxeYQ45VUeaHv18qSgPX4wpQAD44uuMt
+
+    content_ = ipfs_get_content(cid, gateway="web3_gateway_url")
+    print(content_)
+    >>> b'heeelo'
