@@ -129,6 +129,8 @@ future transactions to be included in block. It saves time, but one may not know
 One more argument while initializing is ``return_block_num``. If Set to ``True`` ALONG WITH ``wait_for_inclusion``, the
 ``extrinsic`` function will return a tuple of form ``(<extrinsic_hash>, <block_number-idx>)``.
 
+If any extrinsic has failed, it well raise ``ExtrinsicFailedException`` with an error message inside.
+
 Common Functions
 ++++++++++++++++
 
@@ -253,6 +255,8 @@ There are as well dedicated methods for convenient usage of RWS.
     rws.get_auction(0)
     rws.get_devices("4CqaroZnr25e43Ypi8Qe5NwbUYXzhxKqrfY5opnRzK4yG1mg")
     rws.get_ledger("4CqaroZnr25e43Ypi8Qe5NwbUYXzhxKqrfY5opnRzK4yG1mg")
+    rws.get_days_left()
+    rws.is_in_sub(<owner_addr>, <device_addr>)
 
 - Extrinsincs: `bid`, `set_devices`
 
