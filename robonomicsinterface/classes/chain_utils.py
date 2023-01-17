@@ -120,6 +120,4 @@ class ChainUtils:
                         return extrinsic_.value
 
             else:
-                return _get_block_any(block)[extrinsic-1].value
-
-
+                return _get_block_any(block)[extrinsic - 1].value
