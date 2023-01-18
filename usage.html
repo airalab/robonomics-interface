@@ -38,7 +38,7 @@
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p>To use robonomics-interface, first install it using pip:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip3 install robonomics-interface
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip3<span class="w"> </span>install<span class="w"> </span>robonomics-interface
 </pre></div>
 </div>
 </section>
@@ -133,6 +133,7 @@ future transactions to be included in block. It saves time, but one may not know
 (e.g. <a class="reference internal" href="#digital-twins"><span class="std std-ref">DigitalTwin.set_source</span></a>  was submitted by unauthorized account).</p>
 <p>One more argument while initializing is <code class="docutils literal notranslate"><span class="pre">return_block_num</span></code>. If Set to <code class="docutils literal notranslate"><span class="pre">True</span></code> ALONG WITH <code class="docutils literal notranslate"><span class="pre">wait_for_inclusion</span></code>, the
 <code class="docutils literal notranslate"><span class="pre">extrinsic</span></code> function will return a tuple of form <code class="docutils literal notranslate"><span class="pre">(&lt;extrinsic_hash&gt;,</span> <span class="pre">&lt;block_number-idx&gt;)</span></code>.</p>
+<p>If any extrinsic has failed, it well raise <code class="docutils literal notranslate"><span class="pre">ExtrinsicFailedException</span></code> with an error message inside.</p>
 </section>
 <section id="common-functions">
 <h3>Common Functions<a class="headerlink" href="#common-functions" title="Permalink to this headline">¶</a></h3>
@@ -241,6 +242,8 @@ report messages, fetch information about current and completed liabilities:</p>
 <span class="n">rws</span><span class="o">.</span><span class="n">get_auction</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">rws</span><span class="o">.</span><span class="n">get_devices</span><span class="p">(</span><span class="s2">&quot;4CqaroZnr25e43Ypi8Qe5NwbUYXzhxKqrfY5opnRzK4yG1mg&quot;</span><span class="p">)</span>
 <span class="n">rws</span><span class="o">.</span><span class="n">get_ledger</span><span class="p">(</span><span class="s2">&quot;4CqaroZnr25e43Ypi8Qe5NwbUYXzhxKqrfY5opnRzK4yG1mg&quot;</span><span class="p">)</span>
+<span class="n">rws</span><span class="o">.</span><span class="n">get_days_left</span><span class="p">()</span>
+<span class="n">rws</span><span class="o">.</span><span class="n">is_in_sub</span><span class="p">(</span><span class="o">&lt;</span><span class="n">owner_addr</span><span class="o">&gt;</span><span class="p">,</span> <span class="o">&lt;</span><span class="n">device_addr</span><span class="o">&gt;</span><span class="p">)</span>
 </pre></div>
 </div>
 <ul class="simple">
@@ -284,7 +287,7 @@ events are <code class="docutils literal notranslate"><span class="pre">NewRecor
 <code class="docutils literal notranslate"><span class="pre">pass_event_id</span></code> to get block number and event ID as a second <code class="docutils literal notranslate"><span class="pre">callback</span></code> parameter.</p>
 <p>There is a way to subscribe to multiple events by using side package <code class="docutils literal notranslate"><span class="pre">aenum</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">aenum</span> <span class="kn">import</span> <span class="n">extend_enum</span>
-<span class="n">extend_enum</span><span class="p">(</span><span class="n">SubEvent</span><span class="p">,</span> <span class="s2">&quot;MultiEvent&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SubEvent</span><span class="o">.</span><span class="n">NewRecord</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">SubEvent</span><span class="o">.</span><span class="n">NewLaunch</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">extend_enum</span><span class="p">(</span><span class="n">SubEvent</span><span class="p">,</span> <span class="s2">&quot;MultiEvent&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SubEvent</span><span class="o">.</span><span class="n">NewRecord</span><span class="o">.</span><span class="n">value</span><span class="p">,</span><span class="w"> </span><span class="n">SubEvent</span><span class="o">.</span><span class="n">NewLaunch</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
 <span class="n">subscriber</span> <span class="o">=</span> <span class="n">Subscriber</span><span class="p">(</span><span class="n">acc</span><span class="p">,</span> <span class="n">SubEvent</span><span class="o">.</span><span class="n">MultiEvent</span><span class="p">,</span> <span class="n">subscription_handler</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="n">addr</span><span class="o">=&lt;</span><span class="n">ss58_addr</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">pass_event_id</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
@@ -294,14 +297,14 @@ events are <code class="docutils literal notranslate"><span class="pre">NewRecor
 <h3>IO<a class="headerlink" href="#io" title="Permalink to this headline">¶</a></h3>
 <p>This package provides console prototyping tool such as <a class="reference external" href="https://wiki.robonomics.network/docs/en/rio-overview/">robonomics io</a>
 with slight differences:</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>robonomics_interface <span class="nb">read</span> datalog
-<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">&quot;Hello, Robonomics&quot;</span> <span class="p">|</span> robonomics_interface write datalog -s &lt;seed&gt;
-<span class="gp">$ </span>robonomics_interface <span class="nb">read</span> launch
-<span class="gp">$ </span><span class="nb">echo</span> <span class="s2">&quot;ON&quot;</span> <span class="p">|</span> robonomics_interface write launch -s &lt;seed&gt; -r &lt;target_addr&gt;
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>robonomics_interface<span class="w"> </span><span class="nb">read</span><span class="w"> </span>datalog
+<span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Hello, Robonomics&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>robonomics_interface<span class="w"> </span>write<span class="w"> </span>datalog<span class="w"> </span>-s<span class="w"> </span>&lt;seed&gt;
+<span class="gp">$ </span>robonomics_interface<span class="w"> </span><span class="nb">read</span><span class="w"> </span>launch
+<span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;ON&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>robonomics_interface<span class="w"> </span>write<span class="w"> </span>launch<span class="w"> </span>-s<span class="w"> </span>&lt;seed&gt;<span class="w"> </span>-r<span class="w"> </span>&lt;target_addr&gt;
 </pre></div>
 </div>
 <p>More info may be found with</p>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>robonomics_interface --help
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>robonomics_interface<span class="w"> </span>--help
 </pre></div>
 </div>
 </section>
@@ -340,8 +343,8 @@ Start this server with local ip (Rust (with cargo) installation process describe
 <h3>PubSub<a class="headerlink" href="#pubsub" title="Permalink to this headline">¶</a></h3>
 <p>There is a way to implement robonomics pubsub rpc calls. Below is a sample example of how to send messages from one
 script and listen to them on another one. For this two developer nodes on one machine were launched with:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./robonomics --dev --tmp -l <span class="nv">rpc</span><span class="o">=</span>trace
-./robonomics --dev --tmp --ws-port <span class="m">9991</span> -l <span class="nv">rpc</span><span class="o">=</span>trace
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./robonomics<span class="w"> </span>--dev<span class="w"> </span>--tmp<span class="w"> </span>-l<span class="w"> </span><span class="nv">rpc</span><span class="o">=</span>trace
+./robonomics<span class="w"> </span>--dev<span class="w"> </span>--tmp<span class="w"> </span>--ws-port<span class="w"> </span><span class="m">9991</span><span class="w"> </span>-l<span class="w"> </span><span class="nv">rpc</span><span class="o">=</span>trace
 </pre></div>
 </div>
 <p>After that a subscriber and publisher scripts were created. Subscriber:</p>
@@ -389,7 +392,8 @@ console.</p>
 <section id="utils">
 <h3>Utils<a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h3>
 <p>Utils module provides some helpful functions, among which there are IPFS <code class="docutils literal notranslate"><span class="pre">Qm...</span></code> hash encoding to 32 bytes length
-string and vice-versa.</p>
+string and vice-versa. One more is generating an auth tuple for Web3-Auth gateways (more on that
+<a class="reference external" href="https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW">on Crust Wiki</a>).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">robonomicsinterface.utils</span> <span class="kn">import</span> <span class="n">ipfs_qm_hash_to_32_bytes</span><span class="p">,</span> <span class="n">ipfs_32_bytes_to_qm_hash</span>
 
 <span class="n">ipfs_hash</span> <span class="o">=</span> <span class="s2">&quot;Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z&quot;</span>
@@ -397,38 +401,7 @@ string and vice-versa.</p>
 <span class="c1"># &gt;&gt;&gt; &#39;0xcc2d976220820d023b7170f520d3490e811ed988ae3d6221474ee97e559b0361&#39;</span>
 <span class="n">ipfs_hash_decoded</span> <span class="o">=</span> <span class="n">ipfs_32_bytes_to_qm_hash</span><span class="p">(</span><span class="s2">&quot;0xcc2d976220820d023b7170f520d3490e811ed988ae3d6221474ee97e559b0361&quot;</span><span class="p">)</span>
 <span class="c1"># &gt;&gt;&gt; &#39;Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z&#39;</span>
-</pre></div>
-</div>
-</section>
-<section id="ipfs-utils">
-<h3>IPFS Utils<a class="headerlink" href="#ipfs-utils" title="Permalink to this headline">¶</a></h3>
-<p>There is one more useful functionality: Content upload to IPFS via local or remote gateway (and IPFS content fetch). To use
-the local gateway no additional parameters needed:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">robonomicsinterface.utils</span> <span class="kn">import</span> <span class="n">ipfs_get_content</span><span class="p">,</span> <span class="n">ipfs_upload_content</span>
-
-<span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;heeelo&quot;</span>
-<span class="n">cid</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">ipfs_upload_content</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">QmeWzphuZbSqVKaxeYQ45VUeaHv18qSgPX4wpQAD44uuMt</span>
-
-<span class="n">content_</span> <span class="o">=</span> <span class="n">ipfs_get_content</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">content_</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="sa">b</span><span class="s1">&#39;heeelo&#39;</span>
-</pre></div>
-</div>
-<p>One may also pass a gateway address and use Web3-authenticate gateways! See more info
-<a class="reference external" href="https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW">on Crust Wiki</a>.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">robonomicsinterface.utils</span> <span class="kn">import</span> <span class="n">ipfs_get_content</span><span class="p">,</span> <span class="n">ipfs_upload_content</span><span class="p">,</span> <span class="n">web_3_auth</span>
-
-<span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;heeelo&quot;</span>
 <span class="n">auth</span> <span class="o">=</span> <span class="n">web_3_auth</span><span class="p">(</span><span class="n">tester_tokens_seed</span><span class="p">)</span>
-<span class="n">cid</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">ipfs_upload_content</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="n">content</span><span class="p">,</span> <span class="n">gateway</span><span class="o">=</span><span class="s2">&quot;web3_gateway_url&quot;</span><span class="p">,</span> <span class="n">auth</span><span class="o">=</span><span class="n">auth</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">QmeWzphuZbSqVKaxeYQ45VUeaHv18qSgPX4wpQAD44uuMt</span>
-
-<span class="n">content_</span> <span class="o">=</span> <span class="n">ipfs_get_content</span><span class="p">(</span><span class="n">cid</span><span class="p">,</span> <span class="n">gateway</span><span class="o">=</span><span class="s2">&quot;web3_gateway_url&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">content_</span><span class="p">)</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="sa">b</span><span class="s1">&#39;heeelo&#39;</span>
 </pre></div>
 </div>
 </section>
@@ -474,7 +447,6 @@ the local gateway no additional parameters needed:</p>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#pubsub">PubSub</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#utils">Utils</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#ipfs-utils">IPFS Utils</a></li>
 </ul>
 </li>
 </ul>
@@ -518,7 +490,7 @@ the local gateway no additional parameters needed:</p>
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/usage.rst.txt"

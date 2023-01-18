@@ -137,10 +137,3 @@ Utils
 ----------
 .. automodule:: robonomicsinterface.utils
     :members:
-
-IPFS Utils
-----------
-.. automodule:: robonomicsinterface.ipfs_utils
-    :members: web_3_auth, ipfs_upload_content, ipfs_get_content
-
-

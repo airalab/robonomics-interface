@@ -884,6 +884,23 @@ subscriptions.</p></li>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="robonomicsinterface.RWS.get_days_left">
+<span class="sig-name descname"><span class="pre">get_days_left</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#robonomicsinterface.RWS.get_days_left" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check if RWS subscription is still active for the address.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>addr</strong> – Possible subscription owner. If <code class="docutils literal notranslate"><span class="pre">None</span></code> - account address.</p></li>
+<li><p><strong>block_hash</strong> – Retrieves data as of passed block hash.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Number of days left if subscription is active, <code class="docutils literal notranslate"><span class="pre">False</span></code> if no active subscription.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="robonomicsinterface.RWS.get_devices">
 <span class="sig-name descname"><span class="pre">get_devices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#robonomicsinterface.RWS.get_devices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch list of RWS added devices.</p>
@@ -902,7 +919,7 @@ subscriptions.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="robonomicsinterface.RWS.get_ledger">
-<span class="sig-name descname"><span class="pre">get_ledger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#robonomicsinterface.RWS.get_ledger" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">get_ledger</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#robonomicsinterface.RWS.get_ledger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Subscription information.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -913,6 +930,24 @@ subscriptions.</p></li>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Subscription information. Empty if none.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="robonomicsinterface.RWS.is_in_sub">
+<span class="sig-name descname"><span class="pre">is_in_sub</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sub_owner_addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">addr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_hash</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#robonomicsinterface.RWS.is_in_sub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether <code class="docutils literal notranslate"><span class="pre">addr</span></code> is a device of <code class="docutils literal notranslate"><span class="pre">sub_owner_addr</span></code> subscription.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sub_owner_addr</strong> – Subscription owner address.</p></li>
+<li><p><strong>addr</strong> – Address to check. If <code class="docutils literal notranslate"><span class="pre">None</span></code> - account address.</p></li>
+<li><p><strong>block_hash</strong> – Retrieves data as of passed block hash.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if <code class="docutils literal notranslate"><span class="pre">addr</span></code> is in <code class="docutils literal notranslate"><span class="pre">sub_owner_addr</span></code> device list, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1127,12 +1162,6 @@ Better check out the <a class="reference external" href="https://github.com/Mult
 </dd></dl>
 
 <dl class="py exception">
-<dt class="sig sig-object py" id="robonomicsinterface.exceptions.FailedToUploadFile">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">robonomicsinterface.exceptions.</span></span><span class="sig-name descname"><span class="pre">FailedToUploadFile</span></span><a class="headerlink" href="#robonomicsinterface.exceptions.FailedToUploadFile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Failed to upload a file to Crust Network.</p>
-</dd></dl>
-
-<dl class="py exception">
 <dt class="sig sig-object py" id="robonomicsinterface.exceptions.InvalidExtrinsicHash">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">robonomicsinterface.exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidExtrinsicHash</span></span><a class="headerlink" href="#robonomicsinterface.exceptions.InvalidExtrinsicHash" title="Permalink to this definition">¶</a></dt>
 <dd><p>Invalid extrinsic hash format. Hash length is not 66 signs, or it doesn’t start from 0x.</p>
@@ -1240,50 +1269,9 @@ Better check out the <a class="reference external" href="https://github.com/Mult
 </dl>
 </dd></dl>
 
-</section>
-<section id="module-robonomicsinterface.ipfs_utils">
-<span id="ipfs-utils"></span><h2>IPFS Utils<a class="headerlink" href="#module-robonomicsinterface.ipfs_utils" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
-<dt class="sig sig-object py" id="robonomicsinterface.ipfs_utils.ipfs_get_content">
-<span class="sig-prename descclassname"><span class="pre">robonomicsinterface.ipfs_utils.</span></span><span class="sig-name descname"><span class="pre">ipfs_get_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gateway</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'http://127.0.0.1:8080'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#robonomicsinterface.ipfs_utils.ipfs_get_content" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get content file in IPFS network</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>cid</strong> – IPFS cid.</p></li>
-<li><p><strong>gateway</strong> – Gateway to get content through. Defaults to local IPFS gateway.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Content of a file stored.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="robonomicsinterface.ipfs_utils.ipfs_upload_content">
-<span class="sig-prename descclassname"><span class="pre">robonomicsinterface.ipfs_utils.</span></span><span class="sig-name descname"><span class="pre">ipfs_upload_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gateway</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'http://127.0.0.1:5001'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#robonomicsinterface.ipfs_utils.ipfs_upload_content" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Upload content to IPFS and pin the CID for some time via IPFS Web3 Gateway with private-key-signed message.</dt><dd><p>The signed message is user’s pubkey. <a class="reference external" href="https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW#usage">https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW#usage</a>.</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>content</strong> – Content to upload to IPFS. To upload media use open(.., “rb”) and read().</p></li>
-<li><p><strong>gateway</strong> – Gateway to upload content through. Defaults to local IPFS gateway.</p></li>
-<li><p><strong>auth</strong> – Gateway authentication header if needed. Should be of form (login, password) Defaults to empty.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>IPFS cid and file size.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="robonomicsinterface.ipfs_utils.web_3_auth">
-<span class="sig-prename descclassname"><span class="pre">robonomicsinterface.ipfs_utils.</span></span><span class="sig-name descname"><span class="pre">web_3_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#robonomicsinterface.ipfs_utils.web_3_auth" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="robonomicsinterface.utils.web_3_auth">
+<span class="sig-prename descclassname"><span class="pre">robonomicsinterface.utils.</span></span><span class="sig-name descname"><span class="pre">web_3_auth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#robonomicsinterface.utils.web_3_auth" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get authentication header for a Web3-auth IPFS gateway.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -1337,7 +1325,6 @@ Better check out the <a class="reference external" href="https://github.com/Mult
 <li class="toctree-l2"><a class="reference internal" href="#module-robonomicsinterface.exceptions">Exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-robonomicsinterface.decorators">Decorators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-robonomicsinterface.utils">Utils</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-robonomicsinterface.ipfs_utils">IPFS Utils</a></li>
 </ul>
 </li>
 </ul>
@@ -1377,7 +1364,7 @@ Better check out the <a class="reference external" href="https://github.com/Mult
       
       |
       Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/modules.rst.txt"
