@@ -82,3 +82,17 @@ def str_to_scalebytes(data: tp.Union[int, str], type_str: str) -> ScaleBytes:
 
     scale_obj: ScaleType = RuntimeConfiguration().create_scale_object(type_str)
     return scale_obj.encode(data)
+
+
+def web_3_auth(seed: str) -> tp.Tuple[str, str]:
+    """
+    Get authentication header for a Web3-auth IPFS gateway.
+
+    :param seed: Substrate account seed in any, mnemonic or raw form.
+
+    :return: Authentication header.
+
+    """
+
+    keypair: Keypair = create_keypair(seed)
+    return f"sub-{keypair.ss58_address}", f"0x{keypair.sign(keypair.ss58_address).hex()}"

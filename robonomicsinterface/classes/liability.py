@@ -46,7 +46,9 @@ class Liability(BaseClass):
 
         logger.info("Fetching total number of liabilities in chain.")
 
-        next_index: tp.Optional[int] = self._service_functions.chainstate_query("Liability", "NextIndex", block_hash=block_hash)
+        next_index: tp.Optional[int] = self._service_functions.chainstate_query(
+            "Liability", "NextIndex", block_hash=block_hash
+        )
         if not next_index:
             return None
         else:
@@ -135,7 +137,7 @@ class Liability(BaseClass):
             latest_index = 0
             return latest_index, liability_creation_transaction_hash
         index: int = latest_index
-        for liabilities in reversed(range(latest_index+1)):
+        for liabilities in reversed(range(latest_index + 1)):
             if (
                 self.get_agreement(liabilities)["promisee_signature"][KEYPAIR_TYPE[promisee_signature_crypto_type]]
                 == promisee_params_signature

@@ -144,7 +144,7 @@ class ServiceFunctions:
         if self.wait_for_inclusion:
 
             if not receipt.is_success:
-                raise ExtrinsicFailedException()
+                raise ExtrinsicFailedException(receipt.error_message)
 
             block_num: int = self.interface.get_block_number(receipt.block_hash)
             logger.info(f"Extrinsic included in block {block_num}")

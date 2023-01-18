@@ -1,3 +1,4 @@
+import time
 import typing as tp
 
 from logging import getLogger
@@ -90,6 +91,59 @@ class RWS(BaseClass):
         logger.info(f"Fetching subscription information by owner {address}")
 
         return self._service_functions.chainstate_query("RWS", "Ledger", address, block_hash=block_hash)
+
+    def get_days_left(
+        self, addr: tp.Optional[str] = None, block_hash: tp.Optional[str] = None
+    ) -> tp.Union[int, bool]:
+        """
+        Check if RWS subscription is still active for the address.
+
+        :param addr: Possible subscription owner. If ``None`` - account address.
+        :param block_hash: Retrieves data as of passed block hash.
+
+        :return: Number of days left if subscription is active, ``False`` if no active subscription.
+
+        """
+
+        address: str = addr or self.account.get_address()
+
+        logger.info(f"Fetching RWS subscription status for {address}")
+
+        ledger: LedgerTyping = self._service_functions.chainstate_query("RWS", "Ledger", address, block_hash=block_hash)
+        if not ledger:
+            return False
+        unix_time_sub_expire: int = ledger["issue_time"] + 86400 * 1000 * ledger["kind"]["Daily"]["days"]
+        days_left: float = (unix_time_sub_expire - time.time() * 1000) / 86400000
+        if days_left >= 0:
+            return int(days_left)
+        else:
+            return False
+
+    def is_in_sub(
+        self, sub_owner_addr: str, addr: tp.Optional[str] = None, block_hash: tp.Optional[str] = None
+    ) -> bool:
+        """
+        Check whether ``addr`` is a device of ``sub_owner_addr`` subscription.
+
+        :param sub_owner_addr: Subscription owner address.
+        :param addr: Address to check. If ``None`` - account address.
+        :param block_hash: Retrieves data as of passed block hash.
+
+        :return: ``True`` if ``addr`` is in ``sub_owner_addr`` device list, ``False`` otherwise.
+
+        """
+
+        logger.info(f"Fetching list of RWS devices set by owner {sub_owner_addr}")
+
+        address: str = addr or self.account.get_address()
+        devices: tp.List[tp.Optional[str]] = self._service_functions.chainstate_query(
+            "RWS", "Devices", sub_owner_addr, block_hash=block_hash
+        )
+
+        if address in devices:
+            return True
+        else:
+            return False
 
     def bid(self, index: int, amount: int) -> str:
         """

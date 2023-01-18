@@ -129,6 +129,8 @@ future transactions to be included in block. It saves time, but one may not know
 One more argument while initializing is ``return_block_num``. If Set to ``True`` ALONG WITH ``wait_for_inclusion``, the
 ``extrinsic`` function will return a tuple of form ``(<extrinsic_hash>, <block_number-idx>)``.
 
+If any extrinsic has failed, it well raise ``ExtrinsicFailedException`` with an error message inside.
+
 Common Functions
 ++++++++++++++++
 
@@ -253,6 +255,8 @@ There are as well dedicated methods for convenient usage of RWS.
     rws.get_auction(0)
     rws.get_devices("4CqaroZnr25e43Ypi8Qe5NwbUYXzhxKqrfY5opnRzK4yG1mg")
     rws.get_ledger("4CqaroZnr25e43Ypi8Qe5NwbUYXzhxKqrfY5opnRzK4yG1mg")
+    rws.get_days_left()
+    rws.is_in_sub(<owner_addr>, <device_addr>)
 
 - Extrinsincs: `bid`, `set_devices`
 
@@ -423,7 +427,8 @@ Utils
 ++++++++
 
 Utils module provides some helpful functions, among which there are IPFS ``Qm...`` hash encoding to 32 bytes length
-string and vice-versa.
+string and vice-versa. One more is generating an auth tuple for Web3-Auth gateways (more on that
+`on Crust Wiki <https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW>`__).
 
 .. code-block:: python
 
@@ -434,40 +439,4 @@ string and vice-versa.
     # >>> '0xcc2d976220820d023b7170f520d3490e811ed988ae3d6221474ee97e559b0361'
     ipfs_hash_decoded = ipfs_32_bytes_to_qm_hash("0xcc2d976220820d023b7170f520d3490e811ed988ae3d6221474ee97e559b0361")
     # >>> 'Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z'
-
-
-IPFS Utils
-++++++++++
-
-There is one more useful functionality: Content upload to IPFS via local or remote gateway (and IPFS content fetch). To use
-the local gateway no additional parameters needed:
-
-.. code-block:: python
-
-    from robonomicsinterface.utils import ipfs_get_content, ipfs_upload_content
-
-    content = "heeelo"
-    cid, size = ipfs_upload_content(content=content)
-    print(cid)
-    >>> QmeWzphuZbSqVKaxeYQ45VUeaHv18qSgPX4wpQAD44uuMt
-
-    content_ = ipfs_get_content(cid)
-    print(content_)
-    >>> b'heeelo'
-
-One may also pass a gateway address and use Web3-authenticate gateways! See more info
-`on Crust Wiki <https://wiki.crust.network/docs/en/buildIPFSWeb3AuthGW>`__.
-
-.. code-block:: python
-
-    from robonomicsinterface.utils import ipfs_get_content, ipfs_upload_content, web_3_auth
-
-    content = "heeelo"
     auth = web_3_auth(tester_tokens_seed)
-    cid, size = ipfs_upload_content(content=content, gateway="web3_gateway_url", auth=auth)
-    print(cid)
-    >>> QmeWzphuZbSqVKaxeYQ45VUeaHv18qSgPX4wpQAD44uuMt
-
-    content_ = ipfs_get_content(cid, gateway="web3_gateway_url")
-    print(content_)
-    >>> b'heeelo'
