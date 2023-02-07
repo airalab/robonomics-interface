@@ -101,7 +101,8 @@ class RWS(BaseClass):
         :param addr: Possible subscription owner. If ``None`` - account address.
         :param block_hash: Retrieves data as of passed block hash.
 
-        :return: Number of days left if subscription is active, ``False`` if no active subscription.
+        :return: Number of days left if subscription is active, ``False`` if no active subscription, -1 for a Lifetime
+            subscription.
 
         """
 
@@ -112,6 +113,8 @@ class RWS(BaseClass):
         ledger: LedgerTyping = self._service_functions.chainstate_query("RWS", "Ledger", address, block_hash=block_hash)
         if not ledger:
             return False
+        if "Lifetime" in ledger["kind"]:
+            return -1
         unix_time_sub_expire: int = ledger["issue_time"] + 86400 * 1000 * ledger["kind"]["Daily"]["days"]
         days_left: float = (unix_time_sub_expire - time.time() * 1000) / 86400000
         if days_left >= 0:
