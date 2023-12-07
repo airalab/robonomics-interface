@@ -187,7 +187,7 @@ future transactions to be included in block. It saves time, but one may not know
 <section id="launch">
 <h3>Launch<a class="headerlink" href="#launch" title="Permalink to this headline">¶</a></h3>
 <p>With the help of a Launch class one may send launch commands with parameter to any other addresses. The parameter should
-be 32 bytes long, but it may also be an IPFS <code class="docutils literal notranslate"><span class="pre">Qm...</span></code> hash, which will be converted automatically.</p>
+be 32 bytes long hex-string (<code class="docutils literal notranslate"><span class="pre">0x...</span></code>), but it may also be an IPFS (<code class="docutils literal notranslate"><span class="pre">Qm...</span></code>) CID as a string , which will be converted automatically.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">robonomicsinterface</span> <span class="kn">import</span> <span class="n">Launch</span>
 
 <span class="n">launch</span> <span class="o">=</span> <span class="n">Launch</span><span class="p">(</span><span class="n">account_with_seed</span><span class="p">)</span>
