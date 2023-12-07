@@ -192,7 +192,7 @@ Launch
 ++++++
 
 With the help of a Launch class one may send launch commands with parameter to any other addresses. The parameter should
-be 32 bytes long, but it may also be an IPFS ``Qm...`` hash, which will be converted automatically.
+be 32 bytes long hex-string (``0x...``), but it may also be an IPFS (``Qm...``) CID as a string , which will be converted automatically.
 
 .. code-block:: python
 
