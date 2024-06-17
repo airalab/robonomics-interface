@@ -5,9 +5,9 @@ description = "Robonomics wrapper over https://github.com/polkascan/py-substrate
 authors = ["Pavel Tarasov <p040399@outlook.com>"]
 license = "Apache-2.0"
 
-homepage = "https://github.com/Multi-Agent-io/robonomics-interface"
-repository = "https://github.com/Multi-Agent-io/robonomics-interface"
-documentation = "https://multi-agent-io.github.io/robonomics-interface/"
+homepage = "https://github.com/airalab/robonomics-interface"
+repository = "https://github.com/airalab/robonomics-interface"
+documentation = "https://airalab.github.io/robonomics-interface/"
 
 readme = "README.md"
 
@@ -42,7 +42,7 @@ exclude = [
 robonomics_interface = 'robonomicsinterface.robonomics_interface_io:cli'
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/Multi-Agent-io/robonomics-interface/issues"
+"Bug Tracker" = "https://github.com/airalab/robonomics-interface/issues"
 
 [tool.poetry.dependencies]
 python = ">=3.8, <4.0"
