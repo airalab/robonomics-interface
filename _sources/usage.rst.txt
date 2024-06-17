@@ -439,4 +439,4 @@ string and vice-versa. One more is generating an auth tuple for Web3-Auth gatewa
     # >>> '0xcc2d976220820d023b7170f520d3490e811ed988ae3d6221474ee97e559b0361'
     ipfs_hash_decoded = ipfs_32_bytes_to_qm_hash("0xcc2d976220820d023b7170f520d3490e811ed988ae3d6221474ee97e559b0361")
     # >>> 'Qmc5gCcjYypU7y28oCALwfSvxCBskLuPKWpK4qpterKC7z'
-    auth = web_3_auth(tester_tokens_seed)
+    auth = web_3_auth(tester_tokens_seed) 
