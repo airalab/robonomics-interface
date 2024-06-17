@@ -5,7 +5,7 @@ Robonomics project: https://robonomics.network/
 
 Robonomics parachain dapp: https://parachain.robonomics.network/
 
-Documentation: https://multi-agent-io.github.io/robonomics-interface/
+Documentation: https://airalab.github.io/robonomics-interface/
 _______
 # Installation 
 ```bash
