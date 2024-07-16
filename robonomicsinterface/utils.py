@@ -21,7 +21,7 @@ def create_keypair(seed: str, crypto_type: int = KeypairType.SR25519) -> Keypair
     """
 
     if seed.startswith("0x"):
-        return Keypair.create_from_seed(seed_hex=hex(int(seed, 16)), ss58_format=32, crypto_type=crypto_type)
+        return Keypair.create_from_seed(seed, ss58_format=32, crypto_type=crypto_type)
     elif seed.startswith("//"):
         return Keypair.create_from_uri(suri=seed, ss58_format=32, crypto_type=crypto_type)
     else:
