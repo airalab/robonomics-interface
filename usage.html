@@ -51,7 +51,7 @@
 </pre></div>
 </div>
 <p>By default, you will only be able to fetch Chainstate info from
-<a class="reference external" href="https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fkusama.rpc.robonomics.network%2F#/explorer">Robonomics Kusama parachain</a>
+<a class="reference external" href="https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fpolkadot.rpc.robonomics.network%2F#/explorer">Robonomics Polkadot parachain</a>
 and use <a class="reference internal" href="#pubsub"><span class="std std-ref">PubSub</span></a> and <a class="reference internal" href="#reqres-api"><span class="std std-ref">ReqRes</span></a> patterns.</p>
 <p>You can specify another <code class="docutils literal notranslate"><span class="pre">remote_ws</span></code> (e.g. local), <code class="docutils literal notranslate"><span class="pre">seed</span></code> to sign extrinsics, custom <code class="docutils literal notranslate"><span class="pre">type_registry</span></code> and <code class="docutils literal notranslate"><span class="pre">crypto_type</span></code>.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">account_local_dev_node</span> <span class="o">=</span> <span class="n">Account</span><span class="p">(</span><span class="n">remote_ws</span><span class="o">=</span><span class="s2">&quot;ws://127.0.0.1:9944&quot;</span><span class="p">)</span>
@@ -63,7 +63,7 @@ This method will return ss58-address format of the created account address.</p>
 <section id="service-functions">
 <h3>Service Functions<a class="headerlink" href="#service-functions" title="Permalink to this headline">¶</a></h3>
 <p>As have been said, when initiating <a class="reference internal" href="#initialization"><span class="std std-ref">account</span></a> instance without a seed, you will be able to read any
-Chainstate info from the Robonomics Kusama parachain. This is possible by some dedicated below-mentioned classes and a
+Chainstate info from the Robonomics Polkadot parachain. This is possible by some dedicated below-mentioned classes and a
 <code class="docutils literal notranslate"><span class="pre">ServiceFunctions</span></code>’s method <code class="docutils literal notranslate"><span class="pre">chainstate_query</span></code> allowing user to execute any query.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">robonomicsinterface</span> <span class="kn">import</span> <span class="n">ServiceFunctions</span>
 
