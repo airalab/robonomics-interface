@@ -1,9 +1,13 @@
 # robonomics-interface
-This is a simple wrapper over polkascan/py-substrate-interface used to facilitate writing code for applications using Robonomics.
+This is a simple wrapper over polkascan/py-substrate-interface used to facilitate writing code for applications using Robonomics Polkadot Parachain.
+
+> [!WARNING]  
+> Starting from 2.0 the default websocket is changed to `wss://polkadot.rpc.robonomics.network/`.
+> Use `wss://kusama.rpc.robonomics.network/` for Kusama Parachain.
 
 Robonomics project: https://robonomics.network/
 
-Robonomics parachain dapp: https://parachain.robonomics.network/
+Robonomics parachain dapp: https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fpolkadot.rpc.robonomics.network%2F#/explorer
 
 Documentation: https://airalab.github.io/robonomics-interface/
 _______

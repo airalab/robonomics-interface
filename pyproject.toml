@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "robonomics-interface"
-version = "1.6.3"
-description = "Robonomics wrapper over https://github.com/polkascan/py-substrate-interface created to facilitate programming with Robonomics"
+version = "2.0.0"
+description = "This is a simple wrapper over polkascan/py-substrate-interface used to facilitate writing code for applications using Robonomics Polkadot Parachain."
 authors = ["Pavel Tarasov <p040399@outlook.com>"]
 license = "Apache-2.0"
 

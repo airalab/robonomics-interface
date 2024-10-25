@@ -24,7 +24,7 @@ Initialization
     account = Account()
 
 By default, you will only be able to fetch Chainstate info from
-`Robonomics Kusama parachain <https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fkusama.rpc.robonomics.network%2F#/explorer>`_
+`Robonomics Polkadot parachain <https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fpolkadot.rpc.robonomics.network%2F#/explorer>`_
 and use :ref:`PubSub <PubSub>` and :ref:`ReqRes <ReqRes API>` patterns.
 
 You can specify another ``remote_ws`` (e.g. local), ``seed`` to sign extrinsics, custom ``type_registry`` and ``crypto_type``.
@@ -40,7 +40,7 @@ Service Functions
 +++++++++++++++++
 
 As have been said, when initiating :ref:`account<Initialization>` instance without a seed, you will be able to read any
-Chainstate info from the Robonomics Kusama parachain. This is possible by some dedicated below-mentioned classes and a
+Chainstate info from the Robonomics Polkadot parachain. This is possible by some dedicated below-mentioned classes and a
 ``ServiceFunctions``'s method ``chainstate_query`` allowing user to execute any query.
 
 .. code-block:: python

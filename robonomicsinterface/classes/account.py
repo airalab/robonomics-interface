@@ -31,7 +31,7 @@ class Account:
             as a parameter.
 
         :param seed: Account seed (mnemonic or raw) as a key to sign transactions.
-        :param remote_ws: Node url. Default node address is "wss://kusama.rpc.robonomics.network". Another address may
+        :param remote_ws: Node url. Default node address is "wss://polkadot.rpc.robonomics.network". Another address may
             be specified (e.g. "ws://127.0.0.1:9944" for local node).
         :param type_registry: Types used in the chain. Defaults are the most frequently used in Robonomics.
         :param crypto_type: Use KeypairType.SR25519 or KeypairType.ED25519 cryptography for generating the Keypair.
