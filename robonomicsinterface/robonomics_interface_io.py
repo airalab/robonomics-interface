@@ -44,7 +44,7 @@ def read() -> None:
     type=str,
     default=constants.REMOTE_WS,
     help="Node websocket address used to connect to any node. E.g. local is ws://127.0.0.1:9944. Default is "
-    "wss://kusama.rpc.robonomics.network",
+    "wss://polkadot.rpc.robonomics.network",
 )
 @click.option("-s", type=str, required=True, help="Account seed in mnemonic/raw form.")
 def datalog(input_string: sys.stdin, remote_ws: str, s: str) -> None:
@@ -71,7 +71,7 @@ def datalog(input_string: sys.stdin, remote_ws: str, s: str) -> None:
     type=str,
     default=constants.REMOTE_WS,
     help="Node websocket address used to connect to any node. E.g. local is ws://127.0.0.1:9944. Default is "
-    "wss://kusama.rpc.robonomics.network",
+    "wss://polkadot.rpc.robonomics.network",
 )
 @click.option("-s", type=str, required=True, help="Account seed in mnemonic/raw form.")
 @click.option("-r", type=str, required=True, help="Target account ss58_address.")
@@ -94,7 +94,7 @@ def launch(command: sys.stdin, remote_ws: str, s: str, r: str) -> None:
     type=str,
     default=constants.REMOTE_WS,
     help="Node websocket address used to connect to any node. E.g. local is ws://127.0.0.1:9944. Default is "
-    "wss://kusama.rpc.robonomics.network",
+    "wss://polkadot.rpc.robonomics.network",
 )
 @click.option("-r", type=str, help="Target account ss58_address.")
 def datalog(remote_ws: str, r: str) -> None:
@@ -112,7 +112,7 @@ def datalog(remote_ws: str, r: str) -> None:
     type=str,
     default=constants.REMOTE_WS,
     help="Node websocket address used to connect to any node. E.g. local is ws://127.0.0.1:9944. Default is "
-    "wss://kusama.rpc.robonomics.network",
+    "wss://polkadot.rpc.robonomics.network",
 )
 @click.option("-r", type=str, help="Target account ss58_address.")
 def launch(remote_ws: str, r: str) -> None:
