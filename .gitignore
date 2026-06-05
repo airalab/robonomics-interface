@@ -1,5 +1,6 @@
 dist/
 .idea
+.vscode/
 .venv
 poetry.lock
 __pycache__/

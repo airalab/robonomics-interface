@@ -7,23 +7,36 @@ on:
   push:
     branches: [ main ]
 
+permissions:
+  contents: write
+
+env:
+  PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
+
 jobs:
   build:
 
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
     - name: Set up Python 3.9
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: 3.9
     - name: Install Poetry
       uses: snok/install-poetry@v1
       with:
+        version: 1.8.5
         virtualenvs-create: true
         virtualenvs-in-project: true
         installer-parallel: true
+    - name: Install dependencies
+      run: poetry install --no-interaction
+    - name: Run offline tests
+      run: poetry run pytest
     - name: Build package
       run: |
         poetry --version
@@ -36,11 +49,11 @@ jobs:
       id: get_version
       shell: bash
       run: |
-        echo "::set-output name=name::$(poetry version)"
-        echo "::set-output name=version::$(poetry version | cut -d " " -f 2)"
+        echo "name=$(poetry version)" >> "$GITHUB_OUTPUT"
+        echo "version=$(poetry version --short)" >> "$GITHUB_OUTPUT"
 
     - name: Release With Assets
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         name: ${{ steps.get_version.outputs.name }}
         tag_name: ${{ steps.get_version.outputs.version }}

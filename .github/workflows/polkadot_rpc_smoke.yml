@@ -1,13 +1,8 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
-name: Build Package
+name: Polkadot RPC Smoke
 
 on:
-  push:
-    branches: [ development ]
-  pull_request:
-    branches: [ development ]
+  schedule:
+    - cron: "20 4 1 * *"
 
 permissions:
   contents: read
@@ -15,10 +10,14 @@ permissions:
 env:
   PYTEST_DISABLE_PLUGIN_AUTOLOAD: "1"
 
-jobs:
-  build:
+concurrency:
+  group: polkadot-rpc-smoke
+  cancel-in-progress: true
 
+jobs:
+  smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
     - uses: actions/checkout@v4
@@ -37,9 +36,7 @@ jobs:
         installer-parallel: true
     - name: Install dependencies
       run: poetry install --no-interaction
-    - name: Run offline tests
-      run: poetry run pytest
-    - name: Build package
-      run: |
-        poetry --version
-        poetry build
+    - name: Run read-only Polkadot RPC smoke tests
+      env:
+        ROBONOMICS_RPC_URL: ${{ vars.ROBONOMICS_RPC_URL }}
+      run: poetry run pytest --run-integration -m "integration and smoke" tests/integration

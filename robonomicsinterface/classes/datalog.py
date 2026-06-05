@@ -50,10 +50,11 @@ class Datalog(BaseClass):
         address: str = addr or self.account.get_address()
 
         logger.info(
-            f"Fetching {'latest datalog record' if not index else 'datalog record #' + str(index)}" f" of {address}."
+            f"Fetching {'latest datalog record' if index is None else 'datalog record #' + str(index)}"
+            f" of {address}."
         )
 
-        if index:
+        if index is not None:
             record: DatalogTyping = self._service_functions.chainstate_query(
                 "Datalog", "DatalogItem", [address, index], block_hash=block_hash
             )
