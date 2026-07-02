@@ -18,6 +18,7 @@ SAMPLE_ACCOUNTS = {"ALICE": ALICE, "BOB": BOB}
 
 SUPPORTED_CALL_SAMPLES = [
     ("Balances", "transfer_allow_death", {"dest": {"Id": BOB}, "value": 1}),
+    ("Balances", "transfer_keep_alive", {"dest": {"Id": BOB}, "value": 1}),
     ("Datalog", "record", {"record": "hello"}),
     ("Datalog", "erase", {}),
     ("Launch", "launch", {"robot": BOB, "param": HASH}),

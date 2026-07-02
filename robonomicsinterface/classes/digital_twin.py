@@ -26,14 +26,14 @@ class DigitalTwin(BaseClass):
 
         """
 
-        try:
-            int(topic, 16)
-            if len(topic) == 66:
-                return topic
+        if topic.startswith("0x") and len(topic) == 66:
+            try:
+                bytes.fromhex(topic[2:])
+            except ValueError:
+                pass
             else:
-                return dt_encode_topic(topic)
-        except ValueError:
-            return dt_encode_topic(topic)
+                return topic
+        return dt_encode_topic(topic)
 
     def get_info(self, dt_id: int, block_hash: tp.Optional[str] = None) -> tp.Optional[DigitalTwinTyping]:
         """

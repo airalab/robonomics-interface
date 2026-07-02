@@ -1,3 +1,4 @@
+import pytest
 from substrateinterface import KeypairType
 
 from robonomicsinterface.classes.liability import Liability
@@ -122,6 +123,57 @@ def test_create_converts_ipfs_hash_and_crypto_variants(account, service_function
     assert params["agreement"]["promisor_signature"] == {"Ecdsa": "promisor-signature"}
 
 
+@pytest.mark.parametrize(
+    ("crypto_type", "runtime_variant"),
+    [
+        (KeypairType.ED25519, "Ed25519"),
+        (KeypairType.SR25519, "Sr25519"),
+        (KeypairType.ECDSA, "Ecdsa"),
+    ],
+)
+def test_create_maps_supported_promisee_crypto_types(
+    account, service_functions_mock, crypto_type, runtime_variant
+):
+    liability = _liability(account, service_functions_mock)
+    service_functions_mock.extrinsic.return_value = "0xhash"
+    service_functions_mock.chainstate_query.return_value = 0
+
+    liability.create(
+        PAYLOAD_HASH,
+        1000,
+        "promisee-address",
+        "promisor-address",
+        "promisee-signature",
+        "promisor-signature",
+        promisee_signature_crypto_type=crypto_type,
+    )
+
+    params = service_functions_mock.extrinsic.call_args.args[2]
+    assert params["agreement"]["promisee_signature"] == {
+        runtime_variant: "promisee-signature"
+    }
+
+
+@pytest.mark.parametrize("crypto_type", [-1, 99])
+def test_create_rejects_unknown_crypto_type(
+    account, service_functions_mock, crypto_type
+):
+    liability = _liability(account, service_functions_mock)
+
+    with pytest.raises(ValueError, match="Unsupported signature crypto type"):
+        liability.create(
+            PAYLOAD_HASH,
+            1000,
+            "promisee-address",
+            "promisor-address",
+            "promisee-signature",
+            "promisor-signature",
+            promisee_signature_crypto_type=crypto_type,
+        )
+
+    service_functions_mock.extrinsic.assert_not_called()
+
+
 def test_finalize_submits_report_params_with_provided_signature(
     account, service_functions_mock
 ):
@@ -168,3 +220,44 @@ def test_finalize_uses_account_address_and_generated_signature(
     assert params["report"]["sender"] == ALICE_ADDRESS
     assert params["report"]["payload"] == {"hash": PAYLOAD_HASH}
     assert params["report"]["signature"]["Sr25519"].startswith("0x")
+
+
+@pytest.mark.parametrize(
+    ("crypto_type", "runtime_variant"),
+    [
+        (KeypairType.ED25519, "Ed25519"),
+        (KeypairType.SR25519, "Sr25519"),
+        (KeypairType.ECDSA, "Ecdsa"),
+    ],
+)
+def test_finalize_maps_supported_crypto_types(
+    account, service_functions_mock, crypto_type, runtime_variant
+):
+    liability = _liability(account, service_functions_mock)
+
+    liability.finalize(
+        7,
+        PAYLOAD_HASH,
+        promisor_signature_crypto_type=crypto_type,
+        promisor_finalize_signature="report-signature",
+    )
+
+    params = service_functions_mock.extrinsic.call_args.args[2]
+    assert params["report"]["signature"] == {runtime_variant: "report-signature"}
+
+
+@pytest.mark.parametrize("crypto_type", [-1, 99])
+def test_finalize_rejects_unknown_crypto_type(
+    account, service_functions_mock, crypto_type
+):
+    liability = _liability(account, service_functions_mock)
+
+    with pytest.raises(ValueError, match="Unsupported signature crypto type"):
+        liability.finalize(
+            7,
+            PAYLOAD_HASH,
+            promisor_signature_crypto_type=crypto_type,
+            promisor_finalize_signature="report-signature",
+        )
+
+    service_functions_mock.extrinsic.assert_not_called()

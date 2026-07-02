@@ -16,6 +16,10 @@ def callback(data: tp.Tuple[tp.Union[str, int]]) -> None:
     click.echo(data)
 
 
+def _read_stdin_line(input_file: tp.TextIO) -> str:
+    return input_file.readline().rstrip("\r\n")
+
+
 @click.group()
 def cli() -> None:
     pass
@@ -54,7 +58,7 @@ def datalog(input_string: sys.stdin, remote_ws: str, s: str) -> None:
     """
     account: Account = Account(remote_ws=remote_ws, seed=s)
     datalog_: Datalog = Datalog(account)
-    transaction_hash: str = datalog_.record(input_string.readline()[:-1])
+    transaction_hash: str = datalog_.record(_read_stdin_line(input_string))
     click.echo(transaction_hash)
 
 
@@ -83,7 +87,7 @@ def launch(command: sys.stdin, remote_ws: str, s: str, r: str) -> None:
     """
     account: Account = Account(remote_ws=remote_ws, seed=s)
     launch_: Launch = Launch(account)
-    parameter: str = command.readline()[:-1]
+    parameter: str = _read_stdin_line(command)
     transaction_hash: str = launch_.launch(r, parameter)
     click.echo((transaction_hash, f"{account.get_address()} -> {r}: {parameter}"))
 

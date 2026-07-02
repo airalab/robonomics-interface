@@ -12,6 +12,7 @@ FIXTURE_PATTERN = "robonomics_spec_*.json"
 
 SUPPORTED_CALLS = {
     ("Balances", "transfer_allow_death"),
+    ("Balances", "transfer_keep_alive"),
     ("Datalog", "record"),
     ("Datalog", "erase"),
     ("Launch", "launch"),

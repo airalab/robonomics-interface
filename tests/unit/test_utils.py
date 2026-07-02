@@ -1,4 +1,5 @@
 import pytest
+from base58 import b58encode
 
 from robonomicsinterface.utils import (
     create_keypair,
@@ -25,6 +26,35 @@ def test_ipfs_hash_round_trip(digest):
 
     assert cid == "QmZtnFaddFtzGNT8BxdHVbQrhSFdq1pWxud5z4fA4kxfDt"
     assert ipfs_qm_hash_to_32_bytes(cid) == "0x" + "ab" * 32
+
+
+@pytest.mark.parametrize(
+    "digest",
+    [
+        "ab" * 31,
+        "0x" + "ab" * 33,
+    ],
+)
+def test_ipfs_32_bytes_to_qm_hash_rejects_wrong_digest_length(digest):
+    with pytest.raises(ValueError, match="32 bytes"):
+        ipfs_32_bytes_to_qm_hash(digest)
+
+
+def test_ipfs_32_bytes_to_qm_hash_rejects_non_hex_digest():
+    with pytest.raises(ValueError):
+        ipfs_32_bytes_to_qm_hash("zz" * 32)
+
+
+@pytest.mark.parametrize(
+    "cid",
+    [
+        "Qm",
+        b58encode(b"\x13\x20" + b"\xab" * 32).decode("utf-8"),
+    ],
+)
+def test_ipfs_qm_hash_to_32_bytes_rejects_invalid_cid(cid):
+    with pytest.raises(ValueError):
+        ipfs_qm_hash_to_32_bytes(cid)
 
 
 @pytest.mark.parametrize(

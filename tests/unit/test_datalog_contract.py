@@ -48,14 +48,20 @@ def test_get_item_returns_none_for_empty_record(account, service_functions_mock)
 
 
 def test_get_item_latest_uses_end_minus_one(account, service_functions_mock):
-    """Document the current latest-item lookup before ring-buffer fixes."""
+    """For ordinary indexes, latest is still the previous end slot."""
     datalog = _datalog(account, service_functions_mock)
     service_functions_mock.chainstate_query.side_effect = [
         {"start": 0, "end": 3},
         (123, "payload"),
     ]
+    service_functions_mock.get_constant.return_value = 128
 
     assert datalog.get_item() == (123, "payload")
+    service_functions_mock.get_constant.assert_called_once_with(
+        "Datalog",
+        "WindowSize",
+        block_hash=None,
+    )
     assert service_functions_mock.chainstate_query.call_args_list[0].args == (
         "Datalog",
         "DatalogIndex",
@@ -68,9 +74,6 @@ def test_get_item_latest_uses_end_minus_one(account, service_functions_mock):
     )
 
 
-@pytest.mark.xfail(
-    reason="Latest Datalog index lookup should use the same historical block_hash"
-)
 def test_get_item_latest_forwards_block_hash_to_index_query(
     account, service_functions_mock
 ):
@@ -80,6 +83,7 @@ def test_get_item_latest_forwards_block_hash_to_index_query(
         {"start": 0, "end": 3},
         (123, "payload"),
     ]
+    service_functions_mock.get_constant.return_value = 128
 
     datalog.get_item(block_hash="0xblock")
 
@@ -87,6 +91,11 @@ def test_get_item_latest_forwards_block_hash_to_index_query(
         "Datalog",
         "DatalogIndex",
         ALICE_ADDRESS,
+        block_hash="0xblock",
+    )
+    service_functions_mock.get_constant.assert_called_once_with(
+        "Datalog",
+        "WindowSize",
         block_hash="0xblock",
     )
 

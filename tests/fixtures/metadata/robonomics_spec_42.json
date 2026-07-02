@@ -1,5 +1,5 @@
 {
-  "block_hash": "0x317fb685689a29612f5c095702636a345404f39dcaddba5caed7c7f58101eef6",
+  "block_hash": "0x8cb52f2c77b07088efe310d59ede77a80bd68850ff64970e78087b13d595e577",
   "chain": "Robonomics Polkadot",
   "metadata": {
     "pallets": {
@@ -8728,6 +8728,33 @@
         },
         "encoded": "0x1f00008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a4804",
         "function": "transfer_allow_death",
+        "module": "Balances",
+        "params": {
+          "dest": {
+            "Id": "4FRC4ae57MnRJViqfbrEHrwDWQm4E3bGzR1szC3h6kQDKwi1"
+          },
+          "value": 1
+        }
+      },
+      {
+        "decoded": {
+          "call_args": [
+            {
+              "name": "dest",
+              "type": "AccountIdLookupOf",
+              "value": "4FRC4ae57MnRJViqfbrEHrwDWQm4E3bGzR1szC3h6kQDKwi1"
+            },
+            {
+              "name": "value",
+              "type": "Balance",
+              "value": 1
+            }
+          ],
+          "call_function": "transfer_keep_alive",
+          "call_module": "Balances"
+        },
+        "encoded": "0x1f03008eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a4804",
+        "function": "transfer_keep_alive",
         "module": "Balances",
         "params": {
           "dest": {

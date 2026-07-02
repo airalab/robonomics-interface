@@ -5,7 +5,7 @@ from substrateinterface import SubstrateInterface
 
 from ..constants import REMOTE_WS, TYPE_REGISTRY
 from ..decorators import check_socket_opened
-from ..exceptions import InvalidExtrinsicHash
+from ..exceptions import InvalidExtrinsicHash, InvalidExtrinsicIndex
 from ..types import TypeRegistryTyping
 
 logger = getLogger(__name__)
@@ -72,8 +72,12 @@ class ChainUtils:
 
         """
 
-        if not data_hash.startswith("0x") or not len(data_hash) == 66:
-            raise InvalidExtrinsicHash("Not a valid extrinsic has passed")
+        if not isinstance(data_hash, str) or not data_hash.startswith("0x") or len(data_hash) != 66:
+            raise InvalidExtrinsicHash("Hash must be a 0x-prefixed 32-byte hex string")
+        try:
+            bytes.fromhex(data_hash[2:])
+        except ValueError as exc:
+            raise InvalidExtrinsicHash("Hash must be a 0x-prefixed 32-byte hex string") from exc
 
     @check_socket_opened
     def get_extrinsic_in_block(
@@ -107,17 +111,26 @@ class ChainUtils:
         if type(block) == str:
             self._check_hash_valid(block)
 
-        if not extrinsic:
+        if extrinsic is None:
             logger.info(f"Getting all extrinsics of a block {block}...")
             return _get_block_any(block)
-        else:
-            logger.info(f"Getting extrinsic {block}-{extrinsic}...")
-            if type(extrinsic) == str:
-                self._check_hash_valid(extrinsic)
-                found_extrinsics: list = _get_block_any(block)
-                for extrinsic_ in found_extrinsics:
-                    if extrinsic_.value["extrinsic_hash"] == extrinsic:
-                        return extrinsic_.value
 
-            else:
-                return _get_block_any(block)[extrinsic - 1].value
+        logger.info(f"Getting extrinsic {block}-{extrinsic}...")
+        if type(extrinsic) == str:
+            self._check_hash_valid(extrinsic)
+            found_extrinsics: list = _get_block_any(block)
+            for extrinsic_ in found_extrinsics:
+                if extrinsic_.value["extrinsic_hash"] == extrinsic:
+                    return extrinsic_.value
+            return None
+
+        if type(extrinsic) != int:
+            raise InvalidExtrinsicIndex("Extrinsic index must be an integer or a hash")
+        if extrinsic < 0:
+            raise InvalidExtrinsicIndex("Extrinsic index cannot be negative")
+
+        found_extrinsics: list = _get_block_any(block)
+        try:
+            return found_extrinsics[extrinsic].value
+        except IndexError as exc:
+            raise InvalidExtrinsicIndex("Extrinsic index is out of block bounds") from exc

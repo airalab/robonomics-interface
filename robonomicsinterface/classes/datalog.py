@@ -13,6 +13,16 @@ class Datalog(BaseClass):
     Class for datalog chainstate queries and extrinsic executions.
     """
 
+    def _get_window_size(self, block_hash: tp.Optional[str] = None) -> int:
+        window_size = self._service_functions.get_constant(
+            "Datalog",
+            "WindowSize",
+            block_hash=block_hash,
+        )
+        if window_size is None:
+            raise RuntimeError("Datalog.WindowSize runtime constant is missing")
+        return int(window_size)
+
     def get_index(self, addr: tp.Optional[str] = None, block_hash: tp.Optional[str] = None) -> tp.Dict[str, int]:
         """
         Get account datalog index dictionary.
@@ -59,15 +69,16 @@ class Datalog(BaseClass):
                 "Datalog", "DatalogItem", [address, index], block_hash=block_hash
             )
             return record if record[0] != 0 else None
-        else:
-            index_latest: int = self.get_index(address)["end"] - 1
-            return (
-                self._service_functions.chainstate_query(
-                    "Datalog", "DatalogItem", [address, index_latest], block_hash=block_hash
-                )
-                if index_latest != -1
-                else None
-            )
+        datalog_index = self.get_index(address, block_hash=block_hash)
+        if datalog_index["start"] == datalog_index["end"]:
+            return None
+
+        window_size = self._get_window_size(block_hash=block_hash)
+        index_latest: int = (datalog_index["end"] - 1) % window_size
+        record: DatalogTyping = self._service_functions.chainstate_query(
+            "Datalog", "DatalogItem", [address, index_latest], block_hash=block_hash
+        )
+        return record if record[0] != 0 else None
 
     def record(self, data: str, nonce: tp.Optional[int] = None) -> str:
         """

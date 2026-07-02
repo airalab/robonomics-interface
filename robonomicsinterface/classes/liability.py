@@ -11,7 +11,18 @@ from ..utils import ipfs_qm_hash_to_32_bytes, str_to_scalebytes
 
 logger = getLogger(__name__)
 
-KEYPAIR_TYPE = ["Ed25519", "Sr25519", "Ecdsa"]
+KEYPAIR_TYPE = {
+    KeypairType.ED25519: "Ed25519",
+    KeypairType.SR25519: "Sr25519",
+    KeypairType.ECDSA: "Ecdsa",
+}
+
+
+def _signature_variant(crypto_type: int) -> str:
+    try:
+        return KEYPAIR_TYPE[crypto_type]
+    except KeyError:
+        raise ValueError(f"Unsupported signature crypto type: {crypto_type}") from None
 
 
 class Liability(BaseClass):
@@ -115,6 +126,8 @@ class Liability(BaseClass):
 
         if technics_hash.startswith("Qm"):
             technics_hash = ipfs_qm_hash_to_32_bytes(technics_hash)
+        promisee_signature_variant = _signature_variant(promisee_signature_crypto_type)
+        promisor_signature_variant = _signature_variant(promisor_signature_crypto_type)
 
         liability_creation_transaction_hash: str = self._service_functions.extrinsic(
             "Liability",
@@ -125,8 +138,8 @@ class Liability(BaseClass):
                     "economics": {"price": economics},
                     "promisee": promisee,
                     "promisor": promisor,
-                    "promisee_signature": {KEYPAIR_TYPE[promisee_signature_crypto_type]: promisee_params_signature},
-                    "promisor_signature": {KEYPAIR_TYPE[promisor_signature_crypto_type]: promisor_params_signature},
+                    "promisee_signature": {promisee_signature_variant: promisee_params_signature},
+                    "promisor_signature": {promisor_signature_variant: promisor_params_signature},
                 }
             },
             nonce=nonce,
@@ -139,7 +152,7 @@ class Liability(BaseClass):
         index: int = latest_index
         for liabilities in reversed(range(latest_index + 1)):
             if (
-                self.get_agreement(liabilities)["promisee_signature"][KEYPAIR_TYPE[promisee_signature_crypto_type]]
+                self.get_agreement(liabilities)["promisee_signature"][promisee_signature_variant]
                 == promisee_params_signature
             ):
                 index = liabilities
@@ -208,6 +221,7 @@ class Liability(BaseClass):
 
         if report_hash.startswith("Qm"):
             report_hash = ipfs_qm_hash_to_32_bytes(report_hash)
+        promisor_signature_variant = _signature_variant(promisor_signature_crypto_type)
 
         return self._service_functions.extrinsic(
             "Liability",
@@ -218,7 +232,7 @@ class Liability(BaseClass):
                     "sender": promisor or self.account.get_address(),
                     "payload": {"hash": report_hash},
                     "signature": {
-                        KEYPAIR_TYPE[promisor_signature_crypto_type]: promisor_finalize_signature
+                        promisor_signature_variant: promisor_finalize_signature
                         or self.sign_report(index, report_hash)
                     },
                 }

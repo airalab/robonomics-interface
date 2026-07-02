@@ -11,14 +11,27 @@ def _common(account, service_functions):
     return common
 
 
-@pytest.mark.xfail(
-    reason="Current runtime exposes Balances.transfer_allow_death, not Balances.transfer"
-)
-def test_transfer_tokens_uses_transfer_allow_death(account, service_functions_mock):
-    """Regression guard for the Polkadot Balances transfer call name."""
+def test_transfer_tokens_uses_transfer_keep_alive(account, service_functions_mock):
+    """Default token transfers should not reap the sender account."""
     common = _common(account, service_functions_mock)
 
     common.transfer_tokens("target-address", 123, nonce=4)
+
+    service_functions_mock.extrinsic.assert_called_once_with(
+        "Balances",
+        "transfer_keep_alive",
+        {"dest": {"Id": "target-address"}, "value": 123},
+        4,
+    )
+
+
+def test_transfer_tokens_allow_death_uses_transfer_allow_death(
+    account, service_functions_mock
+):
+    """Allow-death transfer behavior should stay available explicitly."""
+    common = _common(account, service_functions_mock)
+
+    common.transfer_tokens_allow_death("target-address", 123, nonce=4)
 
     service_functions_mock.extrinsic.assert_called_once_with(
         "Balances",

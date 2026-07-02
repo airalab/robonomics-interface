@@ -87,6 +87,30 @@ def test_supported_events_exist(metadata_fixture, pallet_name, expected_events):
     assert expected_events <= event_names(metadata_fixture, pallet_name)
 
 
+def _event(metadata_fixture, pallet_name, event_name):
+    events = metadata_fixture["metadata"]["pallets"][pallet_name]["events"]
+    for event in events:
+        if event.get("event_name") == event_name or event.get("event_id") == event_name:
+            return event
+    pytest.fail(f"Missing {pallet_name}.{event_name} event")
+
+
+def _event_args(metadata_fixture, pallet_name, event_name):
+    return _event(metadata_fixture, pallet_name, event_name).get("event_args", [])
+
+
+def test_liability_event_shapes_match_subscriber_extractors(metadata_fixture):
+    """Subscriber address filters depend on current Liability event arg positions."""
+    new_liability_args = _event_args(metadata_fixture, "Liability", "NewLiability")
+    new_report_args = _event_args(metadata_fixture, "Liability", "NewReport")
+
+    assert len(new_liability_args) == 5
+    assert new_liability_args[3]["typeName"] == "T::AccountId"
+    assert new_liability_args[4]["typeName"] == "T::AccountId"
+    assert len(new_report_args) == 2
+    assert new_report_args[1]["typeName"] == "ReportFor<T>"
+
+
 def test_datalog_window_size_constant_is_exported(metadata_fixture):
     """Datalog.WindowSize should be present and carry a concrete value."""
     constants = metadata_fixture["metadata"]["pallets"]["Datalog"]["constants"]
@@ -101,8 +125,9 @@ def test_datalog_window_size_constant_is_exported(metadata_fixture):
     assert window_size[0].get("constant_value") is not None
 
 
-def test_balances_transfer_allow_death_call_exists(metadata_fixture):
-    """Balances.transfer_allow_death is the current transfer call to wrap."""
+def test_balances_transfer_calls_exist(metadata_fixture):
+    """Both safe default and explicit allow-death transfer calls should exist."""
+    assert "transfer_keep_alive" in call_names(metadata_fixture, "Balances")
     assert "transfer_allow_death" in call_names(metadata_fixture, "Balances")
 
 

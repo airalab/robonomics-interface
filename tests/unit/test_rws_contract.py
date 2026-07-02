@@ -1,5 +1,3 @@
-import pytest
-
 from robonomicsinterface.classes.rws import RWS
 
 ALICE_ADDRESS = "4GzMLepDF5nKTWDM6XpB3CrBcFmwgazcVFAD3ZBNAjKT6hQJ"
@@ -82,9 +80,6 @@ def test_is_in_sub_checks_devices(account, service_functions_mock):
     )
 
 
-@pytest.mark.xfail(
-    reason="RWS.is_in_sub should treat missing Devices storage as an empty list"
-)
 def test_is_in_sub_returns_false_when_devices_missing(account, service_functions_mock):
     """Missing Devices storage should behave like an empty device list."""
     rws = _rws(account, service_functions_mock)

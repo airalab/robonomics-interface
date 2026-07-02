@@ -132,3 +132,20 @@ def test_live_payment_query_info_for_unsigned_submission_candidate(substrate):
     assert int(payment_info["partialFee"]) > 0
     assert payment_info["class"].lower() in {"normal", "operational", "mandatory"}
     assert payment_info["weight"]
+
+
+@pytest.mark.integration
+@pytest.mark.smoke
+def test_live_payment_query_info_for_transfer_tokens_call(substrate):
+    """The transfer_tokens wrapper call should remain fee-queryable live."""
+    call = substrate.compose_call(
+        "Balances",
+        "transfer_keep_alive",
+        {"dest": {"Id": ALICE_ADDRESS}, "value": 1},
+    )
+
+    payment_info = substrate.get_payment_info(call, Account(seed="//Alice").keypair)
+
+    assert int(payment_info["partialFee"]) > 0
+    assert payment_info["class"].lower() in {"normal", "operational", "mandatory"}
+    assert payment_info["weight"]

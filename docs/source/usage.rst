@@ -146,6 +146,7 @@ With Common Functions class one can send some tokens, get account nonce or some 
     common_functions.get_account_info()  # Will make the same output as the one above
     common_functions.get_account_nonce(account_with_seed.get_address())
     common_functions.transfer_tokens("4CqaroZnr25e43Ypi8Qe5NwbUYXzhxKqrfY5opnRzK4yG1mg", 1000000000)
+    common_functions.transfer_tokens_allow_death("4CqaroZnr25e43Ypi8Qe5NwbUYXzhxKqrfY5opnRzK4yG1mg", 1000000000)
 
 Datalog
 +++++++

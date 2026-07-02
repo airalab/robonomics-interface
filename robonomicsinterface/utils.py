@@ -7,6 +7,8 @@ from scalecodec.base import RuntimeConfiguration, ScaleBytes, ScaleType
 from substrateinterface import Keypair, KeypairType
 
 logger = logging.getLogger(__name__)
+IPFS_SHA2_256_PREFIX = b"\x12\x20"
+IPFS_SHA2_256_DIGEST_SIZE = 32
 
 
 def create_keypair(seed: str, crypto_type: int = KeypairType.SR25519) -> Keypair:
@@ -53,7 +55,13 @@ def ipfs_32_bytes_to_qm_hash(string_32_bytes: str) -> str:
 
     if string_32_bytes.startswith("0x"):
         string_32_bytes = string_32_bytes[2:]
-    return b58encode(b"\x12 " + bytes.fromhex(string_32_bytes)).decode("utf-8")
+    try:
+        digest = bytes.fromhex(string_32_bytes)
+    except ValueError as exc:
+        raise ValueError("IPFS digest must be a hex string") from exc
+    if len(digest) != IPFS_SHA2_256_DIGEST_SIZE:
+        raise ValueError("IPFS digest must be exactly 32 bytes")
+    return b58encode(IPFS_SHA2_256_PREFIX + digest).decode("utf-8")
 
 
 def ipfs_qm_hash_to_32_bytes(ipfs_qm: str) -> str:
@@ -66,7 +74,16 @@ def ipfs_qm_hash_to_32_bytes(ipfs_qm: str) -> str:
 
     """
 
-    return f"0x{b58decode(ipfs_qm).hex()[4:]}"
+    try:
+        decoded = b58decode(ipfs_qm)
+    except ValueError as exc:
+        raise ValueError("Invalid IPFS CID base58 encoding") from exc
+
+    if len(decoded) != len(IPFS_SHA2_256_PREFIX) + IPFS_SHA2_256_DIGEST_SIZE:
+        raise ValueError("IPFS CID must encode a 32-byte sha2-256 digest")
+    if not decoded.startswith(IPFS_SHA2_256_PREFIX):
+        raise ValueError("IPFS CID must use sha2-256 multihash prefix 0x1220")
+    return f"0x{decoded[len(IPFS_SHA2_256_PREFIX):].hex()}"
 
 
 def str_to_scalebytes(data: tp.Union[int, str], type_str: str) -> ScaleBytes:

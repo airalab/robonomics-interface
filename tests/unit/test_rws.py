@@ -34,31 +34,22 @@ def test_get_days_left_returns_minus_one_for_lifetime_subscription(
     assert rws.get_days_left() == -1
 
 
-def test_get_days_left_rounds_partial_day_up(
-    account, service_functions_mock, monkeypatch
+@pytest.mark.parametrize(
+    ("days", "expected"),
+    [
+        (1.0, 1),
+        (0.5, 1),
+    ],
+)
+def test_get_days_left_rounds_positive_days_up(
+    account, service_functions_mock, monkeypatch, days, expected
 ):
-    ledger = {"issue_time": NOW_MS, "kind": {"Daily": {"days": 0.5}}}
+    ledger = {"issue_time": NOW_MS, "kind": {"Daily": {"days": days}}}
     rws = _rws_with_ledger(account, service_functions_mock, monkeypatch, ledger)
 
-    assert rws.get_days_left() == 1
+    assert rws.get_days_left() == expected
 
 
-@pytest.mark.xfail(
-    reason="get_days_left adds one even when the remaining number of days is already integral"
-)
-def test_get_days_left_does_not_overcount_exact_day(
-    account, service_functions_mock, monkeypatch
-):
-    """An exact whole day remaining should not be rounded into two days."""
-    ledger = {"issue_time": NOW_MS, "kind": {"Daily": {"days": 1}}}
-    rws = _rws_with_ledger(account, service_functions_mock, monkeypatch, ledger)
-
-    assert rws.get_days_left() == 1
-
-
-@pytest.mark.xfail(
-    reason="A subscription should be inactive exactly at its expiration timestamp"
-)
 def test_get_days_left_returns_false_at_expiration(
     account, service_functions_mock, monkeypatch
 ):
