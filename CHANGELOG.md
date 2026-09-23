@@ -44,6 +44,32 @@ migration guide will ship with the release.
 - Transport errors, all `TransportError` (retryable): `ConnectionFailed`,
   `ConnectionLost`, `RequestTimeout`, `AllEndpointsFailed` (with the reason for each
   endpoint). `RpcError` for errors returned by the node.
+- Extrinsics: `compose_call` checks arguments against the metadata and takes natural
+  values (`bytes`, `Keypair`, nested `Call`, a plain list for `BoundedVec` — no more
+  `[[a, b]]` for `RWS.set_devices`); signed extensions come from the metadata, in its
+  order, and an unknown one that carries data is refused (`UnsupportedExtension`);
+  mortal era by default (`Era`); `sign`, `validate` (the pool's own check via
+  `state_call`), `submit` (waits for the block and reads its events) and
+  `submit_nowait`. One submission per account at a time, so nonces never collide.
+- `ExtrinsicResult` with the block, index and events of the extrinsic.
+- Transaction errors, all `TransactionError`: `InvalidTransaction` (kind plus a
+  plain explanation — `Payment` says the account does not exist on chain),
+  `ExtrinsicFailed` (pallet error name and docs, e.g. `RWS.FreeWeightIsNotEnough`),
+  `ExtrinsicDropped`, `ExtrinsicOutcomeUnknown` (with the hash to look up).
+- Pallet helpers on the client:
+  - `client.datalog`: `index`, `item` (slot 0 is slot 0 — in 2.x `get_item(index=0)`
+    meant "latest"), `latest` (also correct after the ring buffer wraps to 0, where
+    2.x returned `None`), `items` (all live records in one request), `record`
+    (bytes or UTF-8 text, size checked, optionally through an RWS subscription),
+    `erase`. Records come back as `bytes` (`DatalogItem`), never as text-or-hex.
+  - `client.rws`: `ledger` (`Ledger` with `is_active`, `days_left`, `expires_at`),
+    `devices`, `is_device`, `max_devices`, `set_devices` (plain list, checked and
+    de-duplicated, `TooManyDevices` past the limit), `add_devices`,
+    `remove_devices`, `call`, `bid`, auction reads.
+  - `client.system` (`account` → `AccountInfo` with `exists`, `next_nonce`),
+    `client.balances` (`existential_deposit`, `transfer_keep_alive`,
+    `transfer_allow_death`), `client.chain` (block hashes and numbers, runtime
+    version). `XRT = 10**9`.
 - `py.typed`.
 
 ### Changed
@@ -52,6 +78,8 @@ migration guide will ship with the release.
   every one installs from a wheel or as pure Python on musl/aarch64.
 - ED25519 is the only key type. sr25519 returns as an optional extra in a later
   release.
+- Extrinsic failures raise instead of returning a hash: inclusion in a block is
+  checked against the block's events.
 - `Keypair.sign()` signs a `str` as its UTF-8 bytes. substrate-interface decoded a
   `str` starting with `0x` as hex first; pass `bytes.fromhex(...)` for that.
 

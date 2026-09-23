@@ -49,6 +49,14 @@ class NoSuchConstant(MetadataError, LookupError):
     """The pallet has no constant with this name."""
 
 
+class NoSuchCall(MetadataError, LookupError):
+    """The pallet has no call (extrinsic function) with this name."""
+
+
+class UnsupportedExtension(MetadataError):
+    """The runtime requires a signed extension this library cannot fill in."""
+
+
 class EncodeError(RobonomicsError, ValueError):
     """A value does not fit the type the runtime expects, e.g. a bad storage key."""
 
@@ -103,6 +111,72 @@ class RpcError(RobonomicsError):
         self.code = code
         self.message = message
         self.data = data
+
+
+class TransactionError(RobonomicsError):
+    """An extrinsic was refused, failed, or its outcome is unknown.
+
+    Not retryable as such: resubmitting blindly may execute it twice.
+    """
+
+
+class InvalidTransaction(TransactionError):
+    """The runtime refuses the extrinsic before it reaches a block.
+
+    ``kind`` is the ``InvalidTransaction`` (or ``UnknownTransaction``) variant,
+    e.g. ``"Payment"``; ``explanation`` says what it usually means here.
+    """
+
+    def __init__(self, kind: str, explanation: str) -> None:
+        super().__init__(f"{kind}: {explanation}")
+        self.kind = kind
+        self.explanation = explanation
+
+
+class ExtrinsicFailed(TransactionError):
+    """The extrinsic is in a block, and the runtime reports that the call failed.
+
+    ``pallet`` and ``error`` name the module error (``RWS``,
+    ``FreeWeightIsNotEnough``) or are ``None`` for other dispatch errors;
+    ``result`` is the :class:`~robonomicsinterface.extrinsic.ExtrinsicResult`.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        pallet: str | None,
+        error: str,
+        docs: str,
+        result: object,
+    ) -> None:
+        super().__init__(message)
+        self.pallet = pallet
+        self.error = error
+        self.docs = docs
+        self.result = result
+
+
+class ExtrinsicDropped(TransactionError):
+    """The node dropped the extrinsic before inclusion (dropped, invalid or usurped)."""
+
+    def __init__(self, extrinsic_hash: str, status: str) -> None:
+        super().__init__(f"extrinsic {extrinsic_hash} was {status} by the node")
+        self.extrinsic_hash = extrinsic_hash
+        self.status = status
+
+
+class ExtrinsicOutcomeUnknown(TransactionError):
+    """The extrinsic was submitted, but whether it was included is not known.
+
+    The connection dropped or the wait timed out. It may still land: look it up
+    by ``extrinsic_hash`` before sending it again.
+    """
+
+    def __init__(self, extrinsic_hash: str, reason: str) -> None:
+        super().__init__(f"outcome of extrinsic {extrinsic_hash} is unknown: {reason}")
+        self.extrinsic_hash = extrinsic_hash
+        self.reason = reason
 
 
 class EnvelopeError(RobonomicsError):

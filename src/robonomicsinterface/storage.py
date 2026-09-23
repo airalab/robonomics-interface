@@ -25,6 +25,7 @@ __all__ = [
     "decode_storage_value",
     "query",
     "query_map",
+    "query_raw_multi",
     "storage_key",
     "storage_prefix",
     "twox128",
@@ -169,6 +170,36 @@ async def query(
     key = "0x" + storage_key(runtime, entry, keys).hex()
     raw = await rpc.request("state_getStorage", [key, at] if at else [key])
     return decode_storage_value(runtime, entry, raw)
+
+
+async def query_raw_multi(
+    rpc: RpcRequester,
+    runtimes: RuntimeCache,
+    pallet: str,
+    item: str,
+    keys: Sequence[Sequence[Any]],
+    *,
+    at: str | None = None,
+) -> tuple[Runtime, StorageEntry, list[bytes | None]]:
+    """Read many entries of one item in a single request, undecoded.
+
+    Returns the runtime and entry used, and the raw value of each key in order
+    (``None`` where nothing is stored), for callers that decode themselves or
+    need to tell an absent value from a default one.
+    """
+
+    block = at or str(await rpc.request("chain_getBlockHash", []))
+    runtime = await runtimes.get(rpc, block)
+    entry = runtime.storage_entry(pallet, item)
+    hex_keys = ["0x" + storage_key(runtime, entry, list(k)).hex() for k in keys]
+    if not hex_keys:
+        return runtime, entry, []
+    changes = await rpc.request("state_queryStorageAt", [hex_keys, block])
+    values: dict[str, str | None] = {}
+    for change_set in changes or ():
+        values.update((k, v) for k, v in change_set["changes"])
+    raw = [values.get(k) for k in hex_keys]
+    return runtime, entry, [bytes.fromhex(v.removeprefix("0x")) if v else None for v in raw]
 
 
 async def query_map(

@@ -21,18 +21,41 @@ import contextlib
 import logging
 import ssl as ssl_module
 import time
-from collections.abc import AsyncIterator, Sequence
-from typing import Any, Self
+from collections.abc import AsyncIterator, Mapping, Sequence
+from functools import cached_property
+from typing import TYPE_CHECKING, Any, Literal, Self
 
 from . import storage
 from .errors import (
     AllEndpointsFailed,
     ConnectionFailed,
     ConnectionLost,
+    ExtrinsicDropped,
+    ExtrinsicFailed,
+    ExtrinsicOutcomeUnknown,
+    InvalidTransaction,
+    MetadataError,
     RequestTimeout,
     RpcError,
     TransportError,
 )
+from .extrinsic import (
+    DEFAULT_ERA_PERIOD,
+    Call,
+    Era,
+    ExtrinsicResult,
+    SignedExtrinsic,
+    SigningContext,
+    compose_call,
+    decode_events,
+    dispatch_error_message,
+    explain_invalid_transaction,
+    sign_extrinsic,
+)
+from .keys import Keypair
+
+if TYPE_CHECKING:
+    from .pallets import RWS, Balances, Chain, Datalog, System
 from .runtime import Runtime, RuntimeCache, RuntimeVersion
 from .ss58 import ROBONOMICS_SS58_FORMAT
 from .transport import DEFAULT_MAX_MESSAGE_BYTES, Connection, Subscription
@@ -47,6 +70,19 @@ DEFAULT_ENDPOINT = "wss://polkadot.rpc.robonomics.network/"
 ROBONOMICS_GENESIS_HASH = "0x29f4371dcc41045f5041489dfcd51389bf8ccd2161332e0de1ca803bcc3ee872"
 
 _RETIRE_GRACE_SECONDS = 30.0
+DEFAULT_INCLUSION_TIMEOUT = 120.0
+
+# Error codes of author_submit* (sc_rpc_api::author::error).
+_POOL_INVALID = 1010
+_POOL_UNKNOWN = 1011
+_POOL_REJECTIONS = {
+    "pay": "Payment",
+    "bad signature": "BadProof",
+    "outdated": "Stale",
+    "future": "Future",
+    "ancient": "AncientBirthBlock",
+    "exhaust": "ExhaustsResources",
+}
 
 
 def _user_agent() -> str:
@@ -108,6 +144,7 @@ class RobonomicsClient:
         self._watcher: asyncio.Task[None] | None = None
         self._failback: asyncio.Task[None] | None = None
         self._background: set[asyncio.Task[None]] = set()
+        self._nonce_locks: dict[str, asyncio.Lock] = {}
         self._closed = False
 
     def __repr__(self) -> str:
@@ -119,6 +156,38 @@ class RobonomicsClient:
 
         connection = self._connection
         return connection.endpoint if connection is not None and not connection.closed else None
+
+    # Pallets
+
+    @cached_property
+    def datalog(self) -> Datalog:
+        from .pallets import Datalog
+
+        return Datalog(self)
+
+    @cached_property
+    def rws(self) -> RWS:
+        from .pallets import RWS
+
+        return RWS(self)
+
+    @cached_property
+    def system(self) -> System:
+        from .pallets import System
+
+        return System(self)
+
+    @cached_property
+    def balances(self) -> Balances:
+        from .pallets import Balances
+
+        return Balances(self)
+
+    @cached_property
+    def chain(self) -> Chain:
+        from .pallets import Chain
+
+        return Chain(self)
 
     # Lifecycle
 
@@ -214,6 +283,213 @@ class RobonomicsClient:
         """A pallet constant, e.g. ``await client.constant("Datalog", "WindowSize")``."""
 
         return await storage.constant(self, self.runtimes, pallet, name, at=at)
+
+    # Extrinsics
+
+    async def compose_call(
+        self, pallet: str, function: str, args: Mapping[str, Any] | None = None
+    ) -> Call:
+        """Encode a call for the current runtime; see :func:`~.extrinsic.compose_call`."""
+
+        return compose_call(await self.runtime(), pallet, function, args)
+
+    async def sign(
+        self,
+        call: Call,
+        keypair: Keypair,
+        *,
+        nonce: int | None = None,
+        tip: int = 0,
+        era_period: int | None = DEFAULT_ERA_PERIOD,
+    ) -> SignedExtrinsic:
+        """Sign a call: the nonce from the node, a mortal era from the finalized head.
+
+        :param era_period: blocks the extrinsic stays valid; ``None`` for immortal.
+        """
+
+        runtime = await self.runtime()
+        if call.spec_version != runtime.version.spec_version:
+            raise MetadataError(
+                f"the call was composed for runtime {call.spec_version}, the chain now runs "
+                f"{runtime.version.spec_version}; compose it again"
+            )
+        genesis = await self.runtimes.genesis_hash(self)
+        if era_period is None:
+            era, birth_hash = Era.immortal(), genesis
+        else:
+            head = str(await self.request("chain_getFinalizedHead"))
+            number = int((await self.request("chain_getHeader", [head]))["number"], 16)
+            era = Era.mortal(era_period, number)
+            birth = era.birth(number)
+            birth_hash = (
+                head if birth == number else str(await self.request("chain_getBlockHash", [birth]))
+            )
+        if nonce is None:
+            nonce = int(await self.request("system_accountNextIndex", [keypair.address]))
+        context = SigningContext(
+            nonce=nonce,
+            era=era,
+            birth_hash=birth_hash,
+            genesis_hash=genesis,
+            spec_version=runtime.version.spec_version,
+            transaction_version=runtime.version.transaction_version,
+            tip=tip,
+        )
+        return sign_extrinsic(runtime, call, keypair, context)
+
+    async def validate(self, extrinsic: SignedExtrinsic) -> None:
+        """Ask the runtime whether it would accept the extrinsic, without sending it.
+
+        This is the transaction pool's own check, reached through ``state_call``
+        (allowed on public nodes). It turns an opaque "Invalid Transaction" into
+        a reason. ``Future`` is not an error: the pool queues such transactions.
+
+        :raises InvalidTransaction: with the reason and what it usually means.
+        """
+
+        best = str(await self.request("chain_getBlockHash", []))
+        data = "0x02" + extrinsic.data.hex() + best.removeprefix("0x")
+        answer = await self.request(
+            "state_call", ["TaggedTransactionQueue_validate_transaction", data, best]
+        )
+        invalid = explain_invalid_transaction(bytes.fromhex(str(answer).removeprefix("0x")))
+        if invalid is not None and invalid[0] != "Future":
+            raise InvalidTransaction(*invalid)
+
+    async def submit(
+        self,
+        call: Call,
+        keypair: Keypair,
+        *,
+        wait_for: Literal["in_block", "finalized"] = "in_block",
+        tip: int = 0,
+        era_period: int | None = DEFAULT_ERA_PERIOD,
+        validate: bool = True,
+        timeout: float = DEFAULT_INCLUSION_TIMEOUT,
+    ) -> ExtrinsicResult:
+        """Sign, check, send and follow an extrinsic until it is in a block.
+
+        Inclusion is not success: the block's events are read, and a failed
+        call raises :class:`~robonomicsinterface.errors.ExtrinsicFailed` naming
+        the pallet error (``RWS.NotLinkedDevice`` and the like).
+
+        :raises InvalidTransaction: refused before sending (see :meth:`validate`).
+        :raises ExtrinsicFailed: included, but the call failed.
+        :raises ExtrinsicDropped: the node dropped it.
+        :raises ExtrinsicOutcomeUnknown: sent, but the connection or the wait ran
+            out; it may still land, so look it up before sending it again.
+        """
+
+        async with self._nonce_lock(keypair.address):
+            extrinsic = await self.sign(call, keypair, tip=tip, era_period=era_period)
+            if validate:
+                await self.validate(extrinsic)
+            try:
+                subscription = await self.subscribe(
+                    "author_submitAndWatchExtrinsic", [extrinsic.hex], "author_unwatchExtrinsic"
+                )
+            except RpcError as e:
+                raise _pool_rejection(e) from e
+            except TransportError as e:
+                raise ExtrinsicOutcomeUnknown(extrinsic.hash, str(e)) from e
+        async with subscription:
+            return await self._follow(extrinsic, subscription, wait_for, timeout)
+
+    async def submit_nowait(
+        self,
+        call: Call,
+        keypair: Keypair,
+        *,
+        tip: int = 0,
+        era_period: int | None = DEFAULT_ERA_PERIOD,
+        validate: bool = True,
+    ) -> str:
+        """Sign and send without waiting for a block; returns the extrinsic hash."""
+
+        async with self._nonce_lock(keypair.address):
+            extrinsic = await self.sign(call, keypair, tip=tip, era_period=era_period)
+            if validate:
+                await self.validate(extrinsic)
+            try:
+                await self.request("author_submitExtrinsic", [extrinsic.hex], retry=False)
+            except RpcError as e:
+                raise _pool_rejection(e) from e
+            except TransportError as e:
+                raise ExtrinsicOutcomeUnknown(extrinsic.hash, str(e)) from e
+        return extrinsic.hash
+
+    def _nonce_lock(self, address: str) -> asyncio.Lock:
+        """One submission per account at a time, so two never take the same nonce."""
+
+        return self._nonce_locks.setdefault(address, asyncio.Lock())
+
+    async def _follow(
+        self,
+        extrinsic: SignedExtrinsic,
+        subscription: Subscription,
+        wait_for: str,
+        timeout: float,
+    ) -> ExtrinsicResult:
+        deadline = time.monotonic() + timeout
+        while True:
+            remaining = deadline - time.monotonic()
+            try:
+                status = await subscription.next(timeout=max(remaining, 0.001))
+            except RequestTimeout:
+                raise ExtrinsicOutcomeUnknown(
+                    extrinsic.hash, f"not {wait_for.replace('_', ' ')} within {timeout}s"
+                ) from None
+            except ConnectionLost as e:
+                raise ExtrinsicOutcomeUnknown(extrinsic.hash, str(e)) from e
+
+            if isinstance(status, str):
+                if status in ("dropped", "invalid"):
+                    raise ExtrinsicDropped(extrinsic.hash, status)
+                continue  # "future", "ready"
+            if not isinstance(status, dict):
+                continue
+            if "usurped" in status:
+                raise ExtrinsicDropped(extrinsic.hash, "usurped")
+            if "dropped" in status or "invalid" in status:
+                raise ExtrinsicDropped(extrinsic.hash, next(iter(status)))
+            if "finalityTimeout" in status:
+                raise ExtrinsicOutcomeUnknown(extrinsic.hash, "finality timed out")
+            if "inBlock" in status and wait_for == "in_block":
+                return await self._result(extrinsic, str(status["inBlock"]), finalized=False)
+            if "finalized" in status:
+                return await self._result(extrinsic, str(status["finalized"]), finalized=True)
+
+    async def _result(
+        self, extrinsic: SignedExtrinsic, block_hash: str, *, finalized: bool
+    ) -> ExtrinsicResult:
+        block = await self.request("chain_getBlock", [block_hash])
+        try:
+            extrinsics = [str(x).lower() for x in block["block"]["extrinsics"]]
+            number = int(block["block"]["header"]["number"], 16)
+        except (TypeError, KeyError, ValueError) as e:
+            raise ExtrinsicOutcomeUnknown(
+                extrinsic.hash, "the node returned an unreadable block"
+            ) from e
+        try:
+            index = extrinsics.index(extrinsic.hex.lower())
+        except ValueError:
+            raise ExtrinsicOutcomeUnknown(
+                extrinsic.hash, f"block {block_hash} does not contain it"
+            ) from None
+
+        runtime = await self.runtime(block_hash)
+        records = await self.query("System", "Events", at=block_hash)
+        events = tuple(e for e in decode_events(records) if e.extrinsic_index == index)
+        result = ExtrinsicResult(extrinsic.hash, block_hash, number, index, events, finalized)
+
+        failed = result.find("System", "ExtrinsicFailed")
+        if failed is not None:
+            dispatch_error = (failed.attributes or {}).get("dispatch_error")
+            pallet, error, docs, message = dispatch_error_message(runtime, dispatch_error)
+            raise ExtrinsicFailed(message, pallet=pallet, error=error, docs=docs, result=result)
+        if result.find("System", "ExtrinsicSuccess") is None:
+            raise ExtrinsicOutcomeUnknown(extrinsic.hash, "the block records no outcome for it")
+        return result
 
     # Connections
 
@@ -381,3 +657,16 @@ class RobonomicsClient:
                 self._failed_at.pop(index, None)
                 self._activate(connection, index)
             return
+
+
+def _pool_rejection(error: RpcError) -> InvalidTransaction | RpcError:
+    """Turn the pool's "Invalid Transaction" answer into an explained error."""
+
+    if error.code not in (_POOL_INVALID, _POOL_UNKNOWN):
+        return error
+    detail = str(error.data or error.message)
+    lowered = detail.lower()
+    kind = next((k for needle, k in _POOL_REJECTIONS.items() if needle in lowered), "Rejected")
+    from .extrinsic import INVALID_EXPLANATIONS
+
+    return InvalidTransaction(kind, INVALID_EXPLANATIONS.get(kind, detail))

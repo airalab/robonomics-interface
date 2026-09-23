@@ -23,6 +23,7 @@ from .errors import (
     DecodeError,
     EncodeError,
     MetadataError,
+    NoSuchCall,
     NoSuchConstant,
     NoSuchPallet,
     NoSuchStorage,
@@ -30,7 +31,14 @@ from .errors import (
 from .rpc import RpcRequester
 from .ss58 import ROBONOMICS_SS58_FORMAT
 
-__all__ = ["Runtime", "RuntimeCache", "RuntimeVersion", "StorageEntry"]
+__all__ = [
+    "ModuleError",
+    "Runtime",
+    "RuntimeCache",
+    "RuntimeVersion",
+    "SignedExtension",
+    "StorageEntry",
+]
 
 _METADATA_MAGIC = b"meta"
 _SUPPORTED_METADATA = 14
@@ -94,6 +102,28 @@ class StorageEntry:
         return bool(self.hashers)
 
 
+@dataclass(frozen=True, slots=True)
+class SignedExtension:
+    """One signed (transaction) extension, in the order the runtime lists them.
+
+    ``explicit_type`` is what the extrinsic carries; ``implicit_type`` is only
+    signed (the "additional signed" data), never sent.
+    """
+
+    identifier: str
+    explicit_type: int
+    implicit_type: int
+
+
+@dataclass(frozen=True, slots=True)
+class ModuleError:
+    """A pallet error, resolved from a ``DispatchError::Module``."""
+
+    pallet: str
+    name: str
+    docs: str
+
+
 class Runtime:
     """The metadata of one runtime version, able to encode and decode its types."""
 
@@ -134,6 +164,21 @@ class Runtime:
         self._metadata = metadata_object
         self._pallets = {pallet.value["name"]: pallet for pallet in metadata_object.pallets}
         self._storage: dict[tuple[str, str], StorageEntry] = {}
+        self._types: dict[int, dict[str, Any]] = {
+            entry.value["id"]: entry.value["type"]
+            for entry in metadata_object.portable_registry["types"]
+        }
+        extrinsic = metadata_object[1][1]["extrinsic"].value
+        self.extrinsic_version: int = extrinsic["version"]
+        self.signed_extensions: tuple[SignedExtension, ...] = tuple(
+            SignedExtension(se["identifier"], se["ty"], se["additional_signed"])
+            for se in extrinsic["signed_extensions"]
+        )
+        self._extrinsic_params = {
+            param["name"]: param["type"]
+            for param in self._types[extrinsic["ty"]].get("params", ())
+            if param.get("type") is not None
+        }
 
     def __repr__(self) -> str:
         return f"<Runtime {self.version.spec_name}/{self.version.spec_version}>"
@@ -186,6 +231,58 @@ class Runtime:
         )
         self._storage[(pallet, name)] = entry
         return entry
+
+    def call_fields(self, pallet: str, function: str) -> list[tuple[str | None, int]]:
+        """The ``(name, type id)`` arguments of ``pallet.function``."""
+
+        for call in self._pallet(pallet).calls or ():
+            if call.value["name"] == function:
+                return [(field["name"], field["type"]) for field in call.value["fields"]]
+        raise NoSuchCall(f"{pallet} has no call {function!r}")
+
+    def module_error(self, pallet_index: int, error_index: int) -> ModuleError | None:
+        """Name and docs of error ``error_index`` of the pallet at ``pallet_index``."""
+
+        for pallet in self._pallets.values():
+            if pallet.value["index"] != pallet_index:
+                continue
+            errors = pallet.errors or []
+            if error_index < len(errors):
+                error = errors[error_index].value
+                docs = " ".join(line.strip() for line in error.get("docs") or ()).strip()
+                return ModuleError(pallet.value["name"], error["name"], docs)
+        return None
+
+    def type_info(self, type_id: int) -> dict[str, Any]:
+        """The portable registry entry for ``type_id`` (``path``, ``params``, ``def``)."""
+
+        try:
+            return self._types[type_id]
+        except KeyError:
+            raise MetadataError(f"type {type_id} is not in the registry") from None
+
+    def is_empty_type(self, type_id: int) -> bool:
+        """Whether a type encodes to nothing: ``()`` or a struct without fields."""
+
+        definition = self.type_info(type_id)["def"]
+        if "tuple" in definition:
+            return not definition["tuple"]
+        if "composite" in definition:
+            return all(self.is_empty_type(f["type"]) for f in definition["composite"]["fields"])
+        return False
+
+    def extrinsic_param_type(self, name: str) -> int:
+        """The ``Address`` or ``Signature`` type of this runtime's extrinsics."""
+
+        try:
+            return int(self._extrinsic_params[name])
+        except KeyError:
+            raise MetadataError(f"the extrinsic type has no {name} parameter") from None
+
+    def scale_class(self, type_id: int) -> Any:
+        """The scalecodec class that encodes ``type_id`` (internal use)."""
+
+        return self._config.get_decoder_class(f"scale_info::{type_id}")
 
     def constant(self, pallet: str, name: str) -> Any:
         """A pallet constant, decoded (e.g. ``Datalog.WindowSize`` → 128)."""

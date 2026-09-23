@@ -9,7 +9,8 @@ useDefault = true
 
 [[allowlists]]
 description = """Published test vectors. tests/fixtures/compat_vectors.json and \
-tests/fixtures/substrate_vectors.json hold mnemonics, mini secrets, seeds and \
+tests/fixtures/substrate_vectors.json (and extrinsic_vectors.json, signed \
+with one of them) hold mnemonics, mini secrets, seeds and \
 addresses of public test accounts: the Substrate dev phrase, BIP39 and RFC 8032 \
 vectors, and throwaway accounts already published in rrs-ha-integration. They \
 pin, byte for byte, what the 2.x stack derived and encrypted. Checked on \
@@ -18,6 +19,7 @@ nothing and never will; each file starts with a warning saying so."""
 paths = [
   '''tests/fixtures/compat_vectors\.json''',
   '''tests/fixtures/substrate_vectors\.json''',
+  '''tests/fixtures/extrinsic_vectors\.json''',
 ]
 
 [[allowlists]]

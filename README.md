@@ -17,8 +17,9 @@ queries, Datalog and RWS subscriptions.
 | Keys, SS58, BIP39, message encryption, envelope | ready |
 | Metadata and storage queries | ready |
 | Async client, local node with public fallback | ready |
-| Extrinsics with events and readable errors | planned |
-| Datalog, RWS, System helpers; sync wrapper | planned |
+| Extrinsics with events and readable errors | ready |
+| Datalog, RWS, System, Balances helpers | ready |
+| Synchronous wrapper | planned |
 | sr25519 (`[sr25519]` extra) | next release |
 
 ## Installation
@@ -82,6 +83,58 @@ node is in use.
 Every request has a timeout. Reads are retried on another endpoint after a network
 failure; network failures raise `TransportError` subclasses (worth retrying), while
 `RpcError`, `DecodeError` and the like mean retrying will not help.
+
+## Datalog, RWS and accounts
+
+```python
+async with RobonomicsClient() as client:
+    # Datalog: slot numbers mean what they say — item(address, 0) is slot 0
+    latest = await client.datalog.latest(site_address)
+    for item in await client.datalog.items(site_address):  # oldest first, one request
+        print(item.index, item.timestamp, item.data)  # bytes; item.text for UTF-8
+    await client.datalog.record(site, b"QmReport...", subscription_owner=integrator_address)
+
+    # RWS subscriptions
+    ledger = await client.rws.ledger(integrator_address)  # None without a subscription
+    if ledger and not ledger.is_active():
+        print("expired on", ledger.expires_at)
+    await client.rws.add_devices(integrator, site_address)  # read, extend, write back
+    await client.rws.set_devices(integrator, [a, b, c])  # a plain list, max 32
+
+    # Accounts
+    if not await client.system.exists(site_address):
+        print("send it the existential deposit first")
+```
+
+Everything else is reachable through `client.query`, `client.query_map`,
+`client.constant`, `client.compose_call` and `client.submit`.
+
+## Sending extrinsics
+
+```python
+from robonomicsinterface import ExtrinsicFailed, InvalidTransaction
+
+record = await client.compose_call("Datalog", "record", {"record": b"QmReport..."})
+call = await client.compose_call("RWS", "call", {"subscription_id": owner, "call": record})
+try:
+    result = await client.submit(call, site)  # waits until the block
+except InvalidTransaction as e:  # refused before sending
+    print(e.kind, e.explanation)  # "Payment: ... send it the existential deposit"
+except ExtrinsicFailed as e:  # in a block, but the call failed
+    print(e.pallet, e.error)  # "RWS", "NotLinkedDevice"
+else:
+    print(result.block_number, result.find("Datalog", "NewRecord"))
+```
+
+Arguments take natural Python values: `bytes` are sent as bytes (a `str` starting with
+`0x` would be read as hex), a `Keypair` stands for its account, a `Call` nests, and a
+`BoundedVec` takes a plain list (`{"devices": [a, b]}`).
+
+`submit` signs with a nonce from the node and a mortal era (64 blocks from the
+finalized head), asks the runtime to validate the extrinsic first, sends it once and
+reads the block's events: inclusion alone is not success. Signed extensions are taken
+from the runtime metadata. A lost connection after sending raises
+`ExtrinsicOutcomeUnknown` with the extrinsic hash, never a silent resend.
 
 ### Your own node on the local network
 
