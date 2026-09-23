@@ -1,58 +1,88 @@
-[tool.poetry]
+[project]
 name = "robonomics-interface"
-version = "2.0.0"
-description = "This is a simple wrapper over polkascan/py-substrate-interface used to facilitate writing code for applications using Robonomics Polkadot Parachain."
-authors = ["Pavel Tarasov <p040399@outlook.com>"]
-license = "Apache-2.0"
-
-homepage = "https://github.com/airalab/robonomics-interface"
-repository = "https://github.com/airalab/robonomics-interface"
-documentation = "https://airalab.github.io/robonomics-interface/"
-
+version = "3.0.0.dev0"
+description = "Python client for the Robonomics parachain: keys, datalog, RWS subscriptions and storage queries."
 readme = "README.md"
-
-keywords = [
-    "python3",
-    "wrapper",
-    "blockchain",
-    "substrate",
-    "robonomics",
-    "pypi-package"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+authors = [
+    { name = "Pavel Tarasov", email = "p040399@outlook.com" },
+    { name = "Vadim Manaenko" },
 ]
+keywords = ["robonomics", "substrate", "polkadot", "parachain", "blockchain"]
 classifiers = [
-    "Operating System :: Unix",
-    "Topic :: Scientific/Engineering :: Human Machine Interfaces",
-    "Topic :: Software Development :: Documentation",
-    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Development Status :: 4 - Beta",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+# Only packages that install from a wheel or pure Python on every platform,
+# including musl/aarch64 (Home Assistant on Raspberry Pi and HA Green). CI
+# installs the package in python:3.13-alpine on aarch64 without a compiler to
+# keep it that way.
+dependencies = [
+    "pynacl>=1.6",
+    "scalecodec>=1.2.12,<2",
+    "websockets>=15",
+    "xxhash>=3.5",
 ]
 
-packages = [
-    { include = "robonomicsinterface" },
+[project.urls]
+Homepage = "https://github.com/airalab/robonomics-interface"
+Repository = "https://github.com/airalab/robonomics-interface"
+Issues = "https://github.com/airalab/robonomics-interface/issues"
+Changelog = "https://github.com/airalab/robonomics-interface/blob/main/CHANGELOG.md"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.13",
+    "pytest>=8.3",
+    "pytest-asyncio>=0.25",
+    "ruff>=0.8",
 ]
-
-include = [
-    "LICENSE",
-    ]
-exclude = [
-    ".gitignore",
-    ]
-
-[tool.poetry.scripts]
-robonomics_interface = 'robonomicsinterface.robonomics_interface_io:cli'
-
-[tool.poetry.urls]
-"Bug Tracker" = "https://github.com/airalab/robonomics-interface/issues"
-
-[tool.poetry.dependencies]
-python = ">=3.8, <4.0"
-substrate-interface = ">=1.4.0, <2.0"
-click = "^8.0.4"
-
-[tool.poetry.dev-dependencies]
-Sphinx = "^4.4.0"
-black = "^22.1.0"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/robonomicsinterface"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "CHANGELOG.md", "README.md", "LICENSE"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "S"]
+ignore = ["RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106"]
+# Runs under the 2.x stack to regenerate vectors; not part of the package.
+"tests/fixtures/generate_compat_vectors.py" = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src"]
+
+[[tool.mypy.overrides]]
+module = ["nacl.*", "scalecodec.*", "xxhash.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"

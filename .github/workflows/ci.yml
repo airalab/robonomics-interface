@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main, development, v3]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy
+
+  # Secret scan over the whole history; exceptions live in .gitleaks.toml.
+  # The container is used instead of gitleaks-action, which needs a paid
+  # licence for organisation repositories.
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: >
+          docker run --rm -v "$PWD:/repo" ghcr.io/gitleaks/gitleaks:latest
+          git /repo --config /repo/.gitleaks.toml --redact --verbose
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python }}
+      - run: uv sync --locked
+      - run: uv run pytest
+
+  # Home Assistant runs on Alpine (musl) and, on Raspberry Pi and HA Green, on
+  # aarch64. Every dependency must install there from a wheel or as pure
+  # Python, with no compiler. This job is the guard: the image has no
+  # toolchain, and --only-binary refuses anything that would need one.
+  alpine-aarch64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv build --wheel
+      - name: Install and test in python:3.13-alpine
+        run: |
+          docker run --rm -v "$PWD:/src:ro" -w /src python:3.13-alpine sh -euxc '
+            uname -m | grep -qx aarch64
+            ! command -v gcc && ! command -v cc
+            python -m venv /venv
+            /venv/bin/pip install --no-cache-dir --only-binary=:all: dist/*.whl pytest pytest-asyncio
+            cd /tmp && /venv/bin/python -m pytest -p no:cacheprovider --rootdir=/src /src/tests
+          '

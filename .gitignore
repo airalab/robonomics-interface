@@ -1,8 +1,11 @@
 dist/
-.idea
-.venv
-poetry.lock
+build/
+.venv/
+.idea/
+.vscode/
 __pycache__/
-docs/build
-docs/source/modules.rst
-docs/source/robonomicsinterface*
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage

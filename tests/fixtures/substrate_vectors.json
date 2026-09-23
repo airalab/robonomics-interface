@@ -1,0 +1,36 @@
+{
+  "warning": "PUBLIC TEST KEYS. Every mnemonic and seed here is a published test secret (Substrate dev phrase, BIP39/RFC 8032 vectors, throwaway accounts). Anyone can derive their keys: never fund these accounts, give them a subscription, or use them for a real site.",
+  "note": "Snapshot of the current substrate-interface stack; the new code must match it.",
+  "accounts": [
+    {
+      "name": "sender",
+      "mnemonic": "frozen woman pet meat entire question balcony wing echo excess adjust sleep",
+      "valid": true,
+      "mini_secret_hex": "00e3efbcd30bc1c6b0c1a0a84c5b24639920ff8a7f0e175ea9ff06cbb3022832",
+      "public_key_hex": "b2978121ad61713391aaf8d3e5ca1be30668a9235d8a26c0960ea00177d35fe0",
+      "ss58_address": "5G6sPPd14qmXGNJXr3Lua2ciJocRF9rkJvHq88ZCDKnTSWZe",
+      "ss58_format": 42,
+      "account_address": "4GEGoUCyDw2FhnFtniYfo1xTqxBUhKZYRWkWyJ8BamqadVxp"
+    },
+    {
+      "name": "recipient",
+      "mnemonic": "lens exchange drum inside current bullet include stamp purity decline absurd play",
+      "valid": true,
+      "mini_secret_hex": "ab4d74298acb2dc8db2eb370adf433879c140dea8eac7fb7e1fb82d03c7371ef",
+      "public_key_hex": "34756c6d1d167a0aa0f50c385b5ced4a9ac59996f02e8e844cd3d078288fefbb",
+      "ss58_address": "5DFVEFRcbyKJrmvfaYrrisDK1QPMYj2Z8t1wuhM2gndKjt4v",
+      "ss58_format": 42,
+      "account_address": "4DNteL1am4a3JBt2XE4cwrZ4YYxQztjMFUUdkrv24EgSvXfz"
+    }
+  ],
+  "encryption": {
+    "plaintext_utf8": "report payload for the golden vector",
+    "encrypted_hex": "f808139eff494a67e0c44e79d0bb4d6f97b4489657cf2b51adb09b0649de8219baaa9111b6643749db179a02882067caed8f9417894c05405d34b35cffa75124f05dcad7dea48f22950e66b3",
+    "decrypts_back": "report payload for the golden vector"
+  },
+  "signature": {
+    "message_utf8": "report payload for the golden vector",
+    "signature_hex": "89cf4006aa6756f54c8f6497c15d33a1951dd6353fa9a28ded0bbce84ca0ca3d911871bd994ea5c563f470f92b13fc9084ab845d16210c59f5cc99787d2b170c",
+    "verifies": true
+  }
+}

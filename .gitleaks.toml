@@ -1,0 +1,26 @@
+# Exceptions for gitleaks: values that look like secrets and are not.
+#
+# Every entry names specific files and why what is in them is safe. A blanket
+# "skip tests/" is deliberately not used: test files are exactly where a real
+# account's mnemonic or seed gets pasted by accident while writing a fixture.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = """Published test vectors. tests/fixtures/compat_vectors.json and \
+tests/fixtures/substrate_vectors.json hold mnemonics, mini secrets, seeds and \
+addresses of public test accounts: the Substrate dev phrase, BIP39 and RFC 8032 \
+vectors, and throwaway accounts already published in rrs-ha-integration. They \
+pin, byte for byte, what the 2.x stack derived and encrypted. Checked on \
+2026-09-23: none of the accounts exists on Robonomics Polkadot. They hold \
+nothing and never will; each file starts with a warning saying so."""
+paths = [
+  '''tests/fixtures/compat_vectors\.json''',
+  '''tests/fixtures/substrate_vectors\.json''',
+]
+
+[[allowlists]]
+description = """The generator of compat_vectors.json lists the same public test \
+mnemonics and seeds as its input."""
+paths = ['''tests/fixtures/generate_compat_vectors\.py''']
