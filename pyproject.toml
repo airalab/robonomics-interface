@@ -1,6 +1,6 @@
 [project]
 name = "robonomics-interface"
-version = "3.0.0.dev0"
+version = "3.0.0rc1"
 description = "Python client for the Robonomics parachain: keys, datalog, RWS subscriptions and storage queries."
 readme = "README.md"
 license = "Apache-2.0"
@@ -85,4 +85,8 @@ ignore_missing_imports = true
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+markers = [
+    "integration: needs a Robonomics dev node (ROBONOMICS_DEV_URL)",
+    "mainnet: read-only checks against mainnet (ROBONOMICS_MAINNET_SMOKE=1)",
+]
 asyncio_default_fixture_loop_scope = "function"

@@ -46,6 +46,28 @@ jobs:
       - run: uv sync --locked
       - run: uv run pytest
 
+  # End to end against a development node running the mainnet runtime:
+  # transfers, datalog, sudo, RWS subscriptions and their failures.
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - uses: actions/cache@v4
+        with:
+          path: .devchain
+          key: devchain-${{ runner.os }}-${{ hashFiles('scripts/devchain.sh') }}
+      - name: Start the development node
+        run: |
+          scripts/devchain.sh > node.log 2>&1 &
+          timeout 180 bash -c 'until (echo > /dev/tcp/127.0.0.1/9944) 2>/dev/null; do sleep 1; done'
+      - run: uv run pytest -m integration -v
+        env:
+          ROBONOMICS_DEV_URL: ws://127.0.0.1:9944
+      - if: failure()
+        run: tail -200 node.log
+
   # Home Assistant runs on Alpine (musl) and, on Raspberry Pi and HA Green, on
   # aarch64. Every dependency must install there from a wheel or as pure
   # Python, with no compiler. This job is the guard: the image has no

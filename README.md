@@ -19,7 +19,7 @@ queries, Datalog and RWS subscriptions.
 | Async client, local node with public fallback | ready |
 | Extrinsics with events and readable errors | ready |
 | Datalog, RWS, System, Balances helpers | ready |
-| Synchronous wrapper | planned |
+| Synchronous wrapper | ready |
 | sr25519 (`[sr25519]` extra) | next release |
 
 ## Installation
@@ -109,6 +109,25 @@ async with RobonomicsClient() as client:
 Everything else is reachable through `client.query`, `client.query_map`,
 `client.constant`, `client.compose_call` and `client.submit`.
 
+## Without asyncio
+
+`RobonomicsSync` is the same client for scripts, cron jobs and tools: every method
+blocks until the result is there. It runs the async client on an event loop in a
+background thread, so behaviour, errors and timeouts are identical.
+
+```python
+from robonomicsinterface import RobonomicsSync
+
+with RobonomicsSync() as client:
+    for item in client.datalog.items(site_address):
+        ...
+    client.rws.set_devices(integrator, devices)
+```
+
+Inside an event loop (Home Assistant, any asyncio application) use `RobonomicsClient`:
+a blocking call there would stall the loop, so `RobonomicsSync` raises `RuntimeError`
+instead.
+
 ## Sending extrinsics
 
 ```python
@@ -150,13 +169,34 @@ Plain `ws://` is fine inside the LAN; for `wss://` with a private CA pass
 
 ```bash
 uv sync
-uv run pytest
+uv run pytest                                  # offline: recorded mainnet data, local fake nodes
 uv run ruff check . && uv run ruff format --check . && uv run mypy
+```
+
+Integration tests run against a development node with the runtime that runs on
+mainnet. `scripts/devchain.sh` downloads pinned, checksum-verified
+`polkadot-omni-node` and `chain-spec-builder` (Parity) and the Robonomics runtime,
+builds a development chain spec with funded ED25519 dev accounts, and starts the node:
+
+```bash
+scripts/devchain.sh &                          # ws://127.0.0.1:9944
+ROBONOMICS_DEV_URL=ws://127.0.0.1:9944 uv run pytest -m integration
+ROBONOMICS_MAINNET_SMOKE=1 uv run pytest -m mainnet   # read-only, sends nothing
 ```
 
 `tests/fixtures/compat_vectors.json` pins what the 2.x stack produced (addresses,
 ciphertexts, signatures); `tests/fixtures/generate_compat_vectors.py` regenerates it.
-CI also installs the wheel in `python:3.13-alpine` on aarch64 without a compiler.
+`scripts/fetch_chain_fixtures.py` re-records mainnet metadata and storage samples after
+a runtime upgrade. CI also installs the wheel in `python:3.13-alpine` on aarch64
+without a compiler.
+
+### Releasing
+
+1. `ROBONOMICS_MAINNET_SMOKE=1 uv run pytest -m mainnet` against the live runtime.
+2. Set `version` in `pyproject.toml`, date the section in `CHANGELOG.md`.
+3. Tag `vX.Y.Z` on `main` and push the tag: CI builds and publishes to PyPI through
+   Trusted Publishing (registered once on PyPI for this repository, `publish.yml`,
+   environment `pypi`).
 
 ## License
 

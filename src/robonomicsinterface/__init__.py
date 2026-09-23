@@ -54,6 +54,7 @@ from .ss58 import (
     encode_address,
     is_valid_address,
 )
+from .sync import RobonomicsSync
 
 try:
     __version__ = version("robonomics-interface")
@@ -103,6 +104,7 @@ __all__ = [
     "RequestTimeout",
     "RobonomicsClient",
     "RobonomicsError",
+    "RobonomicsSync",
     "RpcError",
     "SignedExtrinsic",
     "TooManyDevices",

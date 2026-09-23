@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased] — 3.0.0
+## [3.0.0rc1] — unreleased
 
 A rewrite for the current Robonomics runtime. Not compatible with 2.x; a
 migration guide will ship with the release.
@@ -70,6 +70,16 @@ migration guide will ship with the release.
     `client.balances` (`existential_deposit`, `transfer_keep_alive`,
     `transfer_allow_death`), `client.chain` (block hashes and numbers, runtime
     version). `XRT = 10**9`.
+- `RobonomicsSync`, a blocking wrapper for scripts and cron jobs: the async client
+  on an event loop in a background thread, with the same methods, arguments,
+  errors and timeouts (a test keeps the two APIs in step). `query_map` becomes a
+  plain iterator. Calling it from inside a running event loop raises
+  `RuntimeError` rather than stalling the loop; closing it stops every thread it
+  started.
+- Tests: offline suites on recorded mainnet data and local fake nodes; integration
+  tests against a development node running the mainnet runtime
+  (`scripts/devchain.sh`), covering transfers, datalog, sudo, RWS subscriptions and
+  their failures; a read-only mainnet smoke test.
 - `py.typed`.
 
 ### Changed
