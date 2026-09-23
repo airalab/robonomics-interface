@@ -15,8 +15,8 @@ queries, Datalog and RWS subscriptions.
 | Part | State |
 | --- | --- |
 | Keys, SS58, BIP39, message encryption, envelope | ready |
-| Metadata and storage queries | planned |
-| Async transport, local node with public fallback | planned |
+| Metadata and storage queries | ready |
+| Async client, local node with public fallback | ready |
 | Extrinsics with events and readable errors | planned |
 | Datalog, RWS, System helpers; sync wrapper | planned |
 | sr25519 (`[sr25519]` extra) | next release |
@@ -60,6 +60,38 @@ from robonomicsinterface import decrypt_package, encrypt_for_recipients, parse_d
 package = encrypt_for_recipients(log_text, site, [integrator_address], {"orig_file_name": "ha.log"})
 payload, meta = parse_decrypted(decrypt_package(package, integrator_keypair, site.address))
 ```
+
+## Connecting
+
+```python
+from robonomicsinterface import DEFAULT_ENDPOINT, RobonomicsClient
+
+async with RobonomicsClient(["ws://192.168.1.10:9944", DEFAULT_ENDPOINT]) as client:
+    window = await client.constant("Datalog", "WindowSize")
+    ledger = await client.query("RWS", "Ledger", owner_address)
+    async for (owner,), devices in client.query_map("RWS", "Devices"):
+        ...
+```
+
+Endpoints are used in the order given. A node is accepted only if it is on
+Robonomics Polkadot (checked by genesis hash) and is neither syncing nor without
+peers; otherwise the next endpoint is tried. While on a fallback, the client
+periodically tries to return to a preferred endpoint. `client.endpoint` tells which
+node is in use.
+
+Every request has a timeout. Reads are retried on another endpoint after a network
+failure; network failures raise `TransportError` subclasses (worth retrying), while
+`RpcError`, `DecodeError` and the like mean retrying will not help.
+
+### Your own node on the local network
+
+A fully synced node at home makes a good first endpoint for Home Assistant. Expose its
+RPC to the LAN only with safe methods, e.g.
+`--rpc-external --rpc-methods=safe --rpc-cors=all`, and keep it off the internet. The
+library uses safe methods only. Prefer a separate RPC node to opening a collator's RPC:
+a collator's unsafe methods (`author_rotateKeys`, `author_insertKey`) must stay closed.
+Plain `ws://` is fine inside the LAN; for `wss://` with a private CA pass
+`ssl=ssl.create_default_context(cafile=...)`.
 
 ## Development
 

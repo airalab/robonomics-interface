@@ -23,6 +23,27 @@ migration guide will ship with the release.
 - BIP39 English: `generate_mnemonic`, `validate_mnemonic`.
 - A typed exception hierarchy rooted at `RobonomicsError`; input errors are also
   `ValueError`. No exception message contains secret material.
+- Runtime metadata (V14) decoded from the chain itself: `Runtime` describes one
+  runtime version (pallets, storage entries, constants, SCALE encode/decode);
+  `RuntimeCache` fetches metadata per `(genesis_hash, spec_version)`, parses it off
+  the event loop and reloads it after a runtime upgrade.
+- Storage: every hasher (`Identity`, `Twox64Concat`, `Twox128`, `Twox256`,
+  `Blake2_128`, `Blake2_256`, `Blake2_128Concat`), multi-key maps and maps keyed by
+  a tuple; `query`, `query_map` (paged, pinned to one block, keys decoded back) and
+  `constant`. An absent value is `None` for an `Optional` item and the declared
+  default otherwise.
+- New errors: `MetadataError`, `NoSuchPallet`, `NoSuchStorage`, `NoSuchConstant`,
+  `EncodeError`, `DecodeError`.
+- `RobonomicsClient`, an asyncio client over one multiplexed WebSocket: endpoints in
+  priority order (e.g. a LAN node first, the public node as fallback), a node is
+  used only if its genesis hash matches Robonomics Polkadot and it is neither
+  syncing nor without peers, failback to a preferred endpoint, a timeout on every
+  request, automatic retry of reads on another endpoint (`retry=False` for requests
+  with side effects), subscriptions, and runtime-upgrade tracking through
+  `state_subscribeRuntimeVersion`. `query`, `query_map` and `constant` on the client.
+- Transport errors, all `TransportError` (retryable): `ConnectionFailed`,
+  `ConnectionLost`, `RequestTimeout`, `AllEndpointsFailed` (with the reason for each
+  endpoint). `RpcError` for errors returned by the node.
 - `py.typed`.
 
 ### Changed

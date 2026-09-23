@@ -3,18 +3,31 @@
 from importlib.metadata import PackageNotFoundError, version
 
 from .bip39 import generate_mnemonic, validate_mnemonic
+from .client import DEFAULT_ENDPOINT, ROBONOMICS_GENESIS_HASH, RobonomicsClient
 from .envelope import decrypt_package, encrypt_for_recipients, parse_decrypted
 from .errors import (
+    AllEndpointsFailed,
+    ConnectionFailed,
+    ConnectionLost,
+    DecodeError,
     DecryptionError,
+    EncodeError,
     EnvelopeError,
     InvalidAddress,
     InvalidKey,
     InvalidMnemonic,
+    MetadataError,
     NoSecretKey,
+    NoSuchConstant,
+    NoSuchPallet,
+    NoSuchStorage,
     PackageError,
     PayloadError,
     RecipientError,
+    RequestTimeout,
     RobonomicsError,
+    RpcError,
+    TransportError,
 )
 from .keys import DEV_PHRASE, ED25519, Keypair
 from .ss58 import (
@@ -31,20 +44,35 @@ except PackageNotFoundError:  # pragma: no cover - running from a source tree
     __version__ = "0+unknown"
 
 __all__ = [
+    "DEFAULT_ENDPOINT",
     "DEV_PHRASE",
     "ED25519",
+    "ROBONOMICS_GENESIS_HASH",
     "ROBONOMICS_SS58_FORMAT",
+    "AllEndpointsFailed",
+    "ConnectionFailed",
+    "ConnectionLost",
+    "DecodeError",
     "DecryptionError",
+    "EncodeError",
     "EnvelopeError",
     "InvalidAddress",
     "InvalidKey",
     "InvalidMnemonic",
     "Keypair",
+    "MetadataError",
     "NoSecretKey",
+    "NoSuchConstant",
+    "NoSuchPallet",
+    "NoSuchStorage",
     "PackageError",
     "PayloadError",
     "RecipientError",
+    "RequestTimeout",
+    "RobonomicsClient",
     "RobonomicsError",
+    "RpcError",
+    "TransportError",
     "__version__",
     "address_format",
     "decode_address",
