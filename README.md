@@ -8,7 +8,8 @@ queries, Datalog and RWS subscriptions.
 > **3.0 is a rewrite and is not compatible with 2.x.** It no longer depends on
 > `substrate-interface`: the core is pure Python plus packages with wheels for every
 > platform, including Home Assistant on Raspberry Pi and HA Green (musl, aarch64).
-> 2.x stays available on PyPI as `robonomics-interface<3`.
+> 2.x stays available on PyPI as `robonomics-interface<3`. Moving from 2.x or
+> `substrate-interface`: see [MIGRATION.md](MIGRATION.md).
 
 ## Status
 
@@ -194,9 +195,9 @@ without a compiler.
 
 1. `ROBONOMICS_MAINNET_SMOKE=1 uv run pytest -m mainnet` against the live runtime.
 2. Set `version` in `pyproject.toml`, date the section in `CHANGELOG.md`.
-3. Tag `vX.Y.Z` on `main` and push the tag: CI builds and publishes to PyPI through
-   Trusted Publishing (registered once on PyPI for this repository, `publish.yml`,
-   environment `pypi`).
+3. Tag `vX.Y.Z` and push the tag: CI builds the package and uploads it with the
+   maintainer's token in the `PYPI_API_TOKEN` repository secret (after approval, if
+   the `pypi` environment has required reviewers).
 
 ## License
 

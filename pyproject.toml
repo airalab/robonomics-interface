@@ -57,12 +57,14 @@ build-backend = "hatchling.build"
 packages = ["src/robonomicsinterface"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src", "tests", "CHANGELOG.md", "README.md", "LICENSE"]
+include = ["src", "tests", "CHANGELOG.md", "MIGRATION.md", "README.md", "LICENSE"]
 
 [tool.ruff]
 line-length = 100
 target-version = "py312"
 src = ["src", "tests"]
+# Its code blocks are sketches for other repositories, laid out for reading.
+extend-exclude = ["MIGRATION.md"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "S"]

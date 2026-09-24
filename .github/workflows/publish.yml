@@ -16,17 +16,22 @@ jobs:
           name: dist
           path: dist/
 
-  # PyPI Trusted Publishing: no token in the repository. The publisher must be
-  # registered once on PyPI for this repository, workflow and environment.
+  # Uploads with the maintainer's PyPI token, the repository secret
+  # PYPI_API_TOKEN that 2.x releases used. The `pypi` environment is where
+  # required reviewers can be set, so a tag waits for approval before upload.
+  # To move to Trusted Publishing later, a PyPI owner registers this workflow
+  # and environment; then drop `password` and grant `id-token: write` instead.
   pypi:
     needs: build
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
-      id-token: write
+      contents: read
     steps:
       - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}

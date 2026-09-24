@@ -6,8 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [3.0.0rc1] — unreleased
 
-A rewrite for the current Robonomics runtime. Not compatible with 2.x; a
-migration guide will ship with the release.
+A rewrite for the current Robonomics runtime. Not compatible with 2.x: see
+[MIGRATION.md](MIGRATION.md) for the mapping and the behaviour that changed.
 
 ### Added
 - `Keypair` (ED25519) from a mnemonic (with optional password), a raw seed, a
