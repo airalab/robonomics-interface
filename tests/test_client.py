@@ -272,3 +272,93 @@ def test_configuration_errors() -> None:
     with pytest.raises(ValueError):
         RobonomicsClient(retries=-1)
     assert RobonomicsClient().endpoints == ("wss://polkadot.rpc.robonomics.network/",)
+
+
+# TLS: built once, off the event loop
+
+
+async def test_default_tls_context_is_built_once_off_the_loop(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import ssl
+    import threading
+
+    threads: list[int] = []
+    real = ssl.create_default_context
+
+    def spy(*args: object, **kwargs: object) -> ssl.SSLContext:
+        threads.append(threading.get_ident())
+        return real()
+
+    monkeypatch.setattr(ssl, "create_default_context", spy)
+    client = RobonomicsClient("wss://node.invalid")
+    first, second = await asyncio.gather(client._tls_context(), client._tls_context())
+    assert first is second
+    assert len(threads) == 1
+    assert threads[0] != threading.get_ident()  # not on the event loop's thread
+
+
+async def test_wss_endpoints_share_one_context(monkeypatch: pytest.MonkeyPatch) -> None:
+    import ssl
+
+    from robonomicsinterface import ConnectionFailed
+
+    seen: list[object] = []
+
+    async def fake_open(endpoint: str, **options: object) -> Connection:
+        seen.append(options["ssl"])
+        raise ConnectionFailed(endpoint, "test")
+
+    monkeypatch.setattr(Connection, "open", fake_open)
+    client = RobonomicsClient(["wss://a.invalid", "wss://b.invalid", "ws://c.invalid"])
+    with pytest.raises(AllEndpointsFailed):
+        await client.connect()
+    assert isinstance(seen[0], ssl.SSLContext)
+    assert seen[0] is seen[1]
+    assert seen[2] is None  # ws:// takes no TLS
+
+    given = ssl.create_default_context()
+    seen.clear()
+    with pytest.raises(AllEndpointsFailed):
+        await RobonomicsClient("wss://a.invalid", ssl=given).connect()
+    assert seen == [given]
+
+
+# Kusama: legacy
+
+
+KUSAMA_GENESIS = "0x631ccc82a078481584041656af292834e1ae6daab61d2875b4dd0c14bb9b17bc"
+
+
+async def test_kusama_is_refused_as_legacy(second: FakeServer) -> None:
+    second.overrides["chain_getBlockHash"] = lambda params: KUSAMA_GENESIS
+    client = client_for(second.url)
+    with pytest.raises(AllEndpointsFailed) as error:
+        await client.connect()
+    assert "legacy" in str(error.value)
+    assert "switch to Polkadot" in str(error.value)
+    await client.close()
+
+
+async def test_kusama_by_choice_warns(second: FakeServer, caplog: pytest.LogCaptureFixture) -> None:
+    second.overrides["chain_getBlockHash"] = lambda params: KUSAMA_GENESIS
+    with caplog.at_level("WARNING", logger="robonomicsinterface.client"):
+        async with client_for(second.url, genesis_hash=None) as client:
+            assert client.endpoint == second.url
+    assert "switch to Polkadot" in caplog.text
+
+
+# Block hashes are checked before any request
+
+
+@pytest.mark.parametrize("bad", ["0x12", "12" * 32 + "ab", "0x" + "zz" * 32, 5])
+async def test_bad_block_hash(server: FakeServer, bad: object) -> None:
+    from robonomicsinterface import EncodeError
+
+    async with client_for(server.url) as client:
+        before = len(server.received)
+        with pytest.raises(EncodeError, match="block hash"):
+            await client.query("System", "Number", at=bad)  # type: ignore[arg-type]
+        with pytest.raises(EncodeError, match="block hash"):
+            await client.chain.block_number(bad)  # type: ignore[arg-type]
+        assert len(server.received) == before

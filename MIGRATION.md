@@ -7,7 +7,8 @@ This guide is written for moving the Robonomics Report Service projects
 2.x, `substrate-interface` and the copied `chain/` packages, but applies to any
 2.x user.
 
-Pin the exact version everywhere: `robonomics-interface==3.0.0rc1`, then `==3.0.0`.
+Pin the exact version everywhere: `robonomics-interface==3.0.0rc2`, then `==3.0.0`.
+The API listed in section 8 stays as it is between release candidates and 3.0.0.
 
 ## 1. What changed, and why
 
@@ -50,6 +51,12 @@ parsed runtime metadata (parsing takes seconds on a Raspberry Pi; the library
 does it off the event loop). In an integration, create it per config entry and
 close it on unload (`entry.async_on_unload(client.close)`).
 
+In Home Assistant, pass HA's shared TLS context:
+`RobonomicsClient(endpoints, ssl=homeassistant.util.ssl.client_context())`. It honours
+HA's CA settings and is built once for all integrations. Without `ssl=`, the library
+builds its own default context once per client, off the event loop (since rc2; rc1
+built one per connection on the loop, which HA reported as a blocking call).
+
 ### Blocking (scripts, cron jobs, CLIs)
 
 ```python
@@ -70,7 +77,7 @@ It must not be called from a thread running an event loop — it raises
 | Per-request timeout (was: `interface.websocket.settimeout(...)`) | `RobonomicsClient(..., timeout=30.0, connect_timeout=10.0)` |
 | Several nodes, move on when one fails (was: hand-written `_reconnect` / `change_current_wss`) | pass them all: `RobonomicsClient([local, public])`; reads are retried on the next endpoint (`retries=2`), the client returns to a preferred endpoint on its own (`failback_interval=300`) |
 | Know which node is in use | `client.endpoint` |
-| Kusama | `RobonomicsClient("wss://kusama.rpc.robonomics.network/", genesis_hash=ROBONOMICS_KUSAMA_GENESIS)` with `ROBONOMICS_KUSAMA_GENESIS = "0x631ccc82a078481584041656af292834e1ae6daab61d2875b4dd0c14bb9b17bc"` defined by the project. The default genesis check accepts Robonomics Polkadot only. Checked on 2026-09-23: reads and signatures work on Kusama (spec 42). |
+| Kusama | **Legacy: Robonomics on Kusama is shutting down — switch to Polkadot.** The default genesis check refuses a Kusama node and says so; with `genesis_hash=None` the client connects and logs a warning. No Kusama constant is provided. |
 | A node on the local network | put it first: `["ws://192.168.1.10:9944", DEFAULT_ENDPOINT]`; a node that is syncing or has no peers is skipped |
 
 ## 4. Errors
@@ -318,8 +325,9 @@ Every write returns an `ExtrinsicResult` (`.block_hash`, `.block_number`,
   them, byte-for-byte vectors included. Keep `tests/fixtures/substrate_vectors.json`
   in a test that runs the library against it, as the project's own contract.
 - `robonomics.py`:
-  - one `RobonomicsClient(NETWORK_WSS[network], genesis_hash=GENESIS[network])`
-    per config entry, created in `async_setup_entry`, closed on unload; remove
+  - one `RobonomicsClient(POLKADOT_ENDPOINTS, ssl=client_context())` (from
+    `homeassistant.util.ssl`) per config entry, created in `async_setup_entry`,
+    closed on unload; remove
     `_clients`, `current_wss`, `change_current_wss` and the endpoint loop in
     `_send_datalog`;
   - publishing: `await client.datalog.record(self.sender_keypair, data, subscription_owner=self._owner_address or self.sender_address)`;
@@ -328,8 +336,10 @@ Every write returns an `ExtrinsicResult` (`.block_hash`, `.block_number`,
     `Payment`, `NotLinkedDevice` and `FreeWeightIsNotEnough`); `TransportError` →
     retry later; `ExtrinsicOutcomeUnknown` → do not unpin the files from Pinata
     yet, the record may have landed.
-  - `const.py`: add the Kusama genesis hash from section 3; Polkadot's is
-    `ROBONOMICS_GENESIS_HASH` in the library.
+  - Kusama is legacy and shutting down: drop `NETWORK_KUSAMA` from `const.py` and
+    the network choice from the config flow, and move existing Kusama entries to
+    Polkadot — or, until the network stops, keep the option labelled "legacy — switch
+    to Polkadot" and create its client with `genesis_hash=None`.
 - `config_flow.py`: `Keypair.from_secret`, `generate_mnemonic()`,
   `decode_address` (raises `InvalidAddress`, a `ValueError`, so the existing
   `except ValueError` still works).
@@ -340,7 +350,32 @@ Every write returns an `ExtrinsicResult` (`.block_hash`, `.block_number`,
 - Nothing may block the event loop: use `RobonomicsClient` only, never
   `RobonomicsSync` (which refuses to run there anyway).
 
-## 8. Checklist
+## 8. Stable API
+
+The Report Service projects build on the names below. They do not change between
+release candidates and 3.0.0; if one ever has to, the change is written here, and
+`tests/test_stable_api.py` — which pins this list — changes in the same commit.
+
+- `RobonomicsClient(endpoints, genesis_hash=, ssl=, timeout=, retries=)`, `connect()`,
+  `close()`, `async with`; `RobonomicsSync`, the same without `await`.
+- `client.datalog.items`, `.record(..., subscription_owner=)`, `.window_size`;
+  `client.rws.devices`, `.ledger`, `.set_devices`; `client.system.account`, `.exists`.
+- `Keypair.from_secret`, `.from_mnemonic`, `.address`, `.public_key`, `.verify`,
+  `.encrypt_message`, `.decrypt_message`; `generate_mnemonic`, `is_valid_address`,
+  `decode_address`, `encode_address`, `address_format`.
+- `encrypt_for_recipients`, `decrypt_package`, `parse_decrypted`.
+- `DatalogItem(index, timestamp_ms, data, text)`, `Ledger(kind, days, issued_at,
+  expires_at, free_weight)`, `AccountInfo(free, exists)`, `XRT`, `ROBONOMICS_GENESIS_HASH`.
+- Errors: `TransportError` (`ConnectionLost`, `RequestTimeout`, `ConnectionFailed`,
+  `AllEndpointsFailed`), `RpcError(method, code, message)`, `TransactionError`,
+  `ExtrinsicFailed(pallet, error)`, `ExtrinsicOutcomeUnknown(extrinsic_hash)`,
+  `ExtrinsicDropped`, `InvalidTransaction(kind, explanation)`, `RecipientError`,
+  `EnvelopeError`.
+
+Changes since rc1: none to this list. rc2 adds the TLS fix, block hash checks and
+the Kusama legacy handling (see CHANGELOG).
+
+## 9. Checklist
 
 - [ ] No `substrateinterface`, `websocket`, `robonomicsinterface.Account` or
       `chain.` import left (`grep -rn "substrateinterface\|from websocket\|Account\b\|\.chain" src`).

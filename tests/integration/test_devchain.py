@@ -13,10 +13,12 @@ import asyncio
 import os
 import secrets
 from collections.abc import AsyncIterator
+from urllib.parse import urlsplit
 
 import pytest
 
 from robonomicsinterface import (
+    ROBONOMICS_GENESIS_HASH,
     XRT,
     ExtrinsicFailed,
     InvalidTransaction,
@@ -33,6 +35,29 @@ pytestmark = [
 ]
 
 SUDO = Keypair.from_uri("//Alice")
+LOOPBACK = {"127.0.0.1", "localhost", "::1", "[::1]"}
+PRODUCTION_GENESIS = {
+    ROBONOMICS_GENESIS_HASH,
+    "0x631ccc82a078481584041656af292834e1ae6daab61d2875b4dd0c14bb9b17bc",  # Kusama (legacy)
+}
+
+
+@pytest.fixture(scope="module", autouse=True)
+def only_a_development_chain() -> None:
+    """These tests send transactions: refuse anything that is not a local dev chain.
+
+    A remote node needs ROBONOMICS_DEV_ALLOW_REMOTE=1; a production chain is
+    refused whatever the settings.
+    """
+
+    assert URL is not None
+    host = urlsplit(URL).hostname or ""
+    if host not in LOOPBACK and os.environ.get("ROBONOMICS_DEV_ALLOW_REMOTE") != "1":
+        pytest.fail(f"{URL} is not a loopback address; set ROBONOMICS_DEV_ALLOW_REMOTE=1 to allow")
+    with RobonomicsSync(URL, genesis_hash=None, require_healthy=False) as client:
+        genesis = client.request("chain_getBlockHash", [0])
+    if genesis in PRODUCTION_GENESIS:
+        pytest.fail(f"{URL} is a production Robonomics chain; these tests send transactions")
 
 
 def fresh(name: str) -> Keypair:

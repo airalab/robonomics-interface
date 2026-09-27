@@ -1,6 +1,6 @@
 [project]
 name = "robonomics-interface"
-version = "3.0.0rc1"
+version = "3.0.0rc2"
 description = "Python client for the Robonomics parachain: keys, datalog, RWS subscriptions and storage queries."
 readme = "README.md"
 license = "Apache-2.0"

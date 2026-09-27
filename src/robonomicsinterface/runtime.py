@@ -53,6 +53,19 @@ def _to_bytes(data: bytes | str) -> bytes:
     return bytes(data)
 
 
+def check_block_hash(block_hash: str) -> str:
+    """Refuse anything but a 0x-prefixed 32-byte hex block hash, before asking a node."""
+
+    if (
+        not isinstance(block_hash, str)
+        or not block_hash.startswith("0x")
+        or len(block_hash) != 66
+        or any(c not in "0123456789abcdefABCDEF" for c in block_hash[2:])
+    ):
+        raise EncodeError(f"not a block hash (0x + 64 hex digits): {block_hash!r:.80}")
+    return block_hash
+
+
 def _raw_field(struct: Any, field: str) -> bytes:
     # scalecodec turns a Bytes field into str when it happens to be printable
     # ("\n\x00\x00\x00" for 10u32); the raw bytearray is on value_object.
@@ -386,6 +399,8 @@ class RuntimeCache:
     async def get(self, rpc: RpcRequester, at: str | None = None) -> Runtime:
         """The runtime of block ``at`` (the node's best block if ``None``)."""
 
+        if at is not None:
+            check_block_hash(at)
         version = await self.version(rpc, at)
         genesis = await self.genesis_hash(rpc)
         cached = self._lookup(genesis, version.spec_version)

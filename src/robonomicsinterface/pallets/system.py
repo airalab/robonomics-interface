@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, Unpack
 
 from ..extrinsic import ExtrinsicResult
 from ..keys import Keypair
-from ..runtime import RuntimeVersion
+from ..runtime import RuntimeVersion, check_block_hash
 from ._common import SubmitOptions, as_address
 
 if TYPE_CHECKING:
@@ -144,6 +144,8 @@ class Chain:
     async def block_number(self, block_hash: str | None = None) -> int:
         """The number of ``block_hash``, or of the best block."""
 
+        if block_hash is not None:
+            check_block_hash(block_hash)
         header = await self._client.request("chain_getHeader", [block_hash] if block_hash else [])
         return int(header["number"], 16)
 

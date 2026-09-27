@@ -4,7 +4,31 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [3.0.0rc1] — unreleased
+## [3.0.0rc2] — 2026-09-27
+
+From three days of rc1 in rrs-connector, rrs-admin and rrs-ha-integration.
+
+### Fixed
+- The default TLS context for `wss://` endpoints is built once per client, in a worker
+  thread, and shared by every connection. Before, asyncio built one per connection on
+  the event loop, reading the CA store from disk — Home Assistant reported a blocking
+  call. Passing `ssl=` works as before.
+
+### Added
+- Block hashes given as `at=` or to `client.chain.block_number()` are checked
+  (`0x` + 64 hex digits) before any request; a bad one raises `EncodeError`.
+- A test pins the API the Report Service projects use; MIGRATION.md lists it under
+  "Stable API".
+- Integration tests that send transactions refuse a non-loopback node unless
+  `ROBONOMICS_DEV_ALLOW_REMOTE=1`, and refuse production chains outright.
+- A weekly read-only smoke test against mainnet in CI.
+
+### Changed
+- Robonomics on Kusama is legacy and is shutting down. A client refuses a Kusama node
+  by default with "switch to Polkadot" in the reason; with `genesis_hash=None` it
+  connects and logs a warning. No Kusama constant is provided.
+
+## [3.0.0rc1] — 2026-09-24
 
 A rewrite for the current Robonomics runtime. Not compatible with 2.x: see
 [MIGRATION.md](MIGRATION.md) for the mapping and the behaviour that changed.

@@ -68,6 +68,10 @@ DEFAULT_ENDPOINT = "wss://polkadot.rpc.robonomics.network/"
 # Robonomics on Polkadot. A node on any other chain is refused: an extrinsic
 # signed for another genesis would fail with an unhelpful "bad signature".
 ROBONOMICS_GENESIS_HASH = "0x29f4371dcc41045f5041489dfcd51389bf8ccd2161332e0de1ca803bcc3ee872"
+# Robonomics on Kusama: legacy, the network is shutting down. Known only to say
+# so clearly; it is not a supported target.
+_LEGACY_KUSAMA_GENESIS_HASH = "0x631ccc82a078481584041656af292834e1ae6daab61d2875b4dd0c14bb9b17bc"
+_KUSAMA_IS_LEGACY = "Robonomics on Kusama is legacy and is shutting down; switch to Polkadot"
 
 _RETIRE_GRACE_SECONDS = 30.0
 DEFAULT_INCLUSION_TIMEOUT = 120.0
@@ -136,6 +140,8 @@ class RobonomicsClient:
         self.failback_interval = failback_interval
         self.runtimes = RuntimeCache(ss58_format=ss58_format)
         self._ssl = ssl
+        self._default_tls: ssl_module.SSLContext | None = None
+        self._tls_lock = asyncio.Lock()
         self._max_message_bytes = max_message_bytes
         self._connection: Connection | None = None
         self._active_index: int | None = None
@@ -536,12 +542,13 @@ class RobonomicsClient:
     async def _open(self, endpoint: str) -> Connection:
         """Open and vet one endpoint; any problem is a ``ConnectionFailed``."""
 
+        tls = await self._tls_context() if endpoint.startswith("wss://") else None
         connection = await Connection.open(
             endpoint,
             timeout=self.timeout,
             connect_timeout=self.connect_timeout,
             max_message_bytes=self._max_message_bytes,
-            ssl=self._ssl,
+            ssl=tls,
             user_agent=_user_agent(),
         )
         try:
@@ -550,6 +557,22 @@ class RobonomicsClient:
             await connection.close()
             raise
         return connection
+
+    async def _tls_context(self) -> ssl_module.SSLContext:
+        """The TLS context for ``wss://`` endpoints: the caller's, or a default one.
+
+        Without a context, asyncio builds a fresh default one for every
+        connection, on the event loop, and that reads the system CA store from
+        disk: Home Assistant reports it as a blocking call. So the default is
+        built once, in a worker thread, and shared by every connection.
+        """
+
+        if self._ssl is not None:
+            return self._ssl
+        async with self._tls_lock:
+            if self._default_tls is None:
+                self._default_tls = await asyncio.to_thread(ssl_module.create_default_context)
+            return self._default_tls
 
     async def _vet(self, connection: Connection) -> None:
         endpoint = connection.endpoint
@@ -560,7 +583,11 @@ class RobonomicsClient:
             raise ConnectionFailed(endpoint, f"does not answer as a Substrate node ({e})") from e
 
         if self.genesis_hash is not None and genesis != self.genesis_hash:
+            if genesis == _LEGACY_KUSAMA_GENESIS_HASH:
+                raise ConnectionFailed(endpoint, f"wrong chain: {_KUSAMA_IS_LEGACY}")
             raise ConnectionFailed(endpoint, f"wrong chain: genesis {genesis}")
+        if genesis == _LEGACY_KUSAMA_GENESIS_HASH:
+            LOGGER.warning("%s (%s)", _KUSAMA_IS_LEGACY, endpoint)
         if self.require_healthy and isinstance(health, dict):
             if health.get("isSyncing"):
                 raise ConnectionFailed(endpoint, "the node is still syncing")
