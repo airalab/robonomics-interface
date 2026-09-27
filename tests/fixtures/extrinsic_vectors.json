@@ -1,0 +1,39 @@
+{
+ "warning": "PUBLIC TEST KEYS. Every mnemonic and seed here is a published test secret (Substrate dev phrase, BIP39/RFC 8032 vectors, throwaway accounts). Anyone can derive their keys: never fund these accounts, give them a subscription, or use them for a real site.",
+ "note": "Built by substrate-interface against the live runtime; ed25519 is deterministic, so the new builder must match these bytes exactly.",
+ "spec_version": 43,
+ "transaction_version": 4,
+ "genesis_hash": "0x29f4371dcc41045f5041489dfcd51389bf8ccd2161332e0de1ca803bcc3ee872",
+ "signed_extensions": [
+  "CheckNonZeroSender",
+  "CheckSpecVersion",
+  "CheckTxVersion",
+  "CheckGenesis",
+  "CheckMortality",
+  "CheckNonce",
+  "CheckWeight",
+  "ChargeTransactionPayment",
+  "CheckMetadataHash",
+  "StorageWeightReclaim"
+ ],
+ "extrinsic_version": 4,
+ "mnemonic": "frozen woman pet meat entire question balcony wing echo excess adjust sleep",
+ "subscription_owner": "4GRQ4FJABmthGeggRa5CCbBEY5WhnNzKcopjf2kfBmyUcyRk",
+ "cid": "QmVnrFwfNYLAsXrjmAMLheyf3Bj35zr3b2gY7J5dgGiyC9",
+ "calls": {
+  "datalog_record": "0x3300b8516d566e724677664e594c417358726a6d414d4c6865796633426a33357a723362326759374a3564674769794339",
+  "rws_call": "0x3700bb13a02a36751c22c1f2e2ec44d3c938f5e184ab5ed142ceb6f0f14ea6b1aa9a3300b8516d566e724677664e594c417358726a6d414d4c6865796633426a33357a723362326759374a3564674769794339"
+ },
+ "extrinsics": [
+  {
+   "call": "datalog_record",
+   "nonce": 0,
+   "hex": "0x61028400b2978121ad61713391aaf8d3e5ca1be30668a9235d8a26c0960ea00177d35fe0002ff744d14e7bc3d686607d25da6225c9452e8b8cf73a41e6e6256b02a16f583537790c918d3d20c965e218d6ee89729ebaef3593e28f7d24642eff93d366f20e000000003300b8516d566e724677664e594c417358726a6d414d4c6865796633426a33357a723362326759374a3564674769794339"
+  },
+  {
+   "call": "rws_call",
+   "nonce": 7,
+   "hex": "0xe9028400b2978121ad61713391aaf8d3e5ca1be30668a9235d8a26c0960ea00177d35fe0009f588e626c7e3c599fe5edac2533f741badec92aa429e52cd705993a4bdec4c927572fbdf4533ee7c822deb335254f868a422f11fafc0e63ed830cd4cd8cc90a001c00003700bb13a02a36751c22c1f2e2ec44d3c938f5e184ab5ed142ceb6f0f14ea6b1aa9a3300b8516d566e724677664e594c417358726a6d414d4c6865796633426a33357a723362326759374a3564674769794339"
+  }
+ ]
+}

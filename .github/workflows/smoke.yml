@@ -1,0 +1,23 @@
+name: Mainnet smoke
+
+# Read-only checks against Robonomics on Polkadot, weekly: a runtime upgrade
+# that changes metadata, storage layouts or signed extensions shows up here
+# before a user meets it. Sends nothing.
+on:
+  schedule:
+    - cron: "17 6 * * 1"  # Mondays, 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - run: uv run pytest -m mainnet -v
+        env:
+          ROBONOMICS_MAINNET_SMOKE: "1"
