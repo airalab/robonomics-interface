@@ -1,11 +1,11 @@
 {
   "note": "Public chain state recorded by scripts/fetch_chain_fixtures.py.",
   "endpoint": "wss://polkadot.rpc.robonomics.network/",
-  "block_hash": "0x0a9ea8e09ba8987a930836338a168f00a893708ee0e0d9160c82e9a87d62f528",
-  "block_number": 5446111,
+  "block_hash": "0x34b26ae8eb252a2dfe97cf4cc5fd5a4f7d5e3e7f589fde7349a2167763e4fb06",
+  "block_number": 5903464,
   "genesis_hash": "0x29f4371dcc41045f5041489dfcd51389bf8ccd2161332e0de1ca803bcc3ee872",
   "spec_name": "robonomics",
-  "spec_version": 50,
+  "spec_version": 52,
   "transaction_version": 4,
   "maps": [
     {
@@ -121,12 +121,12 @@
     {
       "pallet": "System",
       "item": "Number",
-      "raw": "0xdf195300"
+      "raw": "0x68145a00"
     },
     {
       "pallet": "Timestamp",
       "item": "Now",
-      "raw": "0xb06ef9cca0010000"
+      "raw": "0x2087c478a1010000"
     },
     {
       "pallet": "RWS",

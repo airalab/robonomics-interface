@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.0.0] — 2026-10-26
+
+The release of the 3.0 line; the API is the one of 3.0.0rc2.
+
+### Changed
+- Checked against the Robonomics runtime `spec_version 52` on Polkadot (Sudo removed
+  from production, OpenGov, CPS v1.1): the metadata, signed extensions, and the
+  Datalog, RWS, System and Balances pallets are unchanged for this library. The offline
+  fixtures are recorded from spec 52. The development-chain tests still run on the
+  runtime v50 wasm, because the production runtime no longer has Sudo.
+
 ## [3.0.0rc2] — 2026-09-27
 
 From three days of rc1 in rrs-connector, rrs-admin and rrs-ha-integration.

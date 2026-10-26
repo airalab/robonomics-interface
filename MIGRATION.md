@@ -7,8 +7,8 @@ This guide is written for moving the Robonomics Report Service projects
 2.x, `substrate-interface` and the copied `chain/` packages, but applies to any
 2.x user.
 
-Pin the exact version everywhere: `robonomics-interface==3.0.0rc2`, then `==3.0.0`.
-The API listed in section 8 stays as it is between release candidates and 3.0.0.
+Pin the exact version everywhere: `robonomics-interface==3.0.0`.
+The API listed in section 8 is the same as in the release candidates.
 
 ## 1. What changed, and why
 
