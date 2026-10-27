@@ -4,9 +4,21 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [3.0.0] — 2026-10-26
+## [3.0.0] — 2026-10-27
 
 The release of the 3.0 line; the API is the one of 3.0.0rc2.
+
+### Fixed
+- A request timeout no longer drops the connection when the node still answers a
+  `system_health` ping. Dropping it ended every subscription on the shared connection,
+  so one slow read (`query_map` on a Raspberry Pi, say) turned a pending
+  `author_submitAndWatchExtrinsic` into `ExtrinsicOutcomeUnknown`. A timeout on a live
+  node is raised as `RequestTimeout` and is not retried on another endpoint; a node that
+  answers neither is dropped and failed over as before.
+
+### Added
+- The Sphinx documentation is back: API reference built from the docstrings, plus the
+  README, MIGRATION.md and the changelog, published to GitHub Pages from `main`.
 
 ### Changed
 - Checked against the Robonomics runtime `spec_version 52` on Polkadot (Sudo removed
