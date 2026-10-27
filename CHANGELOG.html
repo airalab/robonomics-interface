@@ -238,8 +238,26 @@
 <a class="reference external" href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>, and the project uses
 <a class="reference external" href="https://semver.org/">Semantic Versioning</a>.</p>
 <section id="id1">
-<h2>[3.0.0] — 2026-10-26<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<h2>[3.0.0] — 2026-10-27<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <p>The release of the 3.0 line; the API is the one of 3.0.0rc2.</p>
+<section id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>A request timeout no longer drops the connection when the node still answers a
+<code class="docutils literal notranslate"><span class="pre">system_health</span></code> ping. Dropping it ended every subscription on the shared connection,
+so one slow read (<code class="docutils literal notranslate"><span class="pre">query_map</span></code> on a Raspberry Pi, say) turned a pending
+<code class="docutils literal notranslate"><span class="pre">author_submitAndWatchExtrinsic</span></code> into <code class="docutils literal notranslate"><span class="pre">ExtrinsicOutcomeUnknown</span></code>. A timeout on a live
+node is raised as <code class="docutils literal notranslate"><span class="pre">RequestTimeout</span></code> and is not retried on another endpoint; a node that
+answers neither is dropped and failed over as before.</p></li>
+</ul>
+</section>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The Sphinx documentation is back: API reference built from the docstrings, plus the
+README, MIGRATION.md and the changelog, published to GitHub Pages from <code class="docutils literal notranslate"><span class="pre">main</span></code>.</p></li>
+</ul>
+</section>
 <section id="changed">
 <h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">¶</a></h3>
 <ul class="simple">
@@ -254,8 +272,8 @@ runtime v50 wasm, because the production runtime no longer has Sudo.</p></li>
 <section id="rc2-2026-09-27">
 <h2>[3.0.0rc2] — 2026-09-27<a class="headerlink" href="#rc2-2026-09-27" title="Link to this heading">¶</a></h2>
 <p>From three days of rc1 in rrs-connector, rrs-admin and rrs-ha-integration.</p>
-<section id="fixed">
-<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">¶</a></h3>
+<section id="id2">
+<h3>Fixed<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The default TLS context for <code class="docutils literal notranslate"><span class="pre">wss://</span></code> endpoints is built once per client, in a worker
 thread, and shared by every connection. Before, asyncio built one per connection on
@@ -263,8 +281,8 @@ the event loop, reading the CA store from disk — Home Assistant reported a blo
 call. Passing <code class="docutils literal notranslate"><span class="pre">ssl=</span></code> works as before.</p></li>
 </ul>
 </section>
-<section id="added">
-<h3>Added<a class="headerlink" href="#added" title="Link to this heading">¶</a></h3>
+<section id="id3">
+<h3>Added<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Block hashes given as <code class="docutils literal notranslate"><span class="pre">at=</span></code> or to <code class="docutils literal notranslate"><span class="pre">client.chain.block_number()</span></code> are checked
 (<code class="docutils literal notranslate"><span class="pre">0x</span></code> + 64 hex digits) before any request; a bad one raises <code class="docutils literal notranslate"><span class="pre">EncodeError</span></code>.</p></li>
@@ -275,8 +293,8 @@ call. Passing <code class="docutils literal notranslate"><span class="pre">ssl=<
 <li><p>A weekly read-only smoke test against mainnet in CI.</p></li>
 </ul>
 </section>
-<section id="id2">
-<h3>Changed<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<section id="id4">
+<h3>Changed<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Robonomics on Kusama is legacy and is shutting down. A client refuses a Kusama node
 by default with “switch to Polkadot” in the reason; with <code class="docutils literal notranslate"><span class="pre">genesis_hash=None</span></code> it
@@ -288,8 +306,8 @@ connects and logs a warning. No Kusama constant is provided.</p></li>
 <h2>[3.0.0rc1] — 2026-09-24<a class="headerlink" href="#rc1-2026-09-24" title="Link to this heading">¶</a></h2>
 <p>A rewrite for the current Robonomics runtime. Not compatible with 2.x: see
 <a class="reference internal" href="MIGRATION.html"><span class="std std-doc">MIGRATION.md</span></a> for the mapping and the behaviour that changed.</p>
-<section id="id3">
-<h3>Added<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<section id="id5">
+<h3>Added<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Keypair</span></code> (ED25519) from a mnemonic (with optional password), a raw seed, a
 Substrate secret URI with hard derivation (<code class="docutils literal notranslate"><span class="pre">//Alice</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;phrase&gt;//a//b///password</span></code>),
@@ -367,8 +385,8 @@ their failures; a read-only mainnet smoke test.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">py.typed</span></code>.</p></li>
 </ul>
 </section>
-<section id="id4">
-<h3>Changed<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<section id="id6">
+<h3>Changed<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Python 3.12+; built with hatchling.</p></li>
 <li><p>Core dependencies are <code class="docutils literal notranslate"><span class="pre">pynacl</span></code>, <code class="docutils literal notranslate"><span class="pre">scalecodec</span></code>, <code class="docutils literal notranslate"><span class="pre">websockets</span></code> and <code class="docutils literal notranslate"><span class="pre">xxhash</span></code> only;
@@ -445,19 +463,21 @@ to <code class="docutils literal notranslate"><span class="pre">polkadot-omni-no
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">[3.0.0] — 2026-10-26</a><ul>
+<li><a class="reference internal" href="#id1">[3.0.0] — 2026-10-27</a><ul>
+<li><a class="reference internal" href="#fixed">Fixed</a></li>
+<li><a class="reference internal" href="#added">Added</a></li>
 <li><a class="reference internal" href="#changed">Changed</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#rc2-2026-09-27">[3.0.0rc2] — 2026-09-27</a><ul>
-<li><a class="reference internal" href="#fixed">Fixed</a></li>
-<li><a class="reference internal" href="#added">Added</a></li>
-<li><a class="reference internal" href="#id2">Changed</a></li>
+<li><a class="reference internal" href="#id2">Fixed</a></li>
+<li><a class="reference internal" href="#id3">Added</a></li>
+<li><a class="reference internal" href="#id4">Changed</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#rc1-2026-09-24">[3.0.0rc1] — 2026-09-24</a><ul>
-<li><a class="reference internal" href="#id3">Added</a></li>
-<li><a class="reference internal" href="#id4">Changed</a></li>
+<li><a class="reference internal" href="#id5">Added</a></li>
+<li><a class="reference internal" href="#id6">Changed</a></li>
 <li><a class="reference internal" href="#removed">Removed</a></li>
 </ul>
 </li>
