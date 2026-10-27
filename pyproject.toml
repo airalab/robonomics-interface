@@ -48,6 +48,11 @@ dev = [
     "pytest-asyncio>=0.25",
     "ruff>=0.8",
 ]
+docs = [
+    "furo>=2024.8",
+    "myst-parser>=4",
+    "sphinx>=8",
+]
 
 [build-system]
 requires = ["hatchling>=1.27"]

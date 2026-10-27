@@ -191,6 +191,15 @@ ciphertexts, signatures); `tests/fixtures/generate_compat_vectors.py` regenerate
 a runtime upgrade. CI also installs the wheel in `python:3.13-alpine` on aarch64
 without a compiler.
 
+### Documentation
+
+The API reference is built from the docstrings with Sphinx and published to
+<https://airalab.github.io/robonomics-interface/> when `main` or a `v*` tag is pushed:
+
+```bash
+uv run --group docs sphinx-build -W -b html docs/source docs/build   # warnings fail the build
+```
+
 ### Releasing
 
 1. `ROBONOMICS_MAINNET_SMOKE=1 uv run pytest -m mainnet` against the live runtime.
