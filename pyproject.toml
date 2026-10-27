@@ -35,6 +35,15 @@ dependencies = [
     "xxhash>=3.5",
 ]
 
+[project.optional-dependencies]
+# sr25519 keys and their ECIES encryption. Both ship wheels for musl and
+# aarch64 (CI installs them in python:3.13-alpine without a compiler); the core
+# works without them.
+sr25519 = [
+    "py-sr25519-bindings>=0.2.4,<0.3",
+    "rbcl>=1.1,<2",
+]
+
 [project.urls]
 Homepage = "https://github.com/airalab/robonomics-interface"
 Repository = "https://github.com/airalab/robonomics-interface"
@@ -43,6 +52,7 @@ Changelog = "https://github.com/airalab/robonomics-interface/blob/main/CHANGELOG
 
 [dependency-groups]
 dev = [
+    "robonomics-interface[sr25519]",
     "mypy>=1.13",
     "pytest>=8.3",
     "pytest-asyncio>=0.25",
@@ -87,7 +97,7 @@ strict = true
 files = ["src"]
 
 [[tool.mypy.overrides]]
-module = ["nacl.*", "scalecodec.*", "xxhash.*"]
+module = ["nacl.*", "rbcl.*", "scalecodec.*", "sr25519.*", "xxhash.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
