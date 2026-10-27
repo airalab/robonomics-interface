@@ -74,6 +74,7 @@ _LEGACY_KUSAMA_GENESIS_HASH = "0x631ccc82a078481584041656af292834e1ae6daab61d287
 _KUSAMA_IS_LEGACY = "Robonomics on Kusama is legacy and is shutting down; switch to Polkadot"
 
 _RETIRE_GRACE_SECONDS = 30.0
+_PING_TIMEOUT_SECONDS = 5.0
 DEFAULT_INCLUSION_TIMEOUT = 120.0
 
 # Error codes of author_submit* (sc_rpc_api::author::error).
@@ -249,6 +250,10 @@ class RobonomicsClient:
             try:
                 return await connection.request(method, params, timeout)
             except (ConnectionLost, RequestTimeout) as e:
+                if isinstance(e, RequestTimeout) and await self._alive(connection):
+                    # A slow answer, not a dead socket: dropping the connection would
+                    # also kill the subscriptions sharing it.
+                    raise
                 LOGGER.warning("request to %s failed: %s", connection.endpoint, e)
                 await self._drop(connection)
                 if retries_left == 0:
@@ -614,6 +619,16 @@ class RobonomicsClient:
             self._active_index = None
             self.runtimes.set_current(None)
         await connection.close()
+
+    @staticmethod
+    async def _alive(connection: Connection) -> bool:
+        """Whether the node still answers a cheap request."""
+
+        try:
+            await connection.request("system_health", [], _PING_TIMEOUT_SECONDS)
+        except (TransportError, RpcError):
+            return False
+        return True
 
     async def _retire(self, connection: Connection) -> None:
         """Close a replaced connection once its in-flight work is done."""

@@ -96,6 +96,32 @@ async def test_timeout(server: FakeServer) -> None:
         assert await client.request("chain_getBlockHash", [0])
 
 
+async def test_slow_request_keeps_connection_and_subscriptions(server: FakeServer) -> None:
+    server.delays["chain_getHeader"] = 1.0
+    async with client_for(server.url, timeout=0.2) as client:
+        subscription = await client.subscribe(
+            "state_subscribeRuntimeVersion", [], "state_unsubscribeRuntimeVersion"
+        )
+        await subscription.next(timeout=1)
+        with pytest.raises(RequestTimeout):
+            await client.request("chain_getHeader")
+        # The node still answers, so the connection and its subscription stay.
+        await server.notify(subscription.id, "state_runtimeVersion", {"specVersion": 1})
+        await subscription.next(timeout=1)
+        assert server.received.count("chain_getHeader") == 1
+
+
+async def test_timeout_of_a_dead_node_drops_the_connection(
+    server: FakeServer, second: FakeServer, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr("robonomicsinterface.client._PING_TIMEOUT_SECONDS", 0.2)
+    async with client_for(server.url, second.url, timeout=0.2) as client:
+        server.delays["chain_getBlockHash"] = 1.0
+        server.delays["system_health"] = 1.0
+        await client.request("chain_getBlockHash", [0])
+        assert client.endpoint == second.url
+
+
 async def test_runtime_version_subscription_saves_requests(server: FakeServer) -> None:
     async with client_for(server.url) as client:
         for _ in range(20):
