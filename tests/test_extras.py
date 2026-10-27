@@ -28,3 +28,12 @@ def test_core_imports_without_the_extra(monkeypatch: pytest.MonkeyPatch) -> None
     package = importlib.import_module("robonomicsinterface")
 
     assert package.Keypair.from_mnemonic(package.generate_mnemonic()).has_secret
+
+
+def test_sr25519_keys_without_the_extra_ask_for_it(monkeypatch: pytest.MonkeyPatch) -> None:
+    from robonomicsinterface import Keypair
+
+    monkeypatch.setitem(sys.modules, "sr25519", None)
+    with pytest.raises(ImportError, match=r"robonomics-interface\[sr25519\]"):
+        Keypair.from_seed(bytes(32), crypto_type="sr25519")
+    assert Keypair.from_seed(bytes(32)).has_secret

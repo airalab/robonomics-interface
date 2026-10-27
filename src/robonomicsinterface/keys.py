@@ -1,5 +1,6 @@
-"""ED25519 accounts: key derivation, signatures and message encryption on PyNaCl.
+"""ED25519 and sr25519 accounts: key derivation, signatures and message encryption.
 
+ED25519 runs on PyNaCl, sr25519 on the ``[sr25519]`` extra (:mod:`.keys_sr25519`).
 Wire formats match substrate-interface byte for byte: the same mini secret
 from a mnemonic, the same ed25519 → curve25519 conversion and the same NaCl
 box with the nonce in front. Reports already encrypted by the 2.x stack stay
@@ -17,14 +18,18 @@ import nacl.exceptions
 import nacl.public
 import nacl.signing
 
+from . import keys_sr25519
 from .bip39 import generate_mnemonic, mnemonic_to_mini_secret
 from .errors import DecryptionError, InvalidKey, NoSecretKey
 from .ss58 import ROBONOMICS_SS58_FORMAT, address_format, decode_address, encode_address
 
-__all__ = ["DEV_PHRASE", "ED25519", "Keypair"]
+__all__ = ["DEV_PHRASE", "ED25519", "SR25519", "Keypair"]
 
 # Substrate's MultiSignature ordering; also the signature tag in an extrinsic.
 ED25519 = 0
+SR25519 = 1
+_KEY_TYPES = {"ed25519": ED25519, "sr25519": SR25519}
+_KEY_NAMES = {value: name for name, value in _KEY_TYPES.items()}
 
 # The well-known development phrase behind //Alice, //Bob and friends.
 DEV_PHRASE = "bottom drive obey lake curtain smoke basket hold race lonely fit walk"
@@ -79,23 +84,35 @@ def _as_bytes(message: bytes | str) -> bytes:
     return message.encode("utf-8") if isinstance(message, str) else bytes(message)
 
 
-class Keypair:
-    """An ED25519 account, with or without its secret key.
+def _key_type(crypto_type: int | str) -> int:
+    """``ED25519``/``SR25519``, or their names as a config file would hold them."""
 
-    Build one with a ``from_*`` class method. A keypair built from a public key
-    or an address can verify signatures and be encrypted to, but not sign or
-    decrypt. The secret is held only inside PyNaCl's signing key: the mnemonic
-    or URI it came from is not kept, and neither :func:`repr` nor exceptions
-    ever show it.
+    kind = (
+        _KEY_TYPES.get(crypto_type.strip().lower()) if isinstance(crypto_type, str) else crypto_type
+    )
+    if kind not in _KEY_NAMES:
+        raise InvalidKey("the key type must be ED25519 or SR25519 (or 'ed25519', 'sr25519')")
+    return kind
+
+
+class Keypair:
+    """An ED25519 or sr25519 account, with or without its secret key.
+
+    Build one with a ``from_*`` class method; ``crypto_type`` picks the kind
+    (``ED25519`` by default, so an existing mnemonic keeps its address). A
+    keypair built from a public key or an address can verify signatures and be
+    encrypted to, but not sign or decrypt. The secret is held only inside the
+    signing key: the mnemonic or URI it came from is not kept, and neither
+    :func:`repr` nor exceptions ever show it.
     """
 
-    __slots__ = ("_public_key", "_signing_key", "ss58_format")
+    __slots__ = ("_public_key", "_signing_key", "_sr25519_secret", "crypto_type", "ss58_format")
 
     _public_key: bytes
     _signing_key: nacl.signing.SigningKey | None
+    _sr25519_secret: bytes | None
+    crypto_type: int
     ss58_format: int
-
-    crypto_type = ED25519
 
     def __init__(self) -> None:
         raise TypeError("use Keypair.from_mnemonic(), from_seed(), from_uri() or from_address()")
@@ -103,12 +120,16 @@ class Keypair:
     @classmethod
     def _build(
         cls,
+        crypto_type: int,
         signing_key: nacl.signing.SigningKey | None,
+        sr25519_secret: bytes | None,
         public_key: bytes,
         ss58_format: int,
     ) -> Self:
         keypair = object.__new__(cls)
+        keypair.crypto_type = crypto_type
         keypair._signing_key = signing_key
+        keypair._sr25519_secret = sr25519_secret
         keypair._public_key = public_key
         keypair.ss58_format = ss58_format
         return keypair
@@ -116,15 +137,25 @@ class Keypair:
     # Construction
 
     @classmethod
-    def from_seed(cls, seed: bytes | str, ss58_format: int = ROBONOMICS_SS58_FORMAT) -> Self:
-        """From a 32-byte ED25519 seed (the Substrate "mini secret"), raw or as 0x hex."""
+    def from_seed(
+        cls,
+        seed: bytes | str,
+        ss58_format: int = ROBONOMICS_SS58_FORMAT,
+        *,
+        crypto_type: int | str = ED25519,
+    ) -> Self:
+        """From a 32-byte seed (the Substrate "mini secret"), raw or as 0x hex."""
 
+        kind = _key_type(crypto_type)
         if isinstance(seed, str):
             seed = _seed_from_hex(seed)
         if len(seed) != _SEED_BYTES:
             raise InvalidKey(f"a seed is {_SEED_BYTES} bytes, not {len(seed)}")
+        if kind == SR25519:
+            public_key, secret = keys_sr25519.pair_from_seed(bytes(seed))
+            return cls._build(kind, None, secret, public_key, ss58_format)
         signing_key = nacl.signing.SigningKey(bytes(seed))
-        return cls._build(signing_key, bytes(signing_key.verify_key), ss58_format)
+        return cls._build(kind, signing_key, None, bytes(signing_key.verify_key), ss58_format)
 
     @classmethod
     def from_mnemonic(
@@ -132,14 +163,24 @@ class Keypair:
         mnemonic: str,
         password: str = "",
         ss58_format: int = ROBONOMICS_SS58_FORMAT,
+        *,
+        crypto_type: int | str = ED25519,
     ) -> Self:
         """From a BIP39 English mnemonic, as polkadot.js and substrate-interface derive it."""
 
-        return cls.from_seed(mnemonic_to_mini_secret(mnemonic, password), ss58_format)
+        return cls.from_seed(
+            mnemonic_to_mini_secret(mnemonic, password), ss58_format, crypto_type=crypto_type
+        )
 
     @classmethod
-    def from_uri(cls, uri: str, ss58_format: int = ROBONOMICS_SS58_FORMAT) -> Self:
-        """From a Substrate secret URI: ``<phrase or 0x seed>//hard//path///password``.
+    def from_uri(
+        cls,
+        uri: str,
+        ss58_format: int = ROBONOMICS_SS58_FORMAT,
+        *,
+        crypto_type: int | str = ED25519,
+    ) -> Self:
+        """From a Substrate secret URI: ``<phrase or 0x seed>//hard/soft///password``.
 
         An empty phrase means the development phrase, so ``//Alice`` gives the
         well-known development account. ED25519 has hard derivation only; a
@@ -147,6 +188,7 @@ class Keypair:
         tests; for keys that people paste, use :meth:`from_secret`.
         """
 
+        kind = _key_type(crypto_type)
         match = _URI.match(uri.strip())
         if match is None:
             raise InvalidKey("the secret URI is malformed")
@@ -160,7 +202,16 @@ class Keypair:
         else:
             seed = mnemonic_to_mini_secret(phrase, password)
 
-        for separator, junction in _JUNCTION.findall(match["path"]):
+        junctions = _JUNCTION.findall(match["path"])
+        if kind == SR25519:
+            public_key, secret = keys_sr25519.pair_from_seed(seed)
+            for separator, junction in junctions:
+                public_key, secret = keys_sr25519.derive(
+                    public_key, secret, _chain_code(junction), hard=separator == "//"
+                )
+            return cls._build(kind, None, secret, public_key, ss58_format)
+
+        for separator, junction in junctions:
             if separator == "/":
                 raise InvalidKey("ED25519 supports hard derivation (//path) only")
             seed = _derive_hard(seed, junction)
@@ -168,7 +219,13 @@ class Keypair:
         return cls.from_seed(seed, ss58_format)
 
     @classmethod
-    def from_secret(cls, secret: str, ss58_format: int = ROBONOMICS_SS58_FORMAT) -> Self:
+    def from_secret(
+        cls,
+        secret: str,
+        ss58_format: int = ROBONOMICS_SS58_FORMAT,
+        *,
+        crypto_type: int | str = ED25519,
+    ) -> Self:
         """From what a person may paste: a mnemonic or a raw 0x seed.
 
         Derivation paths, and development keys such as ``//Alice`` with them,
@@ -179,15 +236,20 @@ class Keypair:
         if "/" in secret:
             raise InvalidKey("derivation paths are not accepted here; use Keypair.from_uri()")
         if secret.startswith("0x"):
-            return cls.from_seed(secret, ss58_format)
-        return cls.from_mnemonic(secret, ss58_format=ss58_format)
+            return cls.from_seed(secret, ss58_format, crypto_type=crypto_type)
+        return cls.from_mnemonic(secret, ss58_format=ss58_format, crypto_type=crypto_type)
 
     @classmethod
     def from_public_key(
-        cls, public_key: bytes | str, ss58_format: int = ROBONOMICS_SS58_FORMAT
+        cls,
+        public_key: bytes | str,
+        ss58_format: int = ROBONOMICS_SS58_FORMAT,
+        *,
+        crypto_type: int | str = ED25519,
     ) -> Self:
         """A counterparty known by its public key: can verify and be encrypted to."""
 
+        kind = _key_type(crypto_type)
         if isinstance(public_key, str):
             try:
                 public_key = bytes.fromhex(public_key.removeprefix("0x"))
@@ -195,22 +257,29 @@ class Keypair:
                 raise InvalidKey("a public key must be 0x-prefixed hex") from None
         if len(public_key) != _PUBLIC_KEY_BYTES:
             raise InvalidKey(f"a public key is {_PUBLIC_KEY_BYTES} bytes, not {len(public_key)}")
-        return cls._build(None, bytes(public_key), ss58_format)
+        return cls._build(kind, None, None, bytes(public_key), ss58_format)
 
     @classmethod
-    def from_address(cls, address: str, ss58_format: int | None = None) -> Self:
+    def from_address(
+        cls,
+        address: str,
+        ss58_format: int | None = None,
+        *,
+        crypto_type: int | str = ED25519,
+    ) -> Self:
         """A counterparty known by its SS58 address.
 
         :param ss58_format: when given, an address of another network is
             refused; otherwise the address's own format is kept.
 
-        An address carries no key type, so an SR25519 account cannot be told
-        apart here: it only fails later, when a signature does not verify or a
+        An address carries no key type: say which it is with ``crypto_type``.
+        A wrong one only shows later, when a signature does not verify or a
         message does not decrypt.
         """
 
+        kind = _key_type(crypto_type)
         public_key = decode_address(address, ss58_format)
-        return cls._build(None, public_key, address_format(address))
+        return cls._build(kind, None, None, public_key, address_format(address))
 
     @staticmethod
     def generate_mnemonic(word_count: int = 12) -> str:
@@ -232,19 +301,19 @@ class Keypair:
 
     @property
     def has_secret(self) -> bool:
-        return self._signing_key is not None
+        return self._signing_key is not None or self._sr25519_secret is not None
 
     def __repr__(self) -> str:
-        kind = "" if self.has_secret else ", public only"
-        return f"<Keypair ed25519 {self.address}{kind}>"
+        public_only = "" if self.has_secret else ", public only"
+        return f"<Keypair {_KEY_NAMES[self.crypto_type]} {self.address}{public_only}>"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Keypair):
             return NotImplemented
-        return self._public_key == other._public_key
+        return (self.crypto_type, self._public_key) == (other.crypto_type, other._public_key)
 
     def __hash__(self) -> int:
-        return hash(self._public_key)
+        return hash((self.crypto_type, self._public_key))
 
     def __reduce__(self) -> NoReturn:
         # Pickling would write the secret key out; refuse rather than leak.
@@ -258,11 +327,21 @@ class Keypair:
         return self._signing_key
 
     def sign(self, message: bytes | str) -> bytes:
-        """A 64-byte ED25519 signature. A ``str`` is signed as its UTF-8 bytes."""
+        """A 64-byte signature. A ``str`` is signed as its UTF-8 bytes.
 
+        An sr25519 signature is randomized: signing twice gives different
+        bytes, and both verify.
+        """
+
+        if self.crypto_type == SR25519:
+            if self._sr25519_secret is None:
+                raise NoSecretKey(f"{self.address} is a public key only")
+            return keys_sr25519.sign(self._public_key, self._sr25519_secret, _as_bytes(message))
         return bytes(self._secret().sign(_as_bytes(message)).signature)
 
     def verify(self, message: bytes | str, signature: bytes) -> bool:
+        if self.crypto_type == SR25519:
+            return keys_sr25519.verify(self._public_key, _as_bytes(message), bytes(signature))
         try:
             nacl.signing.VerifyKey(self._public_key).verify(_as_bytes(message), bytes(signature))
         except (nacl.exceptions.BadSignatureError, nacl.exceptions.ValueError, TypeError):
@@ -272,6 +351,8 @@ class Keypair:
     # Encryption
 
     def _box(self, counterparty_public_key: bytes) -> nacl.public.Box:
+        if self.crypto_type != ED25519:
+            raise NotImplementedError("sr25519 encryption is not implemented yet")
         signing_key = self._secret()
         own = nacl.bindings.crypto_sign_ed25519_sk_to_curve25519(
             bytes(signing_key) + self._public_key
