@@ -1,8 +1,8 @@
 # robonomics-interface
 
 Python client for the [Robonomics](https://robonomics.network/) parachain on Polkadot:
-ED25519 accounts, the multi-recipient report envelope, and (in progress) storage
-queries, Datalog and RWS subscriptions.
+ED25519 accounts, the multi-recipient report envelope, storage queries, Datalog and
+RWS subscriptions.
 
 > [!IMPORTANT]
 > **3.0 is a rewrite and is not compatible with 2.x.** It no longer depends on
@@ -26,7 +26,7 @@ queries, Datalog and RWS subscriptions.
 ## Installation
 
 ```bash
-pip install --pre robonomics-interface
+pip install robonomics-interface
 ```
 
 Python 3.12 or newer. Core dependencies: `pynacl`, `scalecodec`, `websockets`, `xxhash`.
