@@ -1,0 +1,480 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="API reference" href="api.html">
+
+    <!-- Generated with Sphinx 9.1.1 and Furo 2025.12.19 -->
+        <title>Changelog - robonomics-interface 3.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">robonomics-interface 3.0.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">robonomics-interface 3.0.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="MIGRATION.html">Migrating to robonomics-interface 3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Changelog</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/CHANGELOG.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">¶</a></h1>
+<p>All notable changes to this project are documented here. The format follows
+<a class="reference external" href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>, and the project uses
+<a class="reference external" href="https://semver.org/">Semantic Versioning</a>.</p>
+<section id="id1">
+<h2>[3.0.0] — 2026-10-26<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p>The release of the 3.0 line; the API is the one of 3.0.0rc2.</p>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Checked against the Robonomics runtime <code class="docutils literal notranslate"><span class="pre">spec_version</span> <span class="pre">52</span></code> on Polkadot (Sudo removed
+from production, OpenGov, CPS v1.1): the metadata, signed extensions, and the
+Datalog, RWS, System and Balances pallets are unchanged for this library. The offline
+fixtures are recorded from spec 52. The development-chain tests still run on the
+runtime v50 wasm, because the production runtime no longer has Sudo.</p></li>
+</ul>
+</section>
+</section>
+<section id="rc2-2026-09-27">
+<h2>[3.0.0rc2] — 2026-09-27<a class="headerlink" href="#rc2-2026-09-27" title="Link to this heading">¶</a></h2>
+<p>From three days of rc1 in rrs-connector, rrs-admin and rrs-ha-integration.</p>
+<section id="fixed">
+<h3>Fixed<a class="headerlink" href="#fixed" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The default TLS context for <code class="docutils literal notranslate"><span class="pre">wss://</span></code> endpoints is built once per client, in a worker
+thread, and shared by every connection. Before, asyncio built one per connection on
+the event loop, reading the CA store from disk — Home Assistant reported a blocking
+call. Passing <code class="docutils literal notranslate"><span class="pre">ssl=</span></code> works as before.</p></li>
+</ul>
+</section>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Block hashes given as <code class="docutils literal notranslate"><span class="pre">at=</span></code> or to <code class="docutils literal notranslate"><span class="pre">client.chain.block_number()</span></code> are checked
+(<code class="docutils literal notranslate"><span class="pre">0x</span></code> + 64 hex digits) before any request; a bad one raises <code class="docutils literal notranslate"><span class="pre">EncodeError</span></code>.</p></li>
+<li><p>A test pins the API the Report Service projects use; MIGRATION.md lists it under
+“Stable API”.</p></li>
+<li><p>Integration tests that send transactions refuse a non-loopback node unless
+<code class="docutils literal notranslate"><span class="pre">ROBONOMICS_DEV_ALLOW_REMOTE=1</span></code>, and refuse production chains outright.</p></li>
+<li><p>A weekly read-only smoke test against mainnet in CI.</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3>Changed<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Robonomics on Kusama is legacy and is shutting down. A client refuses a Kusama node
+by default with “switch to Polkadot” in the reason; with <code class="docutils literal notranslate"><span class="pre">genesis_hash=None</span></code> it
+connects and logs a warning. No Kusama constant is provided.</p></li>
+</ul>
+</section>
+</section>
+<section id="rc1-2026-09-24">
+<h2>[3.0.0rc1] — 2026-09-24<a class="headerlink" href="#rc1-2026-09-24" title="Link to this heading">¶</a></h2>
+<p>A rewrite for the current Robonomics runtime. Not compatible with 2.x: see
+<a class="reference internal" href="MIGRATION.html"><span class="std std-doc">MIGRATION.md</span></a> for the mapping and the behaviour that changed.</p>
+<section id="id3">
+<h3>Added<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Keypair</span></code> (ED25519) from a mnemonic (with optional password), a raw seed, a
+Substrate secret URI with hard derivation (<code class="docutils literal notranslate"><span class="pre">//Alice</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;phrase&gt;//a//b///password</span></code>),
+a public key or an address. <code class="docutils literal notranslate"><span class="pre">from_secret()</span></code> accepts only what a person should
+paste: a mnemonic or a seed, never a derivation path.</p></li>
+<li><p>Message encryption (<code class="docutils literal notranslate"><span class="pre">encrypt_message</span></code> / <code class="docutils literal notranslate"><span class="pre">decrypt_message</span></code>) byte-compatible with
+substrate-interface.</p></li>
+<li><p>Multi-recipient envelope: <code class="docutils literal notranslate"><span class="pre">encrypt_for_recipients</span></code>, <code class="docutils literal notranslate"><span class="pre">decrypt_package</span></code>,
+<code class="docutils literal notranslate"><span class="pre">parse_decrypted</span></code>, in the format Robonomics Report Service publishes.</p></li>
+<li><p>SS58 helpers: <code class="docutils literal notranslate"><span class="pre">encode_address</span></code>, <code class="docutils literal notranslate"><span class="pre">decode_address</span></code>, <code class="docutils literal notranslate"><span class="pre">address_format</span></code>,
+<code class="docutils literal notranslate"><span class="pre">is_valid_address</span></code> (format 32 by default).</p></li>
+<li><p>BIP39 English: <code class="docutils literal notranslate"><span class="pre">generate_mnemonic</span></code>, <code class="docutils literal notranslate"><span class="pre">validate_mnemonic</span></code>.</p></li>
+<li><p>A typed exception hierarchy rooted at <code class="docutils literal notranslate"><span class="pre">RobonomicsError</span></code>; input errors are also
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code>. No exception message contains secret material.</p></li>
+<li><p>Runtime metadata (V14) decoded from the chain itself: <code class="docutils literal notranslate"><span class="pre">Runtime</span></code> describes one
+runtime version (pallets, storage entries, constants, SCALE encode/decode);
+<code class="docutils literal notranslate"><span class="pre">RuntimeCache</span></code> fetches metadata per <code class="docutils literal notranslate"><span class="pre">(genesis_hash,</span> <span class="pre">spec_version)</span></code>, parses it off
+the event loop and reloads it after a runtime upgrade.</p></li>
+<li><p>Storage: every hasher (<code class="docutils literal notranslate"><span class="pre">Identity</span></code>, <code class="docutils literal notranslate"><span class="pre">Twox64Concat</span></code>, <code class="docutils literal notranslate"><span class="pre">Twox128</span></code>, <code class="docutils literal notranslate"><span class="pre">Twox256</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Blake2_128</span></code>, <code class="docutils literal notranslate"><span class="pre">Blake2_256</span></code>, <code class="docutils literal notranslate"><span class="pre">Blake2_128Concat</span></code>), multi-key maps and maps keyed by
+a tuple; <code class="docutils literal notranslate"><span class="pre">query</span></code>, <code class="docutils literal notranslate"><span class="pre">query_map</span></code> (paged, pinned to one block, keys decoded back) and
+<code class="docutils literal notranslate"><span class="pre">constant</span></code>. An absent value is <code class="docutils literal notranslate"><span class="pre">None</span></code> for an <code class="docutils literal notranslate"><span class="pre">Optional</span></code> item and the declared
+default otherwise.</p></li>
+<li><p>New errors: <code class="docutils literal notranslate"><span class="pre">MetadataError</span></code>, <code class="docutils literal notranslate"><span class="pre">NoSuchPallet</span></code>, <code class="docutils literal notranslate"><span class="pre">NoSuchStorage</span></code>, <code class="docutils literal notranslate"><span class="pre">NoSuchConstant</span></code>,
+<code class="docutils literal notranslate"><span class="pre">EncodeError</span></code>, <code class="docutils literal notranslate"><span class="pre">DecodeError</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RobonomicsClient</span></code>, an asyncio client over one multiplexed WebSocket: endpoints in
+priority order (e.g. a LAN node first, the public node as fallback), a node is
+used only if its genesis hash matches Robonomics Polkadot and it is neither
+syncing nor without peers, failback to a preferred endpoint, a timeout on every
+request, automatic retry of reads on another endpoint (<code class="docutils literal notranslate"><span class="pre">retry=False</span></code> for requests
+with side effects), subscriptions, and runtime-upgrade tracking through
+<code class="docutils literal notranslate"><span class="pre">state_subscribeRuntimeVersion</span></code>. <code class="docutils literal notranslate"><span class="pre">query</span></code>, <code class="docutils literal notranslate"><span class="pre">query_map</span></code> and <code class="docutils literal notranslate"><span class="pre">constant</span></code> on the client.</p></li>
+<li><p>Transport errors, all <code class="docutils literal notranslate"><span class="pre">TransportError</span></code> (retryable): <code class="docutils literal notranslate"><span class="pre">ConnectionFailed</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ConnectionLost</span></code>, <code class="docutils literal notranslate"><span class="pre">RequestTimeout</span></code>, <code class="docutils literal notranslate"><span class="pre">AllEndpointsFailed</span></code> (with the reason for each
+endpoint). <code class="docutils literal notranslate"><span class="pre">RpcError</span></code> for errors returned by the node.</p></li>
+<li><p>Extrinsics: <code class="docutils literal notranslate"><span class="pre">compose_call</span></code> checks arguments against the metadata and takes natural
+values (<code class="docutils literal notranslate"><span class="pre">bytes</span></code>, <code class="docutils literal notranslate"><span class="pre">Keypair</span></code>, nested <code class="docutils literal notranslate"><span class="pre">Call</span></code>, a plain list for <code class="docutils literal notranslate"><span class="pre">BoundedVec</span></code> — no more
+<code class="docutils literal notranslate"><span class="pre">[[a,</span> <span class="pre">b]]</span></code> for <code class="docutils literal notranslate"><span class="pre">RWS.set_devices</span></code>); signed extensions come from the metadata, in its
+order, and an unknown one that carries data is refused (<code class="docutils literal notranslate"><span class="pre">UnsupportedExtension</span></code>);
+mortal era by default (<code class="docutils literal notranslate"><span class="pre">Era</span></code>); <code class="docutils literal notranslate"><span class="pre">sign</span></code>, <code class="docutils literal notranslate"><span class="pre">validate</span></code> (the pool’s own check via
+<code class="docutils literal notranslate"><span class="pre">state_call</span></code>), <code class="docutils literal notranslate"><span class="pre">submit</span></code> (waits for the block and reads its events) and
+<code class="docutils literal notranslate"><span class="pre">submit_nowait</span></code>. One submission per account at a time, so nonces never collide.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ExtrinsicResult</span></code> with the block, index and events of the extrinsic.</p></li>
+<li><p>Transaction errors, all <code class="docutils literal notranslate"><span class="pre">TransactionError</span></code>: <code class="docutils literal notranslate"><span class="pre">InvalidTransaction</span></code> (kind plus a
+plain explanation — <code class="docutils literal notranslate"><span class="pre">Payment</span></code> says the account does not exist on chain),
+<code class="docutils literal notranslate"><span class="pre">ExtrinsicFailed</span></code> (pallet error name and docs, e.g. <code class="docutils literal notranslate"><span class="pre">RWS.FreeWeightIsNotEnough</span></code>),
+<code class="docutils literal notranslate"><span class="pre">ExtrinsicDropped</span></code>, <code class="docutils literal notranslate"><span class="pre">ExtrinsicOutcomeUnknown</span></code> (with the hash to look up).</p></li>
+<li><p>Pallet helpers on the client:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">client.datalog</span></code>: <code class="docutils literal notranslate"><span class="pre">index</span></code>, <code class="docutils literal notranslate"><span class="pre">item</span></code> (slot 0 is slot 0 — in 2.x <code class="docutils literal notranslate"><span class="pre">get_item(index=0)</span></code>
+meant “latest”), <code class="docutils literal notranslate"><span class="pre">latest</span></code> (also correct after the ring buffer wraps to 0, where
+2.x returned <code class="docutils literal notranslate"><span class="pre">None</span></code>), <code class="docutils literal notranslate"><span class="pre">items</span></code> (all live records in one request), <code class="docutils literal notranslate"><span class="pre">record</span></code>
+(bytes or UTF-8 text, size checked, optionally through an RWS subscription),
+<code class="docutils literal notranslate"><span class="pre">erase</span></code>. Records come back as <code class="docutils literal notranslate"><span class="pre">bytes</span></code> (<code class="docutils literal notranslate"><span class="pre">DatalogItem</span></code>), never as text-or-hex.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">client.rws</span></code>: <code class="docutils literal notranslate"><span class="pre">ledger</span></code> (<code class="docutils literal notranslate"><span class="pre">Ledger</span></code> with <code class="docutils literal notranslate"><span class="pre">is_active</span></code>, <code class="docutils literal notranslate"><span class="pre">days_left</span></code>, <code class="docutils literal notranslate"><span class="pre">expires_at</span></code>),
+<code class="docutils literal notranslate"><span class="pre">devices</span></code>, <code class="docutils literal notranslate"><span class="pre">is_device</span></code>, <code class="docutils literal notranslate"><span class="pre">max_devices</span></code>, <code class="docutils literal notranslate"><span class="pre">set_devices</span></code> (plain list, checked and
+de-duplicated, <code class="docutils literal notranslate"><span class="pre">TooManyDevices</span></code> past the limit), <code class="docutils literal notranslate"><span class="pre">add_devices</span></code>,
+<code class="docutils literal notranslate"><span class="pre">remove_devices</span></code>, <code class="docutils literal notranslate"><span class="pre">call</span></code>, <code class="docutils literal notranslate"><span class="pre">bid</span></code>, auction reads.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">client.system</span></code> (<code class="docutils literal notranslate"><span class="pre">account</span></code> → <code class="docutils literal notranslate"><span class="pre">AccountInfo</span></code> with <code class="docutils literal notranslate"><span class="pre">exists</span></code>, <code class="docutils literal notranslate"><span class="pre">next_nonce</span></code>),
+<code class="docutils literal notranslate"><span class="pre">client.balances</span></code> (<code class="docutils literal notranslate"><span class="pre">existential_deposit</span></code>, <code class="docutils literal notranslate"><span class="pre">transfer_keep_alive</span></code>,
+<code class="docutils literal notranslate"><span class="pre">transfer_allow_death</span></code>), <code class="docutils literal notranslate"><span class="pre">client.chain</span></code> (block hashes and numbers, runtime
+version). <code class="docutils literal notranslate"><span class="pre">XRT</span> <span class="pre">=</span> <span class="pre">10**9</span></code>.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RobonomicsSync</span></code>, a blocking wrapper for scripts and cron jobs: the async client
+on an event loop in a background thread, with the same methods, arguments,
+errors and timeouts (a test keeps the two APIs in step). <code class="docutils literal notranslate"><span class="pre">query_map</span></code> becomes a
+plain iterator. Calling it from inside a running event loop raises
+<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> rather than stalling the loop; closing it stops every thread it
+started.</p></li>
+<li><p>Tests: offline suites on recorded mainnet data and local fake nodes; integration
+tests against a development node running the mainnet runtime
+(<code class="docutils literal notranslate"><span class="pre">scripts/devchain.sh</span></code>), covering transfers, datalog, sudo, RWS subscriptions and
+their failures; a read-only mainnet smoke test.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">py.typed</span></code>.</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>Changed<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Python 3.12+; built with hatchling.</p></li>
+<li><p>Core dependencies are <code class="docutils literal notranslate"><span class="pre">pynacl</span></code>, <code class="docutils literal notranslate"><span class="pre">scalecodec</span></code>, <code class="docutils literal notranslate"><span class="pre">websockets</span></code> and <code class="docutils literal notranslate"><span class="pre">xxhash</span></code> only;
+every one installs from a wheel or as pure Python on musl/aarch64.</p></li>
+<li><p>ED25519 is the only key type. sr25519 returns as an optional extra in a later
+release.</p></li>
+<li><p>Extrinsic failures raise instead of returning a hash: inclusion in a block is
+checked against the block’s events.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Keypair.sign()</span></code> signs a <code class="docutils literal notranslate"><span class="pre">str</span></code> as its UTF-8 bytes. substrate-interface decoded a
+<code class="docutils literal notranslate"><span class="pre">str</span></code> starting with <code class="docutils literal notranslate"><span class="pre">0x</span></code> as hex first; pass <code class="docutils literal notranslate"><span class="pre">bytes.fromhex(...)</span></code> for that.</p></li>
+</ul>
+</section>
+<section id="removed">
+<h3>Removed<a class="headerlink" href="#removed" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The dependency on <code class="docutils literal notranslate"><span class="pre">substrate-interface</span></code> and, with it, <code class="docutils literal notranslate"><span class="pre">ecdsa</span></code>, the Ethereum
+libraries, <code class="docutils literal notranslate"><span class="pre">smoldot-light</span></code> and the Rust bindings.</p></li>
+<li><p>The 2.x API: <code class="docutils literal notranslate"><span class="pre">Account</span></code>, <code class="docutils literal notranslate"><span class="pre">ServiceFunctions</span></code>, <code class="docutils literal notranslate"><span class="pre">BaseClass</span></code>, <code class="docutils literal notranslate"><span class="pre">ChainUtils</span></code>,
+<code class="docutils literal notranslate"><span class="pre">CommonFunctions</span></code>, the per-pallet classes, <code class="docutils literal notranslate"><span class="pre">Subscriber</span></code>/<code class="docutils literal notranslate"><span class="pre">SubEvent</span></code>,
+<code class="docutils literal notranslate"><span class="pre">TYPE_REGISTRY</span></code>, and the <code class="docutils literal notranslate"><span class="pre">robonomics_interface</span></code> CLI.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">PubSub</span></code> and <code class="docutils literal notranslate"><span class="pre">ReqRes</span></code>: the node RPCs behind them are gone since collators moved
+to <code class="docutils literal notranslate"><span class="pre">polkadot-omni-node</span></code>.</p></li>
+<li><p>IPFS helpers (<code class="docutils literal notranslate"><span class="pre">web_3_auth</span></code>, <code class="docutils literal notranslate"><span class="pre">ipfs_32_bytes_to_qm_hash</span></code>, <code class="docutils literal notranslate"><span class="pre">ipfs_qm_hash_to_32_bytes</span></code>).</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          <a class="prev-page" href="api.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">API reference</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Changelog</a><ul>
+<li><a class="reference internal" href="#id1">[3.0.0] — 2026-10-26</a><ul>
+<li><a class="reference internal" href="#changed">Changed</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#rc2-2026-09-27">[3.0.0rc2] — 2026-09-27</a><ul>
+<li><a class="reference internal" href="#fixed">Fixed</a></li>
+<li><a class="reference internal" href="#added">Added</a></li>
+<li><a class="reference internal" href="#id2">Changed</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#rc1-2026-09-24">[3.0.0rc1] — 2026-09-24</a><ul>
+<li><a class="reference internal" href="#id3">Added</a></li>
+<li><a class="reference internal" href="#id4">Changed</a></li>
+<li><a class="reference internal" href="#removed">Removed</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=acc74ff5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

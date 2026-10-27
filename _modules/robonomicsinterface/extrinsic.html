@@ -1,0 +1,805 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
+
+    <!-- Generated with Sphinx 9.1.1 and Furo 2025.12.19 -->
+        <title>robonomicsinterface.extrinsic - robonomics-interface 3.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">robonomics-interface 3.0.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  <span class="sidebar-brand-text">robonomics-interface 3.0.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../MIGRATION.html">Migrating to robonomics-interface 3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../CHANGELOG.html">Changelog</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for robonomicsinterface.extrinsic</h1><div class="highlight"><pre>
+<span></span><span class="sd">"""Calls, signed extrinsics, and what the chain says about them afterwards.</span>
+
+<span class="sd">Everything here is offline: it takes a :class:`~robonomicsinterface.runtime.Runtime`</span>
+<span class="sd">and produces bytes, or takes bytes from the chain and explains them. The</span>
+<span class="sd">client does the talking.</span>
+
+<span class="sd">Signed extensions are read from the runtime metadata, in its order. Each one</span>
+<span class="sd">contributes an explicit part (sent in the extrinsic) and an implicit part (only</span>
+<span class="sd">signed); the values come from :data:`EXTENSION_VALUES`. An extension this</span>
+<span class="sd">library does not know is fine if both its parts are empty, and an</span>
+<span class="sd">:class:`~robonomicsinterface.errors.UnsupportedExtension` otherwise — never a</span>
+<span class="sd">silently wrong signature.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">EncodeError</span><span class="p">,</span> <span class="n">MetadataError</span><span class="p">,</span> <span class="n">UnsupportedExtension</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.keys</span><span class="w"> </span><span class="kn">import</span> <span class="n">Keypair</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.runtime</span><span class="w"> </span><span class="kn">import</span> <span class="n">Runtime</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">"EXTENSION_VALUES"</span><span class="p">,</span>
+    <span class="s2">"Call"</span><span class="p">,</span>
+    <span class="s2">"Era"</span><span class="p">,</span>
+    <span class="s2">"Event"</span><span class="p">,</span>
+    <span class="s2">"ExtrinsicResult"</span><span class="p">,</span>
+    <span class="s2">"SignedExtrinsic"</span><span class="p">,</span>
+    <span class="s2">"SigningContext"</span><span class="p">,</span>
+    <span class="s2">"compose_call"</span><span class="p">,</span>
+    <span class="s2">"decode_events"</span><span class="p">,</span>
+    <span class="s2">"dispatch_error_message"</span><span class="p">,</span>
+    <span class="s2">"explain_invalid_transaction"</span><span class="p">,</span>
+    <span class="s2">"extrinsic_hash"</span><span class="p">,</span>
+    <span class="s2">"sign_extrinsic"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_SIGNED_BIT</span> <span class="o">=</span> <span class="mb">0b1000_0000</span>
+<span class="n">_MAX_UNHASHED_PAYLOAD</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">DEFAULT_ERA_PERIOD</span> <span class="o">=</span> <span class="mi">64</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_blake2_256</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">blake2b</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">digest_size</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span><span class="o">.</span><span class="n">digest</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="extrinsic_hash">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.extrinsic_hash">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extrinsic_hash</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""The hash nodes and explorers identify an extrinsic by."""</span>
+
+    <span class="k">return</span> <span class="s2">"0x"</span> <span class="o">+</span> <span class="n">_blake2_256</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_compact</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">6</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">value</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">14</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">((</span><span class="n">value</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="o">|</span> <span class="mb">0b01</span><span class="p">)</span><span class="o">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">"little"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">30</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">((</span><span class="n">value</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="o">|</span> <span class="mb">0b10</span><span class="p">)</span><span class="o">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">"little"</span><span class="p">)</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">to_bytes</span><span class="p">((</span><span class="n">value</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span> <span class="o">+</span> <span class="mi">7</span><span class="p">)</span> <span class="o">//</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">"little"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">bytes</span><span class="p">([((</span><span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">-</span> <span class="mi">4</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">)</span> <span class="o">|</span> <span class="mb">0b11</span><span class="p">])</span> <span class="o">+</span> <span class="n">raw</span>
+
+
+<span class="c1"># Era</span>
+
+
+<div class="viewcode-block" id="Era">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.Era">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Era</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""How long a signed extrinsic stays valid.</span>
+
+<span class="sd">    An immortal extrinsic is valid until its nonce is used. A mortal one is</span>
+<span class="sd">    valid for ``period`` blocks from the block it names, so a lost or stuck</span>
+<span class="sd">    transaction cannot land much later — and cannot be replayed if the account</span>
+<span class="sd">    is ever reaped and its nonce starts again from zero.</span>
+<span class="sd">    """</span>
+
+    <span class="n">period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">phase</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">immortal</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Era</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Era.mortal">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.Era.mortal">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mortal</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">period</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">current_block</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Era</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Valid for about ``period`` blocks (rounded to a power of two, 4..65536)."""</span>
+
+        <span class="n">period</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">period</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()))</span>
+        <span class="n">quantize</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">period</span> <span class="o">&gt;&gt;</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">phase</span> <span class="o">=</span> <span class="n">current_block</span> <span class="o">%</span> <span class="n">period</span> <span class="o">//</span> <span class="n">quantize</span> <span class="o">*</span> <span class="n">quantize</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">period</span><span class="p">,</span> <span class="n">phase</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_immortal</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">period</span> <span class="ow">is</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Era.birth">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.Era.birth">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">birth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">current_block</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The block whose hash the extrinsic commits to."""</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">period</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="nb">max</span><span class="p">(</span><span class="n">current_block</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span>
+        <span class="p">)</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">period</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">period</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">phase</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">encode</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">period</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="sa">b</span><span class="s2">"</span><span class="se">\x00</span><span class="s2">"</span>
+        <span class="n">quantize</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">period</span> <span class="o">&gt;&gt;</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">low</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">period</span> <span class="o">&amp;</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">period</span><span class="p">)</span><span class="o">.</span><span class="n">bit_length</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">low</span> <span class="o">|</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phase</span> <span class="o">//</span> <span class="n">quantize</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">to_bytes</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">"little"</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Calls</span>
+
+
+<div class="viewcode-block" id="Call">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.Call">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Call</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""An encoded call, ready to sign or to nest (``RWS.call``, ``Utility.batch``)."""</span>
+
+    <span class="n">pallet</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">function</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">args</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">scale_value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">spec_version</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"0x"</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_adapt</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">Runtime</span><span class="p">,</span> <span class="n">type_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Turn a natural Python value into what scalecodec expects for ``type_id``.</span>
+
+<span class="sd">    - ``bytes`` become hex, a :class:`Keypair` becomes its public key and a</span>
+<span class="sd">      :class:`Call` its nested form, at any depth;</span>
+<span class="sd">    - a single-field wrapper such as ``BoundedVec&lt;T, S&gt;`` takes the inner value</span>
+<span class="sd">      directly: ``devices=[a, b]``, not the ``[[a, b]]`` scalecodec wants.</span>
+<span class="sd">    """</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Call</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">scale_value</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Keypair</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">public_key</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="s2">"0x"</span> <span class="o">+</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+
+    <span class="n">definition</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">type_info</span><span class="p">(</span><span class="n">type_id</span><span class="p">)[</span><span class="s2">"def"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">"composite"</span> <span class="ow">in</span> <span class="n">definition</span><span class="p">:</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">definition</span><span class="p">[</span><span class="s2">"composite"</span><span class="p">][</span><span class="s2">"fields"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"name"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">scale_class</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">scale_class</span><span class="p">(</span><span class="n">type_id</span><span class="p">)</span>
+            <span class="n">mapping</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">scale_class</span><span class="p">,</span> <span class="s2">"type_mapping"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_is_tuple_class</span><span class="p">(</span><span class="n">scale_class</span><span class="p">)</span> <span class="ow">and</span> <span class="n">mapping</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">mapping</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">_adapt</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"type"</span><span class="p">],</span> <span class="n">value</span><span class="p">),)</span>
+            <span class="k">return</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="n">f</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]:</span> <span class="n">_adapt</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">f</span><span class="p">[</span><span class="s2">"type"</span><span class="p">],</span> <span class="n">value</span><span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]])</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">value</span>
+            <span class="p">}</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">_adapt</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">f</span><span class="p">[</span><span class="s2">"type"</span><span class="p">],</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">if</span> <span class="s2">"sequence"</span> <span class="ow">in</span> <span class="n">definition</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_adapt</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">definition</span><span class="p">[</span><span class="s2">"sequence"</span><span class="p">][</span><span class="s2">"type"</span><span class="p">],</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">"array"</span> <span class="ow">in</span> <span class="n">definition</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">_adapt</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">definition</span><span class="p">[</span><span class="s2">"array"</span><span class="p">][</span><span class="s2">"type"</span><span class="p">],</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">"tuple"</span> <span class="ow">in</span> <span class="n">definition</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
+        <span class="n">types</span> <span class="o">=</span> <span class="n">definition</span><span class="p">[</span><span class="s2">"tuple"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">types</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">_adapt</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">types</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">if</span> <span class="s2">"variant"</span> <span class="ow">in</span> <span class="n">definition</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">inner</span><span class="p">),)</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">variant</span> <span class="ow">in</span> <span class="n">definition</span><span class="p">[</span><span class="s2">"variant"</span><span class="p">][</span><span class="s2">"variants"</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">variant</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="o">!=</span> <span class="n">name</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="n">variant</span><span class="p">[</span><span class="s2">"fields"</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"name"</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">_adapt</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"type"</span><span class="p">],</span> <span class="n">inner</span><span class="p">)}</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">{</span>
+                    <span class="n">name</span><span class="p">:</span> <span class="p">{</span>
+                        <span class="n">f</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]:</span> <span class="n">_adapt</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">f</span><span class="p">[</span><span class="s2">"type"</span><span class="p">],</span> <span class="n">inner</span><span class="p">[</span><span class="n">f</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]])</span>
+                        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span>
+                        <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]</span> <span class="ow">in</span> <span class="n">inner</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inner</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">fields</span><span class="p">):</span>
+                <span class="n">adapted</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">_adapt</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">f</span><span class="p">[</span><span class="s2">"type"</span><span class="p">],</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">fields</span><span class="p">,</span> <span class="n">inner</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="p">]</span>
+                <span class="k">return</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">adapted</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_tuple_class</span><span class="p">(</span><span class="n">scale_class</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scalecodec.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
+
+    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scale_class</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">scale_class</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="compose_call">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.compose_call">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compose_call</span><span class="p">(</span>
+    <span class="n">runtime</span><span class="p">:</span> <span class="n">Runtime</span><span class="p">,</span> <span class="n">pallet</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">function</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Call</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Encode ``pallet.function(**args)`` for this runtime.</span>
+
+<span class="sd">    Arguments are checked against the metadata: a missing or unknown one is an</span>
+<span class="sd">    :class:`~robonomicsinterface.errors.EncodeError`, as is a value that does</span>
+<span class="sd">    not fit its type.</span>
+<span class="sd">    """</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">args</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">call_fields</span><span class="p">(</span><span class="n">pallet</span><span class="p">,</span> <span class="n">function</span><span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">]</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+    <span class="n">unknown</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">args</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">names</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">missing</span> <span class="ow">or</span> <span class="n">unknown</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">EncodeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pallet</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2"> takes (</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">names</span><span class="p">)</span><span class="si">}</span><span class="s2">); "</span>
+            <span class="sa">f</span><span class="s2">"missing </span><span class="si">{</span><span class="n">missing</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'nothing'</span><span class="si">}</span><span class="s2">, unknown </span><span class="si">{</span><span class="n">unknown</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s1">'nothing'</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span>
+    <span class="n">adapted</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">_adapt</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">type_id</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">type_id</span> <span class="ow">in</span> <span class="n">fields</span> <span class="k">if</span> <span class="n">name</span><span class="p">}</span>
+    <span class="n">scale_value</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"call_module"</span><span class="p">:</span> <span class="n">pallet</span><span class="p">,</span> <span class="s2">"call_function"</span><span class="p">:</span> <span class="n">function</span><span class="p">,</span> <span class="s2">"call_args"</span><span class="p">:</span> <span class="n">adapted</span><span class="p">}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">scale_call</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">scale_config</span><span class="o">.</span><span class="n">create_scale_object</span><span class="p">(</span>
+            <span class="s2">"Call"</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">runtime</span><span class="o">.</span><span class="n">scale_metadata</span>
+        <span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">scale_call</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">scale_value</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">EncodeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pallet</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">function</span><span class="si">}</span><span class="s2">: the arguments do not encode (</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+    <span class="k">return</span> <span class="n">Call</span><span class="p">(</span><span class="n">pallet</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">scale_value</span><span class="p">,</span> <span class="n">runtime</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">spec_version</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Signing</span>
+
+
+<div class="viewcode-block" id="SigningContext">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.SigningContext">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SigningContext</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""What a signature commits to besides the call: nonce, era, tip, chain."""</span>
+
+    <span class="n">nonce</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">era</span><span class="p">:</span> <span class="n">Era</span>
+    <span class="n">birth_hash</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">genesis_hash</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">spec_version</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">transaction_version</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">tip</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+
+
+<span class="n">ExtensionValue</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">SigningContext</span><span class="p">],</span> <span class="n">Any</span><span class="p">]</span>
+
+<span class="c1"># identifier -&gt; (explicit value, implicit value). ``None`` means the part must be empty.</span>
+<span class="n">EXTENSION_VALUES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">ExtensionValue</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ExtensionValue</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"CheckMortality"</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">era</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">birth_hash</span><span class="p">),</span>
+    <span class="s2">"CheckEra"</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">era</span><span class="o">.</span><span class="n">encode</span><span class="p">(),</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">birth_hash</span><span class="p">),</span>
+    <span class="s2">"CheckNonce"</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">nonce</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"ChargeTransactionPayment"</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">tip</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"ChargeAssetTxPayment"</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="p">{</span><span class="s2">"tip"</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">tip</span><span class="p">,</span> <span class="s2">"asset_id"</span><span class="p">:</span> <span class="kc">None</span><span class="p">},</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"CheckMetadataHash"</span><span class="p">:</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="s2">"Disabled"</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s2">"CheckSpecVersion"</span><span class="p">:</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">spec_version</span><span class="p">),</span>
+    <span class="s2">"CheckTxVersion"</span><span class="p">:</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">transaction_version</span><span class="p">),</span>
+    <span class="s2">"CheckGenesis"</span><span class="p">:</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">genesis_hash</span><span class="p">),</span>
+<span class="p">}</span>
+<span class="n">_RAW_ERA_EXTENSIONS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"CheckMortality"</span><span class="p">,</span> <span class="s2">"CheckEra"</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extension_parts</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">Runtime</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SigningContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">]:</span>
+    <span class="n">explicit</span><span class="p">,</span> <span class="n">implicit</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">""</span><span class="p">,</span> <span class="sa">b</span><span class="s2">""</span>
+    <span class="k">for</span> <span class="n">extension</span> <span class="ow">in</span> <span class="n">runtime</span><span class="o">.</span><span class="n">signed_extensions</span><span class="p">:</span>
+        <span class="n">explicit_value</span><span class="p">,</span> <span class="n">implicit_value</span> <span class="o">=</span> <span class="n">EXTENSION_VALUES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">extension</span><span class="o">.</span><span class="n">identifier</span><span class="p">,</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">type_id</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">part</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">extension</span><span class="o">.</span><span class="n">explicit_type</span><span class="p">,</span> <span class="n">explicit_value</span><span class="p">,</span> <span class="s2">"explicit"</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">extension</span><span class="o">.</span><span class="n">implicit_type</span><span class="p">,</span> <span class="n">implicit_value</span><span class="p">,</span> <span class="s2">"implicit"</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">is_empty_type</span><span class="p">(</span><span class="n">type_id</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">UnsupportedExtension</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"the runtime requires signed extension </span><span class="si">{</span><span class="n">extension</span><span class="o">.</span><span class="n">identifier</span><span class="si">}</span><span class="s2"> "</span>
+                    <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2"> part), which this library cannot fill in"</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">part</span> <span class="o">==</span> <span class="s2">"explicit"</span> <span class="ow">and</span> <span class="n">extension</span><span class="o">.</span><span class="n">identifier</span> <span class="ow">in</span> <span class="n">_RAW_ERA_EXTENSIONS</span><span class="p">:</span>
+                <span class="n">encoded</span> <span class="o">=</span> <span class="n">value</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>  <span class="c1"># the era is already encoded</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">encoded</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="sa">f</span><span class="s2">"scale_info::</span><span class="si">{</span><span class="n">type_id</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">value</span><span class="p">(</span><span class="n">context</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">part</span> <span class="o">==</span> <span class="s2">"explicit"</span><span class="p">:</span>
+                <span class="n">explicit</span> <span class="o">+=</span> <span class="n">encoded</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">implicit</span> <span class="o">+=</span> <span class="n">encoded</span>
+    <span class="k">return</span> <span class="n">explicit</span><span class="p">,</span> <span class="n">implicit</span>
+
+
+<div class="viewcode-block" id="SignedExtrinsic">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.SignedExtrinsic">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SignedExtrinsic</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A signed extrinsic, ready for ``author_submitExtrinsic``."""</span>
+
+    <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nb">hash</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">call</span><span class="p">:</span> <span class="n">Call</span>
+    <span class="n">signer</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">nonce</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">era</span><span class="p">:</span> <span class="n">Era</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"0x"</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="sign_extrinsic">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.sign_extrinsic">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">sign_extrinsic</span><span class="p">(</span>
+    <span class="n">runtime</span><span class="p">:</span> <span class="n">Runtime</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="n">Call</span><span class="p">,</span> <span class="n">keypair</span><span class="p">:</span> <span class="n">Keypair</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">SigningContext</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SignedExtrinsic</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Sign ``call`` with ``keypair`` as a version-4 extrinsic."""</span>
+
+    <span class="k">if</span> <span class="n">runtime</span><span class="o">.</span><span class="n">extrinsic_version</span> <span class="o">!=</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">MetadataError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"extrinsic version </span><span class="si">{</span><span class="n">runtime</span><span class="o">.</span><span class="n">extrinsic_version</span><span class="si">}</span><span class="s2"> is not supported"</span><span class="p">)</span>
+    <span class="n">explicit</span><span class="p">,</span> <span class="n">implicit</span> <span class="o">=</span> <span class="n">_extension_parts</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="n">context</span><span class="p">)</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="n">call</span><span class="o">.</span><span class="n">data</span> <span class="o">+</span> <span class="n">explicit</span> <span class="o">+</span> <span class="n">implicit</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">_MAX_UNHASHED_PAYLOAD</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">_blake2_256</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+    <span class="n">signature</span> <span class="o">=</span> <span class="n">keypair</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+
+    <span class="n">address</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"scale_info::</span><span class="si">{</span><span class="n">runtime</span><span class="o">.</span><span class="n">extrinsic_param_type</span><span class="p">(</span><span class="s1">'Address'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">_adapt_multi</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="s2">"Address"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"Id"</span><span class="p">:</span> <span class="s2">"0x"</span> <span class="o">+</span> <span class="n">keypair</span><span class="o">.</span><span class="n">public_key</span><span class="o">.</span><span class="n">hex</span><span class="p">()}),</span>
+    <span class="p">)</span>
+    <span class="n">signature_bytes</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"scale_info::</span><span class="si">{</span><span class="n">runtime</span><span class="o">.</span><span class="n">extrinsic_param_type</span><span class="p">(</span><span class="s1">'Signature'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+        <span class="n">_adapt_multi</span><span class="p">(</span><span class="n">runtime</span><span class="p">,</span> <span class="s2">"Signature"</span><span class="p">,</span> <span class="p">{</span><span class="s2">"Ed25519"</span><span class="p">:</span> <span class="s2">"0x"</span> <span class="o">+</span> <span class="n">signature</span><span class="o">.</span><span class="n">hex</span><span class="p">()}),</span>
+    <span class="p">)</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">([</span><span class="n">_SIGNED_BIT</span> <span class="o">|</span> <span class="mi">4</span><span class="p">])</span> <span class="o">+</span> <span class="n">address</span> <span class="o">+</span> <span class="n">signature_bytes</span> <span class="o">+</span> <span class="n">explicit</span> <span class="o">+</span> <span class="n">call</span><span class="o">.</span><span class="n">data</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">_compact</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">body</span><span class="p">))</span> <span class="o">+</span> <span class="n">body</span>
+    <span class="k">return</span> <span class="n">SignedExtrinsic</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span>
+        <span class="nb">hash</span><span class="o">=</span><span class="n">extrinsic_hash</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+        <span class="n">call</span><span class="o">=</span><span class="n">call</span><span class="p">,</span>
+        <span class="n">signer</span><span class="o">=</span><span class="n">keypair</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
+        <span class="n">nonce</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">nonce</span><span class="p">,</span>
+        <span class="n">era</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">era</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_adapt_multi</span><span class="p">(</span><span class="n">runtime</span><span class="p">:</span> <span class="n">Runtime</span><span class="p">,</span> <span class="n">param</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Use the enum form for MultiAddress/MultiSignature, the bare value otherwise."""</span>
+
+    <span class="n">definition</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">type_info</span><span class="p">(</span><span class="n">runtime</span><span class="o">.</span><span class="n">extrinsic_param_type</span><span class="p">(</span><span class="n">param</span><span class="p">))[</span><span class="s2">"def"</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">"variant"</span> <span class="ow">in</span> <span class="n">definition</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+
+
+<span class="c1"># What the chain says</span>
+
+
+<span class="n">_INVALID_TRANSACTION</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"Call"</span><span class="p">,</span>
+    <span class="s2">"Payment"</span><span class="p">,</span>
+    <span class="s2">"Future"</span><span class="p">,</span>
+    <span class="s2">"Stale"</span><span class="p">,</span>
+    <span class="s2">"BadProof"</span><span class="p">,</span>
+    <span class="s2">"AncientBirthBlock"</span><span class="p">,</span>
+    <span class="s2">"ExhaustsResources"</span><span class="p">,</span>
+    <span class="s2">"Custom"</span><span class="p">,</span>
+    <span class="s2">"BadMandatory"</span><span class="p">,</span>
+    <span class="s2">"MandatoryValidation"</span><span class="p">,</span>
+    <span class="s2">"BadSigner"</span><span class="p">,</span>
+    <span class="s2">"IndeterminateImplicit"</span><span class="p">,</span>
+    <span class="s2">"UnknownOrigin"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_UNKNOWN_TRANSACTION</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"CannotLookup"</span><span class="p">,</span> <span class="s2">"NoUnsignedValidator"</span><span class="p">,</span> <span class="s2">"Custom"</span><span class="p">)</span>
+
+<span class="n">INVALID_EXPLANATIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"Payment"</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">"the signer cannot pay for the transaction. On Robonomics this usually means the "</span>
+        <span class="s2">"account does not exist on chain: its balance is below the existential deposit "</span>
+        <span class="s2">"(0.000001 XRT). RWS calls are free, but the signer must exist — send it the "</span>
+        <span class="s2">"existential deposit once"</span>
+    <span class="p">),</span>
+    <span class="s2">"Future"</span><span class="p">:</span> <span class="s2">"the nonce is ahead of the account's; an earlier transaction is still pending"</span><span class="p">,</span>
+    <span class="s2">"Stale"</span><span class="p">:</span> <span class="s2">"the nonce was already used; this transaction was probably sent already"</span><span class="p">,</span>
+    <span class="s2">"BadProof"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"the signature does not verify: it was made for another chain or runtime version"</span><span class="p">),</span>
+    <span class="s2">"AncientBirthBlock"</span><span class="p">:</span> <span class="s2">"the transaction's era refers to a block too old; sign it again"</span><span class="p">,</span>
+    <span class="s2">"ExhaustsResources"</span><span class="p">:</span> <span class="s2">"the block is full; try again shortly"</span><span class="p">,</span>
+    <span class="s2">"Call"</span><span class="p">:</span> <span class="s2">"the call is not allowed by the runtime"</span><span class="p">,</span>
+    <span class="s2">"BadSigner"</span><span class="p">:</span> <span class="s2">"the signer is not allowed to send this transaction"</span><span class="p">,</span>
+    <span class="s2">"CannotLookup"</span><span class="p">:</span> <span class="s2">"an account in the transaction could not be looked up"</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="explain_invalid_transaction">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.explain_invalid_transaction">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">explain_invalid_transaction</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Decode a ``TransactionValidity``: ``None`` if valid, else ``(kind, explanation)``.</span>
+
+<span class="sd">    ``raw`` is the answer of ``TaggedTransactionQueue_validate_transaction``.</span>
+<span class="sd">    """</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">raw</span> <span class="ow">or</span> <span class="n">raw</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">"Unreadable"</span><span class="p">,</span> <span class="s2">"the runtime returned an unreadable validity"</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">_INVALID_TRANSACTION</span> <span class="k">if</span> <span class="n">raw</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">_UNKNOWN_TRANSACTION</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">raw</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="k">if</span> <span class="n">raw</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">table</span><span class="p">)</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"Unknown#</span><span class="si">{</span><span class="n">raw</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">"Custom"</span><span class="p">:</span>
+        <span class="n">code</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"Custom(</span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span> <span class="s2">"rejected by a runtime-specific check"</span>
+    <span class="k">return</span> <span class="n">kind</span><span class="p">,</span> <span class="n">INVALID_EXPLANATIONS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="s2">"rejected by the runtime"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Event">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.Event">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">slots</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Event</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One runtime event, e.g. ``Event("Datalog", "NewRecord", (...))``."""</span>
+
+    <span class="n">pallet</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">attributes</span><span class="p">:</span> <span class="n">Any</span>
+    <span class="n">extrinsic_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="decode_events">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.decode_events">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">decode_events</span><span class="p">(</span><span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Event</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Turn decoded ``System.Events`` records into :class:`Event` objects."""</span>
+
+    <span class="k">return</span> <span class="p">[</span>
+        <span class="n">Event</span><span class="p">(</span>
+            <span class="n">pallet</span><span class="o">=</span><span class="n">record</span><span class="p">[</span><span class="s2">"module_id"</span><span class="p">],</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">record</span><span class="p">[</span><span class="s2">"event_id"</span><span class="p">],</span>
+            <span class="n">attributes</span><span class="o">=</span><span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"attributes"</span><span class="p">),</span>
+            <span class="n">extrinsic_index</span><span class="o">=</span><span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"extrinsic_idx"</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">records</span>
+    <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="ExtrinsicResult">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.ExtrinsicResult">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExtrinsicResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""An extrinsic that made it into a block, and the events it produced."""</span>
+
+    <span class="n">extrinsic_hash</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">block_hash</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">block_number</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">index</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">events</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Event</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">finalized</span><span class="p">:</span> <span class="nb">bool</span>
+
+<div class="viewcode-block" id="ExtrinsicResult.find">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.ExtrinsicResult.find">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">find</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pallet</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Event</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The first event ``pallet.name`` of this extrinsic, if any."""</span>
+
+        <span class="k">return</span> <span class="nb">next</span><span class="p">((</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">events</span> <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">pallet</span> <span class="o">==</span> <span class="n">pallet</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="n">MODULE_HINTS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="p">(</span><span class="s2">"RWS"</span><span class="p">,</span> <span class="s2">"NotLinkedDevice"</span><span class="p">):</span> <span class="p">(</span>
+        <span class="s2">"the signer is not in the subscription's device list; the owner adds it with "</span>
+        <span class="s2">"RWS.set_devices"</span>
+    <span class="p">),</span>
+    <span class="p">(</span><span class="s2">"RWS"</span><span class="p">,</span> <span class="s2">"FreeWeightIsNotEnough"</span><span class="p">):</span> <span class="p">(</span>
+        <span class="s2">"the subscription has no free transaction allowance left: it has expired (an "</span>
+        <span class="s2">"expired daily subscription stays on chain but stops accruing), or it is used up "</span>
+        <span class="s2">"for now — wait and try again, or send less often"</span>
+    <span class="p">),</span>
+    <span class="p">(</span><span class="s2">"RWS"</span><span class="p">,</span> <span class="s2">"NoSubscription"</span><span class="p">):</span> <span class="s2">"the subscription owner has no RWS subscription"</span><span class="p">,</span>
+    <span class="p">(</span><span class="s2">"Datalog"</span><span class="p">,</span> <span class="s2">"RecordTooBig"</span><span class="p">):</span> <span class="s2">"a datalog record is limited to 512 bytes"</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="dispatch_error_message">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.extrinsic.dispatch_error_message">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dispatch_error_message</span><span class="p">(</span>
+    <span class="n">runtime</span><span class="p">:</span> <span class="n">Runtime</span><span class="p">,</span> <span class="n">dispatch_error</span><span class="p">:</span> <span class="n">Any</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Explain a ``DispatchError``: ``(pallet, error, docs, message)``."""</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dispatch_error</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"Module"</span> <span class="ow">in</span> <span class="n">dispatch_error</span><span class="p">:</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">dispatch_error</span><span class="p">[</span><span class="s2">"Module"</span><span class="p">]</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">module</span><span class="p">[</span><span class="s2">"error"</span><span class="p">]</span>
+        <span class="n">error_index</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">"0x"</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">module_error</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">module</span><span class="p">[</span><span class="s2">"index"</span><span class="p">]),</span> <span class="n">error_index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">resolved</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"module </span><span class="si">{</span><span class="n">module</span><span class="p">[</span><span class="s1">'index'</span><span class="p">]</span><span class="si">}</span><span class="s2"> error </span><span class="si">{</span><span class="n">error_index</span><span class="si">}</span><span class="s2">"</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"the call failed: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
+        <span class="n">hint</span> <span class="o">=</span> <span class="n">MODULE_HINTS</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">resolved</span><span class="o">.</span><span class="n">pallet</span><span class="p">,</span> <span class="n">resolved</span><span class="o">.</span><span class="n">name</span><span class="p">))</span> <span class="ow">or</span> <span class="n">resolved</span><span class="o">.</span><span class="n">docs</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">resolved</span><span class="o">.</span><span class="n">pallet</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">resolved</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span> <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s2">": </span><span class="si">{</span><span class="n">hint</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="n">hint</span> <span class="k">else</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">resolved</span><span class="o">.</span><span class="n">pallet</span><span class="p">,</span> <span class="n">resolved</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">resolved</span><span class="o">.</span><span class="n">docs</span><span class="p">,</span> <span class="n">message</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dispatch_error</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dispatch_error</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="p">((</span><span class="n">kind</span><span class="p">,</span> <span class="n">detail</span><span class="p">),)</span> <span class="o">=</span> <span class="n">dispatch_error</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">detail</span><span class="si">}</span><span class="s2">"</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">detail</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">kind</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"the call failed: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
+    <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">dispatch_error</span><span class="p">),</span> <span class="s2">""</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"the call failed: </span><span class="si">{</span><span class="n">dispatch_error</span><span class="si">}</span><span class="s2">"</span></div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=acc74ff5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>

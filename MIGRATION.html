@@ -1,0 +1,886 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="API reference" href="api.html"><link rel="prev" title="robonomics-interface" href="index.html">
+
+    <!-- Generated with Sphinx 9.1.1 and Furo 2025.12.19 -->
+        <title>Migrating to robonomics-interface 3.0 - robonomics-interface 3.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">robonomics-interface 3.0.0 documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  <span class="sidebar-brand-text">robonomics-interface 3.0.0 documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Migrating to robonomics-interface 3.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHANGELOG.html">Changelog</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="_sources/MIGRATION.md.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="migrating-to-robonomics-interface-3-0">
+<h1>Migrating to robonomics-interface 3.0<a class="headerlink" href="#migrating-to-robonomics-interface-3-0" title="Link to this heading">¶</a></h1>
+<p>3.0 is a rewrite. It keeps the wire formats — the same address from the same
+mnemonic, the same ciphertext, the same extrinsic bytes — and changes the API.
+This guide is written for moving the Robonomics Report Service projects
+(<code class="docutils literal notranslate"><span class="pre">rrs-connector</span></code>, <code class="docutils literal notranslate"><span class="pre">rrs-admin</span></code>, <code class="docutils literal notranslate"><span class="pre">rrs-ha-integration</span></code>) off <code class="docutils literal notranslate"><span class="pre">robonomics-interface</span></code>
+2.x, <code class="docutils literal notranslate"><span class="pre">substrate-interface</span></code> and the copied <code class="docutils literal notranslate"><span class="pre">chain/</span></code> packages, but applies to any
+2.x user.</p>
+<p>Pin the exact version everywhere: <code class="docutils literal notranslate"><span class="pre">robonomics-interface==3.0.0</span></code>.
+The API listed in section 8 is the same as in the release candidates.</p>
+<section id="what-changed-and-why">
+<h2>1. What changed, and why<a class="headerlink" href="#what-changed-and-why" title="Link to this heading">¶</a></h2>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>2.x</p></th>
+<th class="head"><p>3.0</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Dependencies</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">substrate-interface</span></code> (Rust bindings, <code class="docutils literal notranslate"><span class="pre">ecdsa</span></code>, Ethereum libs, <code class="docutils literal notranslate"><span class="pre">smoldot-light</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">pynacl</span></code>, <code class="docutils literal notranslate"><span class="pre">scalecodec</span></code>, <code class="docutils literal notranslate"><span class="pre">websockets</span></code>, <code class="docutils literal notranslate"><span class="pre">xxhash</span></code>; installs on musl/aarch64 with no compiler</p></td>
+</tr>
+<tr class="row-odd"><td><p>Keys</p></td>
+<td><p>sr25519 by default, ed25519 optional</p></td>
+<td><p>ED25519 only (sr25519 returns as an extra in 3.1)</p></td>
+</tr>
+<tr class="row-even"><td><p>Connection</p></td>
+<td><p>hidden, per object, synchronous, no request timeout</p></td>
+<td><p>explicit <code class="docutils literal notranslate"><span class="pre">RobonomicsClient</span></code> (asyncio) or <code class="docutils literal notranslate"><span class="pre">RobonomicsSync</span></code>; timeout on every request; endpoints in priority order with health checks and failover</p></td>
+</tr>
+<tr class="row-odd"><td><p>Types</p></td>
+<td><p>hand-written type registry</p></td>
+<td><p>the chain’s own metadata</p></td>
+</tr>
+<tr class="row-even"><td><p>Writes</p></td>
+<td><p>returns a hash; failure inside the block goes unnoticed</p></td>
+<td><p>reads the block’s events; a failed call raises <code class="docutils literal notranslate"><span class="pre">ExtrinsicFailed</span></code> naming the pallet error</p></td>
+</tr>
+<tr class="row-odd"><td><p>Errors</p></td>
+<td><p>whatever the transport library raised</p></td>
+<td><p>one hierarchy under <code class="docutils literal notranslate"><span class="pre">RobonomicsError</span></code>; network failures are <code class="docutils literal notranslate"><span class="pre">TransportError</span></code> (retryable), everything else is not</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="dependencies">
+<h2>2. Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">¶</a></h2>
+<p>Remove <code class="docutils literal notranslate"><span class="pre">substrate-interface</span></code>, <code class="docutils literal notranslate"><span class="pre">websocket-client</span></code> and any copy of the <code class="docutils literal notranslate"><span class="pre">chain/</span></code>
+package. Add <code class="docutils literal notranslate"><span class="pre">robonomics-interface==3.0.0rc1</span></code>. It brings <code class="docutils literal notranslate"><span class="pre">pynacl</span></code>, <code class="docutils literal notranslate"><span class="pre">scalecodec</span></code>,
+<code class="docutils literal notranslate"><span class="pre">websockets</span></code> and <code class="docutils literal notranslate"><span class="pre">xxhash</span></code>; do not list them separately unless the project uses
+them directly.</p>
+<p>Home Assistant: the manifest <code class="docutils literal notranslate"><span class="pre">requirements</span></code> becomes <code class="docutils literal notranslate"><span class="pre">[&quot;robonomics-interface==3.0.0rc1&quot;,</span> <span class="pre">...]</span></code>
+(plus the project’s own, e.g. <code class="docutils literal notranslate"><span class="pre">pinatapy-vourhey</span></code>). HA already constrains
+<code class="docutils literal notranslate"><span class="pre">websockets&gt;=15</span></code>, which 3.0 accepts. No <code class="docutils literal notranslate"><span class="pre">aiohttp</span></code> session is needed: the library
+has its own WebSocket client.</p>
+</section>
+<section id="the-client">
+<h2>3. The client<a class="headerlink" href="#the-client" title="Link to this heading">¶</a></h2>
+<section id="async-home-assistant-any-asyncio-code">
+<h3>Async (Home Assistant, any asyncio code)<a class="headerlink" href="#async-home-assistant-any-asyncio-code" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">robonomicsinterface</span><span class="w"> </span><span class="kn">import</span> <span class="n">RobonomicsClient</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">RobonomicsClient</span><span class="p">(</span><span class="n">endpoints</span><span class="p">)</span>        <span class="c1"># str or list, in order of preference</span>
+<span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>                      <span class="c1"># or: async with RobonomicsClient(...) as client:</span>
+<span class="o">...</span>
+<span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Create one client and keep it: it holds one multiplexed connection and the
+parsed runtime metadata (parsing takes seconds on a Raspberry Pi; the library
+does it off the event loop). In an integration, create it per config entry and
+close it on unload (<code class="docutils literal notranslate"><span class="pre">entry.async_on_unload(client.close)</span></code>).</p>
+<p>In Home Assistant, pass HA’s shared TLS context:
+<code class="docutils literal notranslate"><span class="pre">RobonomicsClient(endpoints,</span> <span class="pre">ssl=homeassistant.util.ssl.client_context())</span></code>. It honours
+HA’s CA settings and is built once for all integrations. Without <code class="docutils literal notranslate"><span class="pre">ssl=</span></code>, the library
+builds its own default context once per client, off the event loop (since rc2; rc1
+built one per connection on the loop, which HA reported as a blocking call).</p>
+</section>
+<section id="blocking-scripts-cron-jobs-clis">
+<h3>Blocking (scripts, cron jobs, CLIs)<a class="headerlink" href="#blocking-scripts-cron-jobs-clis" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">robonomicsinterface</span><span class="w"> </span><span class="kn">import</span> <span class="n">RobonomicsSync</span>
+
+<span class="k">with</span> <span class="n">RobonomicsSync</span><span class="p">(</span><span class="n">endpoints</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">datalog</span><span class="o">.</span><span class="n">latest</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Same methods and arguments without <code class="docutils literal notranslate"><span class="pre">await</span></code>; <code class="docutils literal notranslate"><span class="pre">query_map</span></code> is a plain iterator.
+It must not be called from a thread running an event loop — it raises
+<code class="docutils literal notranslate"><span class="pre">RuntimeError</span></code> there, because blocking would stall that loop.</p>
+</section>
+<section id="options-that-replace-2-x-workarounds">
+<h3>Options that replace 2.x workarounds<a class="headerlink" href="#options-that-replace-2-x-workarounds" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Need</p></th>
+<th class="head"><p>3.0</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Per-request timeout (was: <code class="docutils literal notranslate"><span class="pre">interface.websocket.settimeout(...)</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RobonomicsClient(...,</span> <span class="pre">timeout=30.0,</span> <span class="pre">connect_timeout=10.0)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Several nodes, move on when one fails (was: hand-written <code class="docutils literal notranslate"><span class="pre">_reconnect</span></code> / <code class="docutils literal notranslate"><span class="pre">change_current_wss</span></code>)</p></td>
+<td><p>pass them all: <code class="docutils literal notranslate"><span class="pre">RobonomicsClient([local,</span> <span class="pre">public])</span></code>; reads are retried on the next endpoint (<code class="docutils literal notranslate"><span class="pre">retries=2</span></code>), the client returns to a preferred endpoint on its own (<code class="docutils literal notranslate"><span class="pre">failback_interval=300</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Know which node is in use</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">client.endpoint</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Kusama</p></td>
+<td><p><strong>Legacy: Robonomics on Kusama is shutting down — switch to Polkadot.</strong> The default genesis check refuses a Kusama node and says so; with <code class="docutils literal notranslate"><span class="pre">genesis_hash=None</span></code> the client connects and logs a warning. No Kusama constant is provided.</p></td>
+</tr>
+<tr class="row-even"><td><p>A node on the local network</p></td>
+<td><p>put it first: <code class="docutils literal notranslate"><span class="pre">[&quot;ws://192.168.1.10:9944&quot;,</span> <span class="pre">DEFAULT_ENDPOINT]</span></code>; a node that is syncing or has no peers is skipped</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="errors">
+<h2>4. Errors<a class="headerlink" href="#errors" title="Link to this heading">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>RobonomicsError
+├── TransportError            .retryable = True: the node was not reached or stopped answering
+│   ├── ConnectionFailed      (.endpoint, .reason)
+│   ├── ConnectionLost
+│   ├── RequestTimeout        (also a TimeoutError)
+│   └── AllEndpointsFailed    (.failures: one ConnectionFailed per endpoint)
+├── RpcError                  the node answered with an error (.code, .message, .data)
+├── TransactionError          an extrinsic did not do what was asked
+│   ├── InvalidTransaction    refused before sending (.kind, .explanation)
+│   ├── ExtrinsicFailed       in a block, call failed (.pallet, .error, .docs, .result)
+│   ├── ExtrinsicDropped      dropped by the node
+│   └── ExtrinsicOutcomeUnknown  sent, outcome unknown (.extrinsic_hash) — do not resend blindly
+├── MetadataError / NoSuchPallet / NoSuchStorage / NoSuchCall / NoSuchConstant / UnsupportedExtension
+├── EncodeError / DecodeError (ValueError)      e.g. TooManyDevices is an EncodeError
+├── InvalidAddress / InvalidKey / InvalidMnemonic (ValueError)
+├── NoSecretKey, DecryptionError
+└── EnvelopeError: RecipientError, PackageError (ValueError), PayloadError
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">TRANSIENT_ERRORS</span> <span class="pre">=</span> <span class="pre">(OSError,</span> <span class="pre">TimeoutError,</span> <span class="pre">WebSocketException)</span></code> and
+<code class="docutils literal notranslate"><span class="pre">RETRYABLE_ERRORS</span> <span class="pre">=</span> <span class="pre">(RpcError,</span> <span class="pre">ChainError,</span> <span class="pre">TimeoutError,</span> <span class="pre">OSError)</span></code> with
+<code class="docutils literal notranslate"><span class="pre">TransportError</span></code>. The client already retries reads across endpoints, so an
+outer retry loop only needs to cover a whole run, if at all. <code class="docutils literal notranslate"><span class="pre">RpcError</span></code> is not a
+network failure and repeating the request will not help.</p>
+</section>
+<section id="api-mapping">
+<h2>5. API mapping<a class="headerlink" href="#api-mapping" title="Link to this heading">¶</a></h2>
+<section id="keys-and-addresses">
+<h3>Keys and addresses<a class="headerlink" href="#keys-and-addresses" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>2.x / substrate-interface / <code class="docutils literal notranslate"><span class="pre">chain/</span></code></p></th>
+<th class="head"><p>3.0</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Keypair.create_from_mnemonic(m,</span> <span class="pre">crypto_type=KeypairType.ED25519,</span> <span class="pre">ss58_format=32)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Keypair.from_mnemonic(m)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">chain.Keypair.create_from_secret(s)</span></code> (mnemonic or <code class="docutils literal notranslate"><span class="pre">0x</span></code> seed)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Keypair.from_secret(s)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Account(seed,</span> <span class="pre">crypto_type=KeypairType.ED25519)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Keypair.from_secret(seed)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">account.get_address()</span></code>, <code class="docutils literal notranslate"><span class="pre">keypair.ss58_address</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">keypair.address</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">account.keypair</span></code></p></td>
+<td><p>the <code class="docutils literal notranslate"><span class="pre">Keypair</span></code> itself</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Keypair(ss58_address=a,</span> <span class="pre">crypto_type=KeypairType.ED25519)</span></code>, <code class="docutils literal notranslate"><span class="pre">chain.Keypair.create_from_address(a)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Keypair.from_address(a)</span></code> (public only)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">chain.Keypair.create_from_public_key(pk)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Keypair.from_public_key(pk)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Keypair.generate_mnemonic()</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">generate_mnemonic()</span></code> or <code class="docutils literal notranslate"><span class="pre">Keypair.generate_mnemonic()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">is_valid_ss58_address(a)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">is_valid_address(a,</span> <span class="pre">ss58_format=None)</span></code> — see pitfall 4</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">chain.ss58_decode(a)</span></code> / <code class="docutils literal notranslate"><span class="pre">SS58Error</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">decode_address(a)</span></code> / <code class="docutils literal notranslate"><span class="pre">InvalidAddress</span></code> (a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">chain.ss58_encode(pk,</span> <span class="pre">32)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">encode_address(pk)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;//Alice&quot;</span></code> for tests</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Keypair.from_uri(&quot;//Alice&quot;)</span></code> (ED25519, as polkadot-sdk derives it)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="encryption">
+<h3>Encryption<a class="headerlink" href="#encryption" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Before</p></th>
+<th class="head"><p>3.0</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">keypair.encrypt_message(msg,</span> <span class="pre">recipient_pk)</span></code> / <code class="docutils literal notranslate"><span class="pre">decrypt_message(box,</span> <span class="pre">sender_pk)</span></code></p></td>
+<td><p>same names, same bytes; failures raise <code class="docutils literal notranslate"><span class="pre">DecryptionError</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">chain.envelope.encrypt_for_recipients(data,</span> <span class="pre">sender,</span> <span class="pre">addresses,</span> <span class="pre">meta)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">encrypt_for_recipients(...)</span></code>, same arguments and output</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">chain.envelope.decrypt_package(package,</span> <span class="pre">recipient,</span> <span class="pre">sender_address)</span></code>, connector’s <code class="docutils literal notranslate"><span class="pre">multi_envelope_decrypt_data(...)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">decrypt_package(package,</span> <span class="pre">recipient_keypair,</span> <span class="pre">sender_address)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">parse_decrypted(text)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">parse_decrypted(text)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">chain.envelope</span></code> errors</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RecipientError</span></code>, <code class="docutils literal notranslate"><span class="pre">PackageError</span></code>, <code class="docutils literal notranslate"><span class="pre">PayloadError</span></code> (all <code class="docutils literal notranslate"><span class="pre">EnvelopeError</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="reading-the-chain">
+<h3>Reading the chain<a class="headerlink" href="#reading-the-chain" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Before</p></th>
+<th class="head"><p>3.0 (async; <code class="docutils literal notranslate"><span class="pre">RobonomicsSync</span></code> is the same without <code class="docutils literal notranslate"><span class="pre">await</span></code>)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Datalog(Account(remote_ws=url)).get_index(a)</span></code> → <code class="docutils literal notranslate"><span class="pre">{&quot;start&quot;,</span> <span class="pre">&quot;end&quot;}</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.datalog.index(a)</span></code> → <code class="docutils literal notranslate"><span class="pre">DatalogIndex(start,</span> <span class="pre">end,</span> <span class="pre">window_size)</span></code> with <code class="docutils literal notranslate"><span class="pre">.count</span></code>, <code class="docutils literal notranslate"><span class="pre">.positions</span></code> (oldest first), <code class="docutils literal notranslate"><span class="pre">.latest_position</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">interface.get_constant(&quot;Datalog&quot;,</span> <span class="pre">&quot;WindowSize&quot;).value</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.datalog.window_size()</span></code> or <code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.constant(&quot;Datalog&quot;,</span> <span class="pre">&quot;WindowSize&quot;)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">chainstate_query(&quot;Datalog&quot;,</span> <span class="pre">&quot;DatalogItem&quot;,</span> <span class="pre">[a,</span> <span class="pre">i])</span></code> → <code class="docutils literal notranslate"><span class="pre">(ts,</span> <span class="pre">content)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.datalog.item(a,</span> <span class="pre">i)</span></code> → <code class="docutils literal notranslate"><span class="pre">DatalogItem(index,</span> <span class="pre">timestamp_ms,</span> <span class="pre">data)</span></code> or <code class="docutils literal notranslate"><span class="pre">None</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>walking <code class="docutils literal notranslate"><span class="pre">ring_buffer_indices(...)</span></code> and calling <code class="docutils literal notranslate"><span class="pre">get_item</span></code> per slot</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.datalog.items(a)</span></code> — every live record, oldest first, in one request; <code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.datalog.latest(a)</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Datalog.get_item(a)</span></code> (latest)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.datalog.latest(a)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">substrate.query(&quot;RWS&quot;,</span> <span class="pre">&quot;Devices&quot;,</span> <span class="pre">[pool]).value</span> <span class="pre">or</span> <span class="pre">[]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.rws.devices(pool)</span></code> → <code class="docutils literal notranslate"><span class="pre">list[str]</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">substrate.query(&quot;RWS&quot;,</span> <span class="pre">&quot;Ledger&quot;,</span> <span class="pre">[pool]).value</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.rws.ledger(pool)</span></code> → <code class="docutils literal notranslate"><span class="pre">Ledger</span></code> or <code class="docutils literal notranslate"><span class="pre">None</span></code>: <code class="docutils literal notranslate"><span class="pre">.kind</span></code> (<code class="docutils literal notranslate"><span class="pre">&quot;Daily&quot;</span></code>/<code class="docutils literal notranslate"><span class="pre">&quot;Lifetime&quot;</span></code>), <code class="docutils literal notranslate"><span class="pre">.days</span></code>, <code class="docutils literal notranslate"><span class="pre">.tps</span></code>, <code class="docutils literal notranslate"><span class="pre">.issued_at</span></code>, <code class="docutils literal notranslate"><span class="pre">.expires_at</span></code>, <code class="docutils literal notranslate"><span class="pre">.is_active()</span></code>, <code class="docutils literal notranslate"><span class="pre">.days_left()</span></code>, <code class="docutils literal notranslate"><span class="pre">.free_weight</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">substrate.query(&quot;System&quot;,</span> <span class="pre">&quot;Account&quot;,</span> <span class="pre">[a]).value</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.system.account(a)</span></code> → <code class="docutils literal notranslate"><span class="pre">AccountInfo</span></code>: <code class="docutils literal notranslate"><span class="pre">.free</span></code>, <code class="docutils literal notranslate"><span class="pre">.reserved</span></code>, <code class="docutils literal notranslate"><span class="pre">.frozen</span></code>, <code class="docutils literal notranslate"><span class="pre">.nonce</span></code>, <code class="docutils literal notranslate"><span class="pre">.exists</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>anything else: <code class="docutils literal notranslate"><span class="pre">substrate.query(pallet,</span> <span class="pre">item,</span> <span class="pre">[keys])</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.query(pallet,</span> <span class="pre">item,</span> <span class="pre">*keys)</span></code>; maps: <code class="docutils literal notranslate"><span class="pre">client.query_map(pallet,</span> <span class="pre">item)</span></code>; constants: <code class="docutils literal notranslate"><span class="pre">client.constant(pallet,</span> <span class="pre">name)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">RWS.MaxDevicesAmount</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.rws.max_devices()</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="writing">
+<h3>Writing<a class="headerlink" href="#writing" title="Link to this heading">¶</a></h3>
+<div class="table-wrapper colwidths-auto docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Before</p></th>
+<th class="head"><p>3.0</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">chain.RobonomicsClient.record_datalog(kp,</span> <span class="pre">data,</span> <span class="pre">owner)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.datalog.record(kp,</span> <span class="pre">data,</span> <span class="pre">subscription_owner=owner)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Datalog(Account(seed),</span> <span class="pre">rws_sub_owner=owner).record(data)</span></code></p></td>
+<td><p>same as above</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">compose_call(&quot;RWS&quot;,</span> <span class="pre">&quot;set_devices&quot;,</span> <span class="pre">{&quot;devices&quot;:</span> <span class="pre">[devices]})</span></code> + sign + <code class="docutils literal notranslate"><span class="pre">submit_extrinsic(wait_for_inclusion=True)</span></code> + <code class="docutils literal notranslate"><span class="pre">receipt.is_success</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.rws.set_devices(owner_kp,</span> <span class="pre">devices)</span></code> — a <strong>flat</strong> list</p></td>
+</tr>
+<tr class="row-odd"><td><p>read devices, edit, <code class="docutils literal notranslate"><span class="pre">set_devices</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.rws.add_devices(owner_kp,</span> <span class="pre">*new)</span></code> / <code class="docutils literal notranslate"><span class="pre">remove_devices(owner_kp,</span> <span class="pre">*old)</span></code> (<code class="docutils literal notranslate"><span class="pre">None</span></code> when nothing changes)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CommonFunctions.transfer_tokens(to,</span> <span class="pre">amount)</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.balances.transfer_keep_alive(kp,</span> <span class="pre">to,</span> <span class="pre">amount)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>any other call</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">call</span> <span class="pre">=</span> <span class="pre">await</span> <span class="pre">client.compose_call(pallet,</span> <span class="pre">function,</span> <span class="pre">args)</span></code>; <code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.submit(call,</span> <span class="pre">kp)</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Every write returns an <code class="docutils literal notranslate"><span class="pre">ExtrinsicResult</span></code> (<code class="docutils literal notranslate"><span class="pre">.block_hash</span></code>, <code class="docutils literal notranslate"><span class="pre">.block_number</span></code>,
+<code class="docutils literal notranslate"><span class="pre">.index</span></code>, <code class="docutils literal notranslate"><span class="pre">.events</span></code>, <code class="docutils literal notranslate"><span class="pre">.find(pallet,</span> <span class="pre">name)</span></code>) or raises. Options for all writes:
+<code class="docutils literal notranslate"><span class="pre">wait_for=&quot;in_block&quot;|&quot;finalized&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">tip</span></code>, <code class="docutils literal notranslate"><span class="pre">era_period</span></code> (64; <code class="docutils literal notranslate"><span class="pre">None</span></code> for immortal),
+<code class="docutils literal notranslate"><span class="pre">validate</span></code> (ask the runtime first; on by default), <code class="docutils literal notranslate"><span class="pre">timeout</span></code> (120 s).</p>
+</section>
+</section>
+<section id="pitfalls-behaviour-that-changed-silently-in-meaning">
+<h2>6. Pitfalls — behaviour that changed silently in meaning<a class="headerlink" href="#pitfalls-behaviour-that-changed-silently-in-meaning" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">item(a,</span> <span class="pre">0)</span></code> is slot 0.</strong> In 2.x <code class="docutils literal notranslate"><span class="pre">get_item(index=0)</span></code> meant “latest”. The
+connector worked around it through <code class="docutils literal notranslate"><span class="pre">_service_functions</span></code>; that code goes.</p></li>
+<li><p><strong>Only live slots are returned.</strong> The ring buffer keeps at most
+<code class="docutils literal notranslate"><span class="pre">WindowSize</span> <span class="pre">-</span> <span class="pre">1</span></code> (127) records; the slot at <code class="docutils literal notranslate"><span class="pre">end</span></code> may still hold an
+overwritten record in storage. <code class="docutils literal notranslate"><span class="pre">item()</span></code> returns <code class="docutils literal notranslate"><span class="pre">None</span></code> for it, where a raw
+storage read returned the stale record.</p></li>
+<li><p><strong>Records are <code class="docutils literal notranslate"><span class="pre">bytes</span></code>.</strong> scalecodec returned a record as text when it was
+printable and as <code class="docutils literal notranslate"><span class="pre">0x…</span></code> hex otherwise, so <code class="docutils literal notranslate"><span class="pre">str(content)</span></code> could silently turn a
+CID into hex. Use <code class="docutils literal notranslate"><span class="pre">item.text</span></code> (UTF-8 or <code class="docutils literal notranslate"><span class="pre">None</span></code>) or <code class="docutils literal notranslate"><span class="pre">item.data</span></code>. When writing,
+a <code class="docutils literal notranslate"><span class="pre">str</span></code> is sent as UTF-8 — <code class="docutils literal notranslate"><span class="pre">&quot;0x12&quot;</span></code> stays the four characters it is.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">is_valid_address(a)</span></code> checks for Robonomics (format 32) by default.</strong>
+<code class="docutils literal notranslate"><span class="pre">is_valid_ss58_address(a)</span></code> accepted any network. Pass <code class="docutils literal notranslate"><span class="pre">ss58_format=None</span></code> to
+keep the old behaviour, or keep the default to reject <code class="docutils literal notranslate"><span class="pre">5…</span></code> addresses.
+<code class="docutils literal notranslate"><span class="pre">Keypair.from_address</span></code> and <code class="docutils literal notranslate"><span class="pre">decode_address</span></code> accept any format unless given one.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">set_devices</span></code> takes a flat list and replaces the whole list.</strong> The
+<code class="docutils literal notranslate"><span class="pre">[[a,</span> <span class="pre">b]]</span></code> wrapping and the decode-back guard in <code class="docutils literal notranslate"><span class="pre">rrs-admin</span></code> go. Addresses of
+any SS58 format are accepted, normalised to format 32 and de-duplicated; more
+than <code class="docutils literal notranslate"><span class="pre">MaxDevicesAmount</span></code> (32) raises <code class="docutils literal notranslate"><span class="pre">TooManyDevices</span></code> before anything is sent.
+<code class="docutils literal notranslate"><span class="pre">add_devices</span></code>/<code class="docutils literal notranslate"><span class="pre">remove_devices</span></code> read, edit and write — two concurrent edits of
+one owner can lose one.</p></li>
+<li><p><strong>A failed call raises.</strong> Inclusion in a block is not success. Catch
+<code class="docutils literal notranslate"><span class="pre">ExtrinsicFailed</span></code> and look at <code class="docutils literal notranslate"><span class="pre">.pallet</span></code>/<code class="docutils literal notranslate"><span class="pre">.error</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RWS.NotLinkedDevice</span></code> — the signer is not in the owner’s device list;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RWS.FreeWeightIsNotEnough</span></code> — no allowance left: an <strong>expired daily
+subscription stays on chain</strong> and fails this way (not with
+<code class="docutils literal notranslate"><span class="pre">NoSubscription</span></code>), and so does a fresh one before it has accrued;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RWS.NoSubscription</span></code> — the owner has none.</p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">InvalidTransaction</span></code> with <code class="docutils literal notranslate"><span class="pre">.kind</span> <span class="pre">==</span> <span class="pre">&quot;Payment&quot;</span></code></strong> means the signer does not
+exist on chain (balance below the existential deposit, 0.000001 XRT), even for
+free RWS calls. <code class="docutils literal notranslate"><span class="pre">client.system.exists(a)</span></code> tells beforehand. It is true when the
+account has providers or sufficients — not the <code class="docutils literal notranslate"><span class="pre">free</span> <span class="pre">or</span> <span class="pre">nonce</span></code> test <code class="docutils literal notranslate"><span class="pre">rrs-admin</span></code>
+used, which misses reserved-only accounts.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">ExtrinsicOutcomeUnknown</span></code> is not a failure.</strong> The extrinsic was sent and
+may still land; look it up by <code class="docutils literal notranslate"><span class="pre">.extrinsic_hash</span></code> before sending again.</p></li>
+<li><p><strong>Mortal era by default.</strong> Extrinsics are valid for ~64 blocks, so a stuck
+one cannot land an hour later, nor be replayed if the account is ever reaped.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">Keypair.from_secret</span></code> refuses derivation paths</strong> (<code class="docutils literal notranslate"><span class="pre">//Alice</span></code>); use
+<code class="docutils literal notranslate"><span class="pre">Keypair.from_uri</span></code> in tests. <code class="docutils literal notranslate"><span class="pre">Keypair.sign(str)</span></code> signs UTF-8; the 2.x stack
+decoded a <code class="docutils literal notranslate"><span class="pre">str</span></code> starting with <code class="docutils literal notranslate"><span class="pre">0x</span></code> as hex first.</p></li>
+<li><p><strong>Keypairs keep secrets to themselves:</strong> <code class="docutils literal notranslate"><span class="pre">repr()</span></code> shows the address, errors
+never include the input, pickling raises <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>.</p></li>
+<li><p><strong>One key type.</strong> Accounts must be ED25519 — which report encryption
+already required. A mnemonic that was used with sr25519 gives a different
+address here.</p></li>
+</ol>
+</section>
+<section id="per-project">
+<h2>7. Per project<a class="headerlink" href="#per-project" title="Link to this heading">¶</a></h2>
+<section id="rrs-connector">
+<h3>rrs-connector<a class="headerlink" href="#rrs-connector" title="Link to this heading">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>: drop <code class="docutils literal notranslate"><span class="pre">substrate-interface</span></code> and <code class="docutils literal notranslate"><span class="pre">websocket-client</span></code>; replace
+<code class="docutils literal notranslate"><span class="pre">robonomics-interface&gt;=2.0.0</span></code> with <code class="docutils literal notranslate"><span class="pre">==3.0.0rc1</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">robonomics/datalog_reader.py</span></code>: rebuild on <code class="docutils literal notranslate"><span class="pre">RobonomicsSync</span></code>, keeping
+<code class="docutils literal notranslate"><span class="pre">DatalogRecord</span></code>, <code class="docutils literal notranslate"><span class="pre">DatalogIndexRange</span></code>, <code class="docutils literal notranslate"><span class="pre">DatalogScan</span></code> and the cursor logic
+(<code class="docutils literal notranslate"><span class="pre">list_new_records</span></code>, <code class="docutils literal notranslate"><span class="pre">list_last_records</span></code>) as they are:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">DatalogReader</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wss_endpoints</span><span class="p">,</span> <span class="n">request_timeout_seconds</span><span class="p">,</span> <span class="n">max_attempts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">backoff_seconds</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">wss_endpoints</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"At least one WSS endpoint is required"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">client</span> <span class="o">=</span> <span class="n">RobonomicsSync</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">wss_endpoints</span><span class="p">),</span>
+            <span class="n">timeout</span><span class="o">=</span><span class="n">request_timeout_seconds</span><span class="p">,</span>
+            <span class="n">retries</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">max_attempts</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_window_size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">datalog</span><span class="o">.</span><span class="n">window_size</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_index_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender_address</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">datalog</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sender_address</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DatalogIndexRange</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">index</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sender_address</span><span class="p">,</span> <span class="n">datalog_index</span><span class="p">):</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">datalog</span><span class="o">.</span><span class="n">item</span><span class="p">(</span><span class="n">sender_address</span><span class="p">,</span> <span class="n">datalog_index</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">item</span><span class="o">.</span><span class="n">text</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">DatalogRecord</span><span class="p">(</span><span class="n">sender_address</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">timestamp_ms</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="n">item</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">_interface</span></code>, <code class="docutils literal notranslate"><span class="pre">_reconnect</span></code>, the socket timeout and the direct
+<code class="docutils literal notranslate"><span class="pre">chainstate_query</span></code> all go. <code class="docutils literal notranslate"><span class="pre">ring_buffer_indices</span></code> can stay (it matches
+<code class="docutils literal notranslate"><span class="pre">DatalogIndex.positions</span></code>) or be replaced; <code class="docutils literal notranslate"><span class="pre">client.datalog.items(a)</span></code> reads all
+records in one request, which is cheaper than one <code class="docutils literal notranslate"><span class="pre">get_item</span></code> per slot. Add a
+<code class="docutils literal notranslate"><span class="pre">close()</span></code> and call it at the end of a run.</p>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">robonomics/retry.py</span></code>: <code class="docutils literal notranslate"><span class="pre">TRANSIENT_ERRORS</span> <span class="pre">=</span> <span class="pre">(TransportError,)</span></code>; with the
+client retrying across endpoints, <code class="docutils literal notranslate"><span class="pre">before_retry=_reconnect</span></code> is no longer needed.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">keygen.py</span></code>: <code class="docutils literal notranslate"><span class="pre">mnemonic</span> <span class="pre">=</span> <span class="pre">generate_mnemonic()</span></code>, <code class="docutils literal notranslate"><span class="pre">Keypair.from_mnemonic(...)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">.address</span></code>. The read-back check stays.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">config.py</span></code>: <code class="docutils literal notranslate"><span class="pre">is_valid_address(address,</span> <span class="pre">ss58_format=None)</span></code> to keep accepting
+any format — or the default, to require Robonomics addresses (pitfall 4).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">proton_pass.py</span></code>: <code class="docutils literal notranslate"><span class="pre">load_integrator_account</span></code> returns
+<code class="docutils literal notranslate"><span class="pre">Keypair.from_secret(seed)</span></code> and compares <code class="docutils literal notranslate"><span class="pre">.address</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pipeline.py</span></code>, <code class="docutils literal notranslate"><span class="pre">reports/recipients.py</span></code>: the <code class="docutils literal notranslate"><span class="pre">Account</span></code> type becomes <code class="docutils literal notranslate"><span class="pre">Keypair</span></code>
+(<code class="docutils literal notranslate"><span class="pre">AccountLoader</span> <span class="pre">=</span> <span class="pre">Callable[[str],</span> <span class="pre">Keypair]</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">reports/decryptor.py</span></code>: <code class="docutils literal notranslate"><span class="pre">multi_envelope_decrypt_data</span></code> becomes a thin wrapper
+over <code class="docutils literal notranslate"><span class="pre">decrypt_package(package,</span> <span class="pre">recipient_keypair,</span> <span class="pre">sender_address)</span></code> that maps
+<code class="docutils literal notranslate"><span class="pre">PackageError</span></code>/<code class="docutils literal notranslate"><span class="pre">PayloadError</span></code> to <code class="docutils literal notranslate"><span class="pre">ReportDecryptionError</span></code>; <code class="docutils literal notranslate"><span class="pre">decrypt_msg</span></code> and
+the <code class="docutils literal notranslate"><span class="pre">substrateinterface</span></code> imports go. <code class="docutils literal notranslate"><span class="pre">parse_decrypted</span></code> can come from the library.</p></li>
+<li><p>Tests: <code class="docutils literal notranslate"><span class="pre">tests/test_decryptor.py</span></code>, <code class="docutils literal notranslate"><span class="pre">test_keygen.py</span></code>, <code class="docutils literal notranslate"><span class="pre">test_retry.py</span></code>,
+<code class="docutils literal notranslate"><span class="pre">conftest.py</span></code> import <code class="docutils literal notranslate"><span class="pre">substrateinterface</span></code>; switch them to the library. Keep
+any fixture ciphertext produced by the old stack: it is the compatibility check.</p></li>
+</ul>
+</section>
+<section id="rrs-admin">
+<h3>rrs-admin<a class="headerlink" href="#rrs-admin" title="Link to this heading">¶</a></h3>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>: drop <code class="docutils literal notranslate"><span class="pre">substrate-interface</span></code>; add <code class="docutils literal notranslate"><span class="pre">robonomics-interface==3.0.0rc1</span></code>.</p></li>
+<li><p>Delete <code class="docutils literal notranslate"><span class="pre">src/rrs_admin/chain/</span></code> (the third copy of the integration’s key code);
+import from <code class="docutils literal notranslate"><span class="pre">robonomicsinterface</span></code>: <code class="docutils literal notranslate"><span class="pre">Keypair.create_from_mnemonic</span></code> →
+<code class="docutils literal notranslate"><span class="pre">Keypair.from_mnemonic</span></code>, <code class="docutils literal notranslate"><span class="pre">create_from_secret</span></code> → <code class="docutils literal notranslate"><span class="pre">from_secret</span></code>, <code class="docutils literal notranslate"><span class="pre">.ss58_address</span></code>
+→ <code class="docutils literal notranslate"><span class="pre">.address</span></code>, <code class="docutils literal notranslate"><span class="pre">ss58_decode</span></code> → <code class="docutils literal notranslate"><span class="pre">decode_address</span></code>, <code class="docutils literal notranslate"><span class="pre">SS58Error</span></code> → <code class="docutils literal notranslate"><span class="pre">InvalidAddress</span></code>,
+<code class="docutils literal notranslate"><span class="pre">validate_mnemonic</span></code> unchanged, <code class="docutils literal notranslate"><span class="pre">MnemonicError</span></code> → <code class="docutils literal notranslate"><span class="pre">InvalidMnemonic</span></code>.
+Files: <code class="docutils literal notranslate"><span class="pre">pools.py</span></code>, <code class="docutils literal notranslate"><span class="pre">sites.py</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rws.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">read_subscription</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">pool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Subscription</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">RobonomicsSync</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="n">devices</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">rws</span><span class="o">.</span><span class="n">devices</span><span class="p">(</span><span class="n">pool</span><span class="p">)</span>
+        <span class="n">ledger</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">rws</span><span class="o">.</span><span class="n">ledger</span><span class="p">(</span><span class="n">pool</span><span class="p">)</span>
+        <span class="n">account</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">account</span><span class="p">(</span><span class="n">pool</span><span class="p">)</span>
+    <span class="o">...</span>  <span class="c1"># Subscription(kind=ledger.kind, issued=ledger.issued_at,</span>
+         <span class="c1">#   expires=ledger.expires_at, free_weight=ledger.free_weight,</span>
+         <span class="c1">#   balance=account.free / XRT)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">account_exists</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">RobonomicsSync</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">set_devices</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">pool_seed</span><span class="p">,</span> <span class="n">devices</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">REDACT</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pool_seed</span><span class="p">)</span>
+    <span class="n">pool</span> <span class="o">=</span> <span class="n">Keypair</span><span class="o">.</span><span class="n">from_mnemonic</span><span class="p">(</span><span class="n">pool_seed</span><span class="p">)</span>
+    <span class="n">planned</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">encode_address</span><span class="p">(</span><span class="n">decode_address</span><span class="p">(</span><span class="n">d</span><span class="p">))</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">devices</span><span class="p">))</span>
+    <span class="k">with</span> <span class="n">RobonomicsSync</span><span class="p">(</span><span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">rws</span><span class="o">.</span><span class="n">set_devices</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span> <span class="n">planned</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">TransactionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ChainError</span><span class="p">(</span><span class="n">REDACT</span><span class="p">(</span><span class="sa">f</span><span class="s2">"set_devices failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="k">if</span> <span class="n">client</span><span class="o">.</span><span class="n">rws</span><span class="o">.</span><span class="n">devices</span><span class="p">(</span><span class="n">pool</span><span class="p">)</span> <span class="o">!=</span> <span class="n">planned</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ChainError</span><span class="p">(</span><span class="s2">"the chain holds a different device list than planned"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">block_hash</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">_addresses_in</span></code> and the <code class="docutils literal notranslate"><span class="pre">[devices]</span></code> wrapping go (pitfall 5). Reading the list
+back after inclusion is a stronger check than decoding the call before signing.
+<code class="docutils literal notranslate"><span class="pre">Subscription.kind</span></code> changes from <code class="docutils literal notranslate"><span class="pre">&quot;Daily</span> <span class="pre">30</span> <span class="pre">days&quot;</span></code> formatting done by hand to
+<code class="docutils literal notranslate"><span class="pre">ledger.kind</span></code>/<code class="docutils literal notranslate"><span class="pre">ledger.days</span></code>.</p>
+</li>
+</ul>
+</section>
+<section id="rrs-ha-integration">
+<h3>rrs-ha-integration<a class="headerlink" href="#rrs-ha-integration" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">manifest.json</span></code> <code class="docutils literal notranslate"><span class="pre">requirements</span></code>: <code class="docutils literal notranslate"><span class="pre">[&quot;robonomics-interface==3.0.0rc1&quot;,</span> <span class="pre">&quot;pinatapy-vourhey==0.1.9&quot;]</span></code>.</p></li>
+<li><p>Delete <code class="docutils literal notranslate"><span class="pre">custom_components/robonomics_report_service/chain/</span></code> and its tests
+(<code class="docutils literal notranslate"><span class="pre">tests/test_chain.py</span></code>, <code class="docutils literal notranslate"><span class="pre">tests/test_chain_client.py</span></code>): the library carries
+them, byte-for-byte vectors included. Keep <code class="docutils literal notranslate"><span class="pre">tests/fixtures/substrate_vectors.json</span></code>
+in a test that runs the library against it, as the project’s own contract.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">robonomics.py</span></code>:</p>
+<ul>
+<li><p>one <code class="docutils literal notranslate"><span class="pre">RobonomicsClient(POLKADOT_ENDPOINTS,</span> <span class="pre">ssl=client_context())</span></code> (from
+<code class="docutils literal notranslate"><span class="pre">homeassistant.util.ssl</span></code>) per config entry, created in <code class="docutils literal notranslate"><span class="pre">async_setup_entry</span></code>,
+closed on unload; remove
+<code class="docutils literal notranslate"><span class="pre">_clients</span></code>, <code class="docutils literal notranslate"><span class="pre">current_wss</span></code>, <code class="docutils literal notranslate"><span class="pre">change_current_wss</span></code> and the endpoint loop in
+<code class="docutils literal notranslate"><span class="pre">_send_datalog</span></code>;</p></li>
+<li><p>publishing: <code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">client.datalog.record(self.sender_keypair,</span> <span class="pre">data,</span> <span class="pre">subscription_owner=self._owner_address</span> <span class="pre">or</span> <span class="pre">self.sender_address)</span></code>;</p></li>
+<li><p>errors: <code class="docutils literal notranslate"><span class="pre">ExtrinsicFailed</span></code> and <code class="docutils literal notranslate"><span class="pre">InvalidTransaction</span></code> → the integration’s
+<code class="docutils literal notranslate"><span class="pre">RobonomicsError</span></code> with the library’s message (it already explains
+<code class="docutils literal notranslate"><span class="pre">Payment</span></code>, <code class="docutils literal notranslate"><span class="pre">NotLinkedDevice</span></code> and <code class="docutils literal notranslate"><span class="pre">FreeWeightIsNotEnough</span></code>); <code class="docutils literal notranslate"><span class="pre">TransportError</span></code> →
+retry later; <code class="docutils literal notranslate"><span class="pre">ExtrinsicOutcomeUnknown</span></code> → do not unpin the files from Pinata
+yet, the record may have landed.</p></li>
+<li><p>Kusama is legacy and shutting down: drop <code class="docutils literal notranslate"><span class="pre">NETWORK_KUSAMA</span></code> from <code class="docutils literal notranslate"><span class="pre">const.py</span></code> and
+the network choice from the config flow, and move existing Kusama entries to
+Polkadot — or, until the network stops, keep the option labelled “legacy — switch
+to Polkadot” and create its client with <code class="docutils literal notranslate"><span class="pre">genesis_hash=None</span></code>.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">config_flow.py</span></code>: <code class="docutils literal notranslate"><span class="pre">Keypair.from_secret</span></code>, <code class="docutils literal notranslate"><span class="pre">generate_mnemonic()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">decode_address</span></code> (raises <code class="docutils literal notranslate"><span class="pre">InvalidAddress</span></code>, a <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>, so the existing
+<code class="docutils literal notranslate"><span class="pre">except</span> <span class="pre">ValueError</span></code> still works).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">utils/encrypt_tools.py</span></code>, <code class="docutils literal notranslate"><span class="pre">utils/file_handler.py</span></code>: import <code class="docutils literal notranslate"><span class="pre">Keypair</span></code>,
+<code class="docutils literal notranslate"><span class="pre">encrypt_for_recipients</span></code>, <code class="docutils literal notranslate"><span class="pre">decrypt_package</span></code>, <code class="docutils literal notranslate"><span class="pre">parse_decrypted</span></code> and the
+envelope errors from <code class="docutils literal notranslate"><span class="pre">robonomicsinterface</span></code>; <code class="docutils literal notranslate"><span class="pre">encrypt_message</span></code>/<code class="docutils literal notranslate"><span class="pre">decrypt_message</span></code>
+wrappers become <code class="docutils literal notranslate"><span class="pre">keypair.encrypt_message(...)</span></code> + hex.</p></li>
+<li><p>Nothing may block the event loop: use <code class="docutils literal notranslate"><span class="pre">RobonomicsClient</span></code> only, never
+<code class="docutils literal notranslate"><span class="pre">RobonomicsSync</span></code> (which refuses to run there anyway).</p></li>
+</ul>
+</section>
+</section>
+<section id="stable-api">
+<h2>8. Stable API<a class="headerlink" href="#stable-api" title="Link to this heading">¶</a></h2>
+<p>The Report Service projects build on the names below. They do not change between
+release candidates and 3.0.0; if one ever has to, the change is written here, and
+<code class="docutils literal notranslate"><span class="pre">tests/test_stable_api.py</span></code> — which pins this list — changes in the same commit.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">RobonomicsClient(endpoints,</span> <span class="pre">genesis_hash=,</span> <span class="pre">ssl=,</span> <span class="pre">timeout=,</span> <span class="pre">retries=)</span></code>, <code class="docutils literal notranslate"><span class="pre">connect()</span></code>,
+<code class="docutils literal notranslate"><span class="pre">close()</span></code>, <code class="docutils literal notranslate"><span class="pre">async</span> <span class="pre">with</span></code>; <code class="docutils literal notranslate"><span class="pre">RobonomicsSync</span></code>, the same without <code class="docutils literal notranslate"><span class="pre">await</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">client.datalog.items</span></code>, <code class="docutils literal notranslate"><span class="pre">.record(...,</span> <span class="pre">subscription_owner=)</span></code>, <code class="docutils literal notranslate"><span class="pre">.window_size</span></code>;
+<code class="docutils literal notranslate"><span class="pre">client.rws.devices</span></code>, <code class="docutils literal notranslate"><span class="pre">.ledger</span></code>, <code class="docutils literal notranslate"><span class="pre">.set_devices</span></code>; <code class="docutils literal notranslate"><span class="pre">client.system.account</span></code>, <code class="docutils literal notranslate"><span class="pre">.exists</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Keypair.from_secret</span></code>, <code class="docutils literal notranslate"><span class="pre">.from_mnemonic</span></code>, <code class="docutils literal notranslate"><span class="pre">.address</span></code>, <code class="docutils literal notranslate"><span class="pre">.public_key</span></code>, <code class="docutils literal notranslate"><span class="pre">.verify</span></code>,
+<code class="docutils literal notranslate"><span class="pre">.encrypt_message</span></code>, <code class="docutils literal notranslate"><span class="pre">.decrypt_message</span></code>; <code class="docutils literal notranslate"><span class="pre">generate_mnemonic</span></code>, <code class="docutils literal notranslate"><span class="pre">is_valid_address</span></code>,
+<code class="docutils literal notranslate"><span class="pre">decode_address</span></code>, <code class="docutils literal notranslate"><span class="pre">encode_address</span></code>, <code class="docutils literal notranslate"><span class="pre">address_format</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">encrypt_for_recipients</span></code>, <code class="docutils literal notranslate"><span class="pre">decrypt_package</span></code>, <code class="docutils literal notranslate"><span class="pre">parse_decrypted</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DatalogItem(index,</span> <span class="pre">timestamp_ms,</span> <span class="pre">data,</span> <span class="pre">text)</span></code>, <code class="docutils literal notranslate"><span class="pre">Ledger(kind,</span> <span class="pre">days,</span> <span class="pre">issued_at,</span> <span class="pre">expires_at,</span> <span class="pre">free_weight)</span></code>, <code class="docutils literal notranslate"><span class="pre">AccountInfo(free,</span> <span class="pre">exists)</span></code>, <code class="docutils literal notranslate"><span class="pre">XRT</span></code>, <code class="docutils literal notranslate"><span class="pre">ROBONOMICS_GENESIS_HASH</span></code>.</p></li>
+<li><p>Errors: <code class="docutils literal notranslate"><span class="pre">TransportError</span></code> (<code class="docutils literal notranslate"><span class="pre">ConnectionLost</span></code>, <code class="docutils literal notranslate"><span class="pre">RequestTimeout</span></code>, <code class="docutils literal notranslate"><span class="pre">ConnectionFailed</span></code>,
+<code class="docutils literal notranslate"><span class="pre">AllEndpointsFailed</span></code>), <code class="docutils literal notranslate"><span class="pre">RpcError(method,</span> <span class="pre">code,</span> <span class="pre">message)</span></code>, <code class="docutils literal notranslate"><span class="pre">TransactionError</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ExtrinsicFailed(pallet,</span> <span class="pre">error)</span></code>, <code class="docutils literal notranslate"><span class="pre">ExtrinsicOutcomeUnknown(extrinsic_hash)</span></code>,
+<code class="docutils literal notranslate"><span class="pre">ExtrinsicDropped</span></code>, <code class="docutils literal notranslate"><span class="pre">InvalidTransaction(kind,</span> <span class="pre">explanation)</span></code>, <code class="docutils literal notranslate"><span class="pre">RecipientError</span></code>,
+<code class="docutils literal notranslate"><span class="pre">EnvelopeError</span></code>.</p></li>
+</ul>
+<p>Changes since rc1: none to this list. rc2 adds the TLS fix, block hash checks and
+the Kusama legacy handling (see CHANGELOG).</p>
+</section>
+<section id="checklist">
+<h2>9. Checklist<a class="headerlink" href="#checklist" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>[ ] No <code class="docutils literal notranslate"><span class="pre">substrateinterface</span></code>, <code class="docutils literal notranslate"><span class="pre">websocket</span></code>, <code class="docutils literal notranslate"><span class="pre">robonomicsinterface.Account</span></code> or
+<code class="docutils literal notranslate"><span class="pre">chain.</span></code> import left (<code class="docutils literal notranslate"><span class="pre">grep</span> <span class="pre">-rn</span> <span class="pre">&quot;substrateinterface\|from</span> <span class="pre">websocket\|Account\b\|\.chain&quot;</span> <span class="pre">src</span></code>).</p></li>
+<li><p>[ ] The same mnemonic gives the same address as before (the project’s
+fixtures, or <code class="docutils literal notranslate"><span class="pre">substrate_vectors.json</span></code>).</p></li>
+<li><p>[ ] A report encrypted by the old stack still decrypts, and a new one opens
+with the connector.</p></li>
+<li><p>[ ] Datalog slot 0 reads as slot 0; a wrapped buffer reads 127 records, oldest first.</p></li>
+<li><p>[ ] <code class="docutils literal notranslate"><span class="pre">set_devices</span></code> with a flat list, read back from the chain.</p></li>
+<li><p>[ ] A missing account raises <code class="docutils literal notranslate"><span class="pre">InvalidTransaction</span></code> with <code class="docutils literal notranslate"><span class="pre">kind</span> <span class="pre">==</span> <span class="pre">&quot;Payment&quot;</span></code>; a
+device outside the list raises <code class="docutils literal notranslate"><span class="pre">ExtrinsicFailed</span></code> <code class="docutils literal notranslate"><span class="pre">RWS.NotLinkedDevice</span></code>.</p></li>
+<li><p>[ ] Home Assistant: the integration installs in <code class="docutils literal notranslate"><span class="pre">python:3.13-alpine</span></code> on aarch64
+and HA logs no “Detected blocking call”.</p></li>
+<li><p>[ ] Integration tests against a development node, if the project has any:
+<code class="docutils literal notranslate"><span class="pre">scripts/devchain.sh</span></code> in this repository starts one with funded ED25519
+accounts.</p></li>
+</ul>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="api.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">API reference</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Home</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Migrating to robonomics-interface 3.0</a><ul>
+<li><a class="reference internal" href="#what-changed-and-why">1. What changed, and why</a></li>
+<li><a class="reference internal" href="#dependencies">2. Dependencies</a></li>
+<li><a class="reference internal" href="#the-client">3. The client</a><ul>
+<li><a class="reference internal" href="#async-home-assistant-any-asyncio-code">Async (Home Assistant, any asyncio code)</a></li>
+<li><a class="reference internal" href="#blocking-scripts-cron-jobs-clis">Blocking (scripts, cron jobs, CLIs)</a></li>
+<li><a class="reference internal" href="#options-that-replace-2-x-workarounds">Options that replace 2.x workarounds</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#errors">4. Errors</a></li>
+<li><a class="reference internal" href="#api-mapping">5. API mapping</a><ul>
+<li><a class="reference internal" href="#keys-and-addresses">Keys and addresses</a></li>
+<li><a class="reference internal" href="#encryption">Encryption</a></li>
+<li><a class="reference internal" href="#reading-the-chain">Reading the chain</a></li>
+<li><a class="reference internal" href="#writing">Writing</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pitfalls-behaviour-that-changed-silently-in-meaning">6. Pitfalls — behaviour that changed silently in meaning</a></li>
+<li><a class="reference internal" href="#per-project">7. Per project</a><ul>
+<li><a class="reference internal" href="#rrs-connector">rrs-connector</a></li>
+<li><a class="reference internal" href="#rrs-admin">rrs-admin</a></li>
+<li><a class="reference internal" href="#rrs-ha-integration">rrs-ha-integration</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#stable-api">8. Stable API</a></li>
+<li><a class="reference internal" href="#checklist">9. Checklist</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=acc74ff5"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/furo.js?v=46bd48cc"></script>
+    </body>
+</html>
