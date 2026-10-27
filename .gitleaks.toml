@@ -20,9 +20,16 @@ paths = [
   '''tests/fixtures/compat_vectors\.json''',
   '''tests/fixtures/substrate_vectors\.json''',
   '''tests/fixtures/extrinsic_vectors\.json''',
+  '''tests/fixtures/sr25519_old_stack\.json''',
+  '''tests/fixtures/sr25519_js\.json''',
 ]
 
 [[allowlists]]
-description = """The generator of compat_vectors.json lists the same public test \
-mnemonics and seeds as its input."""
-paths = ['''tests/fixtures/generate_compat_vectors\.py''']
+description = """The generators of the vector files list the same public test \
+mnemonics and seeds as their input. sr25519_js.json also holds polkadot.js wallet \
+backups of a public test account, encrypted with throwaway test passwords."""
+paths = [
+  '''tests/fixtures/generate_compat_vectors\.py''',
+  '''tests/fixtures/generate_sr25519_old_stack\.py''',
+  '''tests/fixtures/generate_sr25519_js\.mjs''',
+]

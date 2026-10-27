@@ -77,8 +77,9 @@ ignore = ["RUF001", "RUF002", "RUF003"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S105", "S106"]
-# Runs under the 2.x stack to regenerate vectors; not part of the package.
+# Run under the 2.x stack to regenerate vectors; not part of the package.
 "tests/fixtures/generate_compat_vectors.py" = ["E501"]
+"tests/fixtures/generate_sr25519_old_stack.py" = ["E501"]
 
 [tool.mypy]
 python_version = "3.12"
