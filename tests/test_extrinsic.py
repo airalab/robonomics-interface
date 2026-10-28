@@ -9,10 +9,19 @@ import pytest
 
 from conftest import FIXTURES, load_fixture
 from fake_node import recorded_runtime
-from robonomicsinterface import EncodeError, Keypair, NoSuchCall, UnsupportedExtension
+from robonomicsinterface import (
+    ED25519,
+    SR25519,
+    EncodeError,
+    Keypair,
+    MetadataError,
+    NoSuchCall,
+    UnsupportedExtension,
+)
 from robonomicsinterface.extrinsic import (
     Era,
     SigningContext,
+    _adapt_multi,
     _extension_parts,
     compose_call,
     decode_events,
@@ -148,6 +157,44 @@ def test_mortal_extrinsic_layout(runtime: Runtime) -> None:
     assert body[34] == 0x00  # MultiSignature::Ed25519
     assert body[99:101] == era.encode()
     assert body.endswith(call.data)
+
+
+@pytest.mark.parametrize(("crypto_type", "tag"), [(ED25519, 0x00), (SR25519, 0x01)])
+def test_signature_tag_and_proof_follow_the_key_type(
+    runtime: Runtime, crypto_type: int, tag: int
+) -> None:
+    pytest.importorskip("sr25519")
+    keypair = Keypair.from_uri("//Alice", crypto_type=crypto_type)
+    call = compose_call(runtime, "Datalog", "record", {"record": b"x"})
+    ctx = context(runtime, nonce=5, era=Era.mortal(64, 1000))
+    signed = sign_extrinsic(runtime, call, keypair, ctx)
+    body = signed.data[2:] if signed.data[0] & 0b11 == 0b01 else signed.data[1:]
+    explicit, implicit = _extension_parts(runtime, ctx)
+    assert body[1:34] == b"\x00" + keypair.public_key
+    assert body[34] == tag
+    assert keypair.verify(call.data + explicit + implicit, body[35:99])
+    assert body[99 : 99 + len(explicit)] == explicit
+    assert body.endswith(call.data)
+
+
+@pytest.mark.parametrize("crypto_type", [ED25519, SR25519])
+def test_long_payloads_are_signed_as_a_hash_for_every_key_type(
+    runtime: Runtime, crypto_type: int
+) -> None:
+    pytest.importorskip("sr25519")
+    keypair = Keypair.from_uri("//Alice", crypto_type=crypto_type)
+    call = compose_call(runtime, "Datalog", "record", {"record": b"x" * 400})
+    ctx = context(runtime)
+    signed = sign_extrinsic(runtime, call, keypair, ctx)
+    explicit, implicit = _extension_parts(runtime, ctx)
+    digest = hashlib.blake2b(call.data + explicit + implicit, digest_size=32).digest()
+    signature = signed.data[signed.data.index(keypair.public_key) + 33 :][:64]
+    assert keypair.verify(digest, signature)
+
+
+def test_a_runtime_without_the_signature_variant_is_reported(runtime: Runtime) -> None:
+    with pytest.raises(MetadataError, match="no Ecdsa2 variant"):
+        _adapt_multi(runtime, "Signature", {"Ecdsa2": "0x00"})
 
 
 def test_long_payloads_are_signed_as_a_hash(runtime: Runtime) -> None:

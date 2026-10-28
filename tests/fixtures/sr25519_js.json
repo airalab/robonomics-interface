@@ -1,0 +1,509 @@
+{
+  "warning": "PUBLIC TEST KEYS. Every mnemonic and URI here is a published test secret (Substrate dev phrase, BIP39 vectors, throwaway accounts). Anyone can derive their keys: never fund these accounts, give them a subscription, or use them for a real site.",
+  "generator": "@polkadot/util-crypto 13.5.9, @polkadot/keyring 13.5.9",
+  "accounts": [
+    {
+      "mnemonic": "bottom drive obey lake curtain smoke basket hold race lonely fit walk",
+      "password": "",
+      "mini_secret_hex": "fac7959dbfe72f052e5a0c3c8d6530f202b02fd8f9f5ca3580ec8deb7797479e",
+      "sr25519": {
+        "secret_key_hex": "28b0ae221c6bb06856b287f60d7ea0d98552ea5a16db16956849aa371db3eb51fd190cce74df356432b410bd64682309d6dedb27c76845daf388557cbac3ca34",
+        "public_key_hex": "46ebddef8cd9bb167dc30878d7113b7e168e6f0646beffd77d69d39bad76b47a",
+        "address_32": "4Do6h3zbQtr3nYLETbSQPK5pmYyjzoqy6E8yy1vATg4N24aL"
+      },
+      "ed25519": {
+        "public_key_hex": "345071da55e5dccefaaa440339415ef9f2663338a38f7da0df21be5ab4e055ef",
+        "address_32": "4DNhfCUWDh5LG2GkFHPDdZfejMoSezRnF3tRfvudqLzn2HAs"
+      }
+    },
+    {
+      "mnemonic": "bottom drive obey lake curtain smoke basket hold race lonely fit walk",
+      "password": "Substrate",
+      "mini_secret_hex": "254867d4c1786589c24851dde5d29e027f36101541ed4e8251672549d1f8fe2c",
+      "sr25519": {
+        "secret_key_hex": "3032d254aa9fcb9496d5a1b547a627f0f83a7736570260de70f2a2860b030c6c0fac27023224c2ceb72d7053d7e1a5b90e97397d688a976cfa090da60f0bb6b9",
+        "public_key_hex": "d00df213aac1df9da4bb4c9282a896b675feb118414ffbe4a61dda233c35e53f",
+        "address_32": "4GtuNhuv9mfCB9Eic9eoTdonXM2tWQU4VUCrRwUfL6LpVvUn"
+      },
+      "ed25519": {
+        "public_key_hex": "5b907853ed03642f87b7cc5da3ac7fcefca92824c174026f497d6eac8a9f3775",
+        "address_32": "4EGAYeJYYjqWjTQVXwccdsUC1BB3UEWkRxhpvRbS9hRrCW4F"
+      }
+    },
+    {
+      "mnemonic": "bottom drive obey lake curtain smoke basket hold race lonely fit walk",
+      "password": "пароль",
+      "mini_secret_hex": "538a23b4d6442fb49568ffbf49477877413ad467ae9dff53d3127a8d8708af1d",
+      "sr25519": {
+        "secret_key_hex": "4037a16200053a3c6ce3d9a796bd866fe90d5d8b2e10bee3f2db85ba4925346173fa17326653aaa3d8294ef9a6e10c8b583d8a818b99097641a4fb244d8f162d",
+        "public_key_hex": "f6065946003bffe4a6f140f7888a871218cc620eb8b2dd32475177cad15f5b39",
+        "address_32": "4HkgwMQvFTTLKv9R3z6L12dURPvLtD6eWAGXLU7c1fCuHBHv"
+      },
+      "ed25519": {
+        "public_key_hex": "04d2c850f07870cd6a20396f68fbe6f77e226cafaf6315777d0301f93e9d6064",
+        "address_32": "4CJS5Z8NvXNVWgTniyurgA4iStxxNrS4JEkU6z6pLGuZiniS"
+      }
+    },
+    {
+      "mnemonic": "frozen woman pet meat entire question balcony wing echo excess adjust sleep",
+      "password": "",
+      "mini_secret_hex": "00e3efbcd30bc1c6b0c1a0a84c5b24639920ff8a7f0e175ea9ff06cbb3022832",
+      "sr25519": {
+        "secret_key_hex": "0860acc49bbdecd414e9d7b32eeb88c8d3a95301c0728648abab62de0d162049d3aeb90b5a008495162b0627fadad679b52c79a103e14e46d3d3368a18763441",
+        "public_key_hex": "b0fa727f46ad51e376d08c341f47c60977ade60a7c1e17c84a3e3750f3ece068",
+        "address_32": "4GCA6fGZjAkg7cmnvdcBgCnxd3DHY4H8z7M2yJDBj7XTL98C"
+      },
+      "ed25519": {
+        "public_key_hex": "b2978121ad61713391aaf8d3e5ca1be30668a9235d8a26c0960ea00177d35fe0",
+        "address_32": "4GEGoUCyDw2FhnFtniYfo1xTqxBUhKZYRWkWyJ8BamqadVxp"
+      }
+    },
+    {
+      "mnemonic": "frozen woman pet meat entire question balcony wing echo excess adjust sleep",
+      "password": "Substrate",
+      "mini_secret_hex": "72ccd45fb26bbbc120bc2eaa9ddb7ded9802c966517fa54a73ff00795291278e",
+      "sr25519": {
+        "secret_key_hex": "38c526e7f08e014608e90a2ada586deb7307a1236e28b80db0e7adfca9b617415c2359c050d468c2dd54cb058286f1c91a35f33fb088fdd58881b3b278fb2c3b",
+        "public_key_hex": "34ff4bfaf4b61b752b3c6ac45c9ff855054b1af9f3391bd1732a112cc4fcf27f",
+        "address_32": "4DPbbq4io2NjTKB3nRVZdGsZfa36YMkQeHvQ6gSisa7oYP1j"
+      },
+      "ed25519": {
+        "public_key_hex": "24b99c84d4c8568da64765defbbeaffb7169756a7411cededc012d2ec6dd36cb",
+        "address_32": "4D2G8jwF4UmzTNBTf2qYnZ6favwTWaoaemXuChBYdXWCqGTj"
+      }
+    },
+    {
+      "mnemonic": "frozen woman pet meat entire question balcony wing echo excess adjust sleep",
+      "password": "пароль",
+      "mini_secret_hex": "ee97731061123e639a713e83b1cafa3a38a31ecb249e3f4d05ebd1dea5babff7",
+      "sr25519": {
+        "secret_key_hex": "e0eaebb29741c59acca227f257a41321e85b7394056a274aa2eab975542c1b731d420c833d10b1e8d505f1f87d51b899a34bf8eec0133f1abca4382f0bab15c1",
+        "public_key_hex": "404e93ddedd6408f8323adf56d087265b1e2b35e65e558d6890a5655b4bf2747",
+        "address_32": "4DeRgMdNMQto5cZEoTh2KrUuXKzJc8EKnEdAKFM2pjkCcH9i"
+      },
+      "ed25519": {
+        "public_key_hex": "9ec47f1c94b89e5491222fc361d804b3180187b9c93c3cedad593b2d3deaf683",
+        "address_32": "4FnHD7tiVPY7Dcxscbxn5pfznc4UcwxQj2aJERS2MaW4LvJX"
+      }
+    },
+    {
+      "mnemonic": "lens exchange drum inside current bullet include stamp purity decline absurd play",
+      "password": "",
+      "mini_secret_hex": "ab4d74298acb2dc8db2eb370adf433879c140dea8eac7fb7e1fb82d03c7371ef",
+      "sr25519": {
+        "secret_key_hex": "98de25cb107a02056c4bec08912ec78c3a4e228108a77cde4f636df0d0d34f7e91dde95d94a2e1fc9d2d0d1289ff332ea631cd3a760dc403adadad1d163a561a",
+        "public_key_hex": "ce911291b77c904d198a2209421927e2b2dead6260b76c70ed349a5c8a398c46",
+        "address_32": "4GrxER5EWUyBiHep8jYFs6PmeLE3dD4YkpbxAYPGN1AYgPZL"
+      },
+      "ed25519": {
+        "public_key_hex": "34756c6d1d167a0aa0f50c385b5ced4a9ac59996f02e8e844cd3d078288fefbb",
+        "address_32": "4DNteL1am4a3JBt2XE4cwrZ4YYxQztjMFUUdkrv24EgSvXfz"
+      }
+    },
+    {
+      "mnemonic": "lens exchange drum inside current bullet include stamp purity decline absurd play",
+      "password": "Substrate",
+      "mini_secret_hex": "f188805abf25096bfc1289694a94b08a990e89d22e095428ec567b4720fae6dd",
+      "sr25519": {
+        "secret_key_hex": "40c6657fcdc00e0f960f001601d26b7fba6fc989e2f883dda6778d750caef9414d9c5ac2f6ebacf1406b73739613ba584dcbf4d644ec05da927d9b6d0de62d14",
+        "public_key_hex": "acd4ed079075cbcedc37ea0771e875640491549179bb78370bb0b62642e77d43",
+        "address_32": "4G6im5DESCWSffjdJMiDkc1HPxunUBDGrjzgYQMVP9SH55R1"
+      },
+      "ed25519": {
+        "public_key_hex": "0ca7b18d7cf67e3a81922b07816ed23a2662523b793b744483c32e91fd1b7b38",
+        "address_32": "4CUhfNKf8nyhiYzFHX5BtpJjAVAYpfdG97W2MrLoDpRFonr4"
+      }
+    },
+    {
+      "mnemonic": "lens exchange drum inside current bullet include stamp purity decline absurd play",
+      "password": "пароль",
+      "mini_secret_hex": "35673538d7ec8f041a844aba4201a01b79d7031e5224b98f9ed12242cd2cb614",
+      "sr25519": {
+        "secret_key_hex": "504e050c4940d00112966ab179bf5cfa58edd79765a2cbec88fa355a37a45f6842d8779d2ed9c683af6a9fb6c5f6919ad5316d49e1fc6e2fdf91dfa1fb011da6",
+        "public_key_hex": "36227d2cb6d9eb2aad2858c81820a92457141f9032eb639f93ed6fe90b8fcf1c",
+        "address_32": "4DR66xGZHrfeMSeykts562TPeCQKRi3nYYa9yLTUmLmmSWK7"
+      },
+      "ed25519": {
+        "public_key_hex": "f4328336cec05ba2aa929924cf19cf9b2dc24b68d80961d8f42d0a55a314be55",
+        "address_32": "4HiHxiu9kwFnk91ZKrT34kAf4wRNEjBACfiviS5HseqKqBJr"
+      }
+    },
+    {
+      "mnemonic": "legal winner thank year wave sausage worth useful legal winner thank yellow",
+      "password": "",
+      "mini_secret_hex": "6fa2796b0071cac425d8a7851038318c2c37dcebfe4bae73197ce93e75909bd2",
+      "sr25519": {
+        "secret_key_hex": "6855243a7233f3c3579fb58ab6869f1c90df0865251ac5cf1583e8b51e88865cb25d15f130020fffc3261f584f84168e7a6f0009f6c3abb2f3fa460f493b0595",
+        "public_key_hex": "625e25364c7b68e0a83065ccb40afed43f8fe933e669b24f3d69a57eddb3b715",
+        "address_32": "4ER5w1c8p75XF251wqLMtkgteecGciCw5SaiGqGKhbrHm53d"
+      },
+      "ed25519": {
+        "public_key_hex": "7b4344ead732d6beeeded95d39e330ef0c16ae806046b296737dababb8a0b80d",
+        "address_32": "4Eyj9NvT8hPBtszHK14VJTxULq8mFC41hY3ndXbJdW7heo3G"
+      }
+    },
+    {
+      "mnemonic": "legal winner thank year wave sausage worth useful legal winner thank yellow",
+      "password": "Substrate",
+      "mini_secret_hex": "4313249608fe8ac10fd5886c92c4579007272cb77c21551ee5b8d60b78041685",
+      "sr25519": {
+        "secret_key_hex": "20666c9dd63c5b04a6a14377579af14aba60707752d134726304d0804992e26f9092c47fbb9e14c02fd53c702c8a3cfca4735638599da5c4362e0d0560dceb58",
+        "public_key_hex": "e0cdbfef8a39f3354feddb590a6fbe461232baed5dd7c6e9ff5ea96469d36811",
+        "address_32": "4HGs7rLq4RcQvoorbonuQL5vVmTSBGVh1CyVAXidiy5Z4WcP"
+      },
+      "ed25519": {
+        "public_key_hex": "696a36264a9df90ec4a7e5757a37e4ad58861f1f374853fc20d8b512e9baf228",
+        "address_32": "4EaKrM7X8fkGDN9H6efHAD2P8UbL4hQvzSZWGCynheeiLFgR"
+      }
+    },
+    {
+      "mnemonic": "legal winner thank year wave sausage worth useful legal winner thank yellow",
+      "password": "пароль",
+      "mini_secret_hex": "e78b4dbae1a6b4da89ee70c5c617bf7ccb5d2c5e8856f30d4e241a0d73aea911",
+      "sr25519": {
+        "secret_key_hex": "506c2679259e726cf54a3eb714242f6877a35cf680eb9882f29815b53c61e15939d8d1b492672a17abc278da76d0fac756c2a809605eec5c44ac32062719e5a9",
+        "public_key_hex": "1472b56d716f724efbdc1292f33e145195fd095766316bf5bcc1fd77bc2ee200",
+        "address_32": "4CevJgLMC53N8ZrYeykPD4JmdJHxVZdhcsLszaQK5xfXfZcQ"
+      },
+      "ed25519": {
+        "public_key_hex": "c8f2be754d9c4be820a05155d5272eb47fd739a4e0d0b1a8e47a548cfb65d7dc",
+        "address_32": "4GjaxbGtxDcHEi7A3qpBJWB7ChMWyv73KKQtEyXGP6VpLPby"
+      }
+    }
+  ],
+  "uris": [
+    {
+      "type": "sr25519",
+      "uri": "//Alice",
+      "public_key_hex": "d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d",
+      "address_32": "4GzMLepDF5nKTWDM6XpB3CrBcFmwgazcVFAD3ZBNAjKT6hQJ"
+    },
+    {
+      "type": "sr25519",
+      "uri": "//Bob",
+      "public_key_hex": "8eaf04151687736326c9fea17e25fc5287613693c912909cb226aa4794f26a48",
+      "address_32": "4FRC4ae57MnRJViqfbrEHrwDWQm4E3bGzR1szC3h6kQDKwi1"
+    },
+    {
+      "type": "sr25519",
+      "uri": "//Alice//stash",
+      "public_key_hex": "be5ddb1579b72e84524fc29e78609e3caf42e85aa118ebfe0b0ad404b5bdd25f",
+      "address_32": "4GViFXywXvR6dARrJ3D6cPCi4vpsMgEbkdQ4HwLEAng29bBn"
+    },
+    {
+      "type": "sr25519",
+      "uri": "//Alice/stash",
+      "public_key_hex": "42693199aba1dec4d835602e19d16d173df9b3b7b65359fd7accdf874749bf61",
+      "address_32": "4DhBgVkpBDa7VgsxrdhnqAiYgKNh4vmCS4pQtjQiTZbrjE6c"
+    },
+    {
+      "type": "sr25519",
+      "uri": "//Alice/stash//x/y",
+      "public_key_hex": "2264427c4360142ced83347a62c005670d997900b381bf1534a875b16e4f1939",
+      "address_32": "4CyCgcPi3ztWNEFKBvmwjPg5gpqxLv2Wm9Eu7mkZXKD1Q5jg"
+    },
+    {
+      "type": "sr25519",
+      "uri": "//Bob//Charlie",
+      "public_key_hex": "a467176c838505dd5bff7dc945a59175f8a117d8073d3ce97a7572ea1486893c",
+      "address_32": "4FufkTBphLNrVFAoU2cDGFJUymd5QufyvAmwMqYeRZJb5veH"
+    },
+    {
+      "type": "sr25519",
+      "uri": "//1",
+      "public_key_hex": "b606fc73f57f03cdb4c932d475ab426043e429cecc2ffff0d2672b0df8398c48",
+      "address_32": "4GJn4b1fihHTyK4a1m3wwkfHkthSiuqX11zwJZEBVsMTW2PN"
+    },
+    {
+      "type": "sr25519",
+      "uri": "bottom drive obey lake curtain smoke basket hold race lonely fit walk/1",
+      "public_key_hex": "328b984202c3c1c834b9c5973a0e8955c4f60c6e3c100503c77d4ad3b9328639",
+      "address_32": "4DLP8muo1T81ATsjwSuYRpHsZGJFunmTQ1TF28YxkRAkN7qD"
+    },
+    {
+      "type": "sr25519",
+      "uri": "bottom drive obey lake curtain smoke basket hold race lonely fit walk/soft",
+      "public_key_hex": "84aedc0aba19f398f70dbcbc94b318e1e8d4eab5854e4d8de569bc4890afa45e",
+      "address_32": "4FC5Y7Vo6ca6jvbAqJehy9gaAWzSF54yT17Ewi3XZFVSEf8N"
+    },
+    {
+      "type": "sr25519",
+      "uri": "//aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "public_key_hex": "f664e39a1662f83fcfed934f1e2b70b46d59e011e7e2136cab24c7df8806a00f",
+      "address_32": "4HmB2FAPP3aprqqJwvRd3CeQ8sbyQCzxrGRRrmsn41mAWXNs"
+    },
+    {
+      "type": "sr25519",
+      "uri": "//Alice///secret",
+      "public_key_hex": "08a5e583f74f54f3811cb5f7d74e686d473e3a466fd0e95738707a80c3183b15",
+      "address_32": "4CPSwJCB3hdV5QQeY436EnHQQX7tufzPzRU5r4jjY4TnD5fW"
+    },
+    {
+      "type": "sr25519",
+      "uri": "frozen woman pet meat entire question balcony wing echo excess adjust sleep//hard/soft",
+      "public_key_hex": "f6c3342c5fef000d044e3357e74ba64242a4093000bdd45e3c7cceff37b13b60",
+      "address_32": "4Hmf3FTDdo7pViCivNZ2mxtgQSE4G28skiDZCigBpDqZ474E"
+    },
+    {
+      "type": "sr25519",
+      "uri": "frozen woman pet meat entire question balcony wing echo excess adjust sleep///пароль",
+      "public_key_hex": "404e93ddedd6408f8323adf56d087265b1e2b35e65e558d6890a5655b4bf2747",
+      "address_32": "4DeRgMdNMQto5cZEoTh2KrUuXKzJc8EKnEdAKFM2pjkCcH9i"
+    },
+    {
+      "type": "sr25519",
+      "uri": "lens exchange drum inside current bullet include stamp purity decline absurd play//hard///Substrate",
+      "public_key_hex": "c05f87bcedc7090408203e2b34e688c43edc97b12dc5861392564578a05ad631",
+      "address_32": "4GYLqwSHxkxHWvhVz6jtXai3aABm81piE7LaGTnNXy1n3Geq"
+    },
+    {
+      "type": "ed25519",
+      "uri": "//Alice",
+      "public_key_hex": "88dc3417d5058ec4b4503e0c12ea1a0a89be200fe98922423d4334014fa6b0ee",
+      "address_32": "4FHZCUoTq7LqeeaVhgmk3WfwL4wAtRfM45aUV11XeARGeEju"
+    },
+    {
+      "type": "ed25519",
+      "uri": "//Alice//stash",
+      "public_key_hex": "451781cd0c5504504f69ceec484cc66e4c22a2b6a9d20fb1a426d91ad074a2a8",
+      "address_32": "4DkhZQ77qrQDMymymDJM91V9c4ZfC4zRvgSvcefEa95NidCM"
+    },
+    {
+      "type": "ed25519",
+      "uri": "frozen woman pet meat entire question balcony wing echo excess adjust sleep//hard///пароль",
+      "public_key_hex": "07624ea430d880c7b53e0762e9e4f25d5ec870c36956ad430cfff3231546886e",
+      "address_32": "4CMnoywQ6DuFeDX7D6uxuH8Mo3F5h2FA92AJ4eSaBPigUeW9"
+    }
+  ],
+  "signatures": {
+    "signer_mnemonic": "frozen woman pet meat entire question balcony wing echo excess adjust sleep",
+    "vectors": [
+      {
+        "message": "",
+        "sr25519_hex": "8c2d3645973962f47b0665b1621a342b249067abda518256b480139682feed7328286841ce1da592b837c541bc93eea25672b1d28409573a366ee1bbaa81de8a",
+        "ed25519_hex": "fa147b812182638c923598fd62cf8e543410ca3ddd302a711e591c2f22960e571f17a60160d18cff4bc5fccd8bee9a4e23a41ad675617bd1afdce4eabb8ccd0c"
+      },
+      {
+        "message": "report payload",
+        "sr25519_hex": "1cb439b4779ab985fd0e0d848674d50e68579a786f1202a42d76e97e9b1f3045bc3357160e7223e3d874a95800811cf1229ffe1b55e8fb1c9e6decfa8a27b18c",
+        "ed25519_hex": "fd7efbc642d04f0bfe4d3be095b57d6e8dc13299fb9e7577352769fcf3c0f77e017afe76555e072497e3a1b211ca508d2aa5e07cd208c28384eee2c78314c30b"
+      },
+      {
+        "message": "отчёт 📦",
+        "sr25519_hex": "9a03ff9790d1b263aa033d198a91b9605da915b0704f22789ff87d7cbc740214dc70926d69c4588036a2e01959bc1b93d9015e4592a3a3242dd08382d6c8f286",
+        "ed25519_hex": "c28dc03eb768e097bb85fb103adc61742ea5ac4db5511f8bdcbb5a41377f00d2c04f1fcf040d84fefa90ee4df48be44b14698ee98af4930939bf38afe427070a"
+      },
+      {
+        "message": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "sr25519_hex": "085328c1f5fd089af5640bdb57ceddb6afe2fbc67e11531076e997f4c945c81f7bdc47398a06ebdcce4e55e92d079fc013ada91818c9f43cc6bf8f17a3d19e89",
+        "ed25519_hex": "5793d1c8d0100525613504deb8c1d01780ae226f8d9b37134588e2900b3599c67f1183cbd1b2d93393d1ae596380b067771f81a6dd09508dfd936d819e888e09"
+      },
+      {
+        "message": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "sr25519_hex": "ea170c6b0f7af264a1ce7f037048102167fc3b1bbb393921a973497e77234937cda6abdb70dde824234696e53ca8c5fd04cf45ac86c0c9f2eda012d8ccaf5889",
+        "ed25519_hex": "6ef8a430e48eb2e9716b80f3a822d0df125913b4e583ea9eabf31bda5d5955a77b2a77539ff33c411e6e95a09be5d9c529cb61fb5adae653242a700e35c06e07"
+      }
+    ]
+  },
+  "agreement": {
+    "secret_mnemonic": "frozen woman pet meat entire question balcony wing echo excess adjust sleep",
+    "public_mnemonic": "lens exchange drum inside current bullet include stamp purity decline absurd play",
+    "secret_key_js_hex": "0860acc49bbdecd414e9d7b32eeb88c8d3a95301c0728648abab62de0d162049d3aeb90b5a008495162b0627fadad679b52c79a103e14e46d3d3368a18763441",
+    "public_key_hex": "ce911291b77c904d198a2209421927e2b2dead6260b76c70ed349a5c8a398c46",
+    "agreement_hex": "00a8c35b66d6d30eb99c79f9e13751777e43b70e70dced764b82abbf29e73829"
+  },
+  "ecies": {
+    "recipient_mnemonic": "lens exchange drum inside current bullet include stamp purity decline absurd play",
+    "vectors": [
+      {
+        "plaintext": "",
+        "blob_hex": "a6bbe42f09741dd9a958487f0771715ef48fe8ab3531cd0bb36b41eec6e908e3b4807e620624ffd284aefb99e11312d029307485e18994e72618595698bd25429b02c6be39d933c97e200112322f6d6e347f108263da0741bc51f57b665d96d32f05fa120354e5fa214796ef22922cd10ee59856f06019de5bcdf8a758b55d7abc472e68a347149f"
+      },
+      {
+        "plaintext": "report payload",
+        "blob_hex": "7fbf2a3abcdb1215316e4f5208355a76b9b6856fe522f093566a5441e1b9a552915a499c73e24a5f3021aaa89b461fe704bb46fc2e8f167a685b433b085a365cace8d366a4e61ce4e24ba91981741ef92d7476890a36641533f0f71611f987dc055d6f8cefee0441b954a80268f54fb78a0923da126c4b6a288fe9b410ff8afbc23e32e5b1e808617a190d5d09433e649c04b033425e"
+      },
+      {
+        "plaintext": "отчёт 📦",
+        "blob_hex": "82d51511ff35ae62bb7dbadbfb9b97d5ee2be45e8ab4499804dfc8274c1521f90641f77f848484f212c241f122bffa670c0514708f8e88af7a03b40acb94ee275f854953ee97132a3e7a95c8579b67e12ff295c398fade44a938f0d723b3095529ee02af76b46b39fe72bd30489d2ea0348152b148983f1674d0b51487951e4787a6525490f3d481f1852fcb71cf013c88a50e032a5cb2"
+      },
+      {
+        "plaintext": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "blob_hex": "bbeb59b6c52650efb4661786622d5db7f19e9f5a3bae55f4ab0619ac344edfbb38144396c53bfe4e8b517f60536a720be49af37b9f8e9ea5c8110095149ce005b7be347630878f979ab33d9ada658fdef0891360ecabd34061c6b9327197e91450b153d7fd7dd90adbe644caf006374a32bfa2e7745f3f229e44d1f7a9aaef3403c67597d91ad17f53fd1a6739bf5db5444cec4b0807080d4d34b9e9aea31cdc8549f7b7f96a0acd2a5fdf54765feaaee034060d5c99cb16c645de1bb0591b10feca1cac1e14dfd460b3cf411562a03b4482c2a27f7b863cd0745c93de08df90644bd87a616fa750bdfa25a1fe9ab8a099b65f56838a4e72ad2b2fdd17a293dec292a40f9ce088f4c3e6b9f62978ed21aa78e28a814bb0da1f91eb1ce59f7bf09ccd08cc82da05eedf3caaa7dde5d523d58eff5d159c9b525babea640065eacacd0843e1d652208b4921281289507f8f54cfdf274da4336a1ce3523c40a43c63933b0a61224329cdb2ceabfee407c00b65f3cd453e076f755a6127278e3b143a06305fed58357722d7ab8085cd001f1125bd336042dc479ba97ae4d8e97b66efeb7dbf1b85ea715b6594f388b81476518f06cd65"
+      },
+      {
+        "plaintext": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "blob_hex": "4afdba653df93fa2965cfb5674ea8310391c4907139de2e1a8f5ae8a06ce8ff153a6ab6428f00448884bd10b660eaa696f55ae43e8ba98346a759e68c81f86473449309616dba4b528f2101d10da760d55d9fcc1bb90c779d94e6d0db35cf0ef0ad0b30d1955feb3cc5607c094f381f09860e1ea4dee8e104b57e86fa694eb7873d3720183865e14185270842808855b88396ac5cd058d803940ad125ef4f9a400fbb49bd0bc7a416847aebab9139b8155c82598cc046c5616d42fd487026b1bfa38b980a8f62499264e37aed8aad8b9b41fd7c442e6ba80f4a17a05830ab6c9c00e05446ce15040109918fa056727f48360a7f2175f65b4ff67dfcf0fef439d7b4f08fc310b1ef7e15ad1528129c41405d660aece0a7ed6bacdcadc2ebc4e968c836de674946bb52b1ae370716c8a1d164555b65c9d7cf8d8879a9fd7045882c727b91bfed67dc5786c4da522df72f302814ebc783ec3db72ed58b35c7eabdc9a10d168fb1735a5d9c33222b5ff02ece18e5584c1cc3834d2ee4bc32534f1193c5522fc8c1fc00e5ef3fb241aca066e01411fe7ffd09dc015db5e3a70c65e1a62d14b2a1c7410592e7b98aef3eb0a8f11582d4540631222a28107f9b6b1f6655cf123e28f23b0d7feb2dc6d7674b57ac62ed872d156b63e03cdf7479e4b6dd566522d7f4ba88089626606b13984fbeca32453c919196793f87cbc2d68a376c613720fa1e25acda46e7f60097157246268dacabcde05945f88d955f96f254c43a63754a8db9d80f600dd47fcae89d543d0fb65e47972889a04f99c29ed10c033da74ce6fa1f339df47ce3deb494ff98a3b9de727b144f4566437ca667ddbc46a9a8e3ed4dcb698c8e916e9f0c5e4da569c39117e136d5d0ce325f0a815892c6a7a0294c29198c66a9c3a706747d8797e5e9ab0d45a6f1efe306e088e26c5772dad2fe1331c7a3e9004aa87677945ba04fe33233aca44bdf3ebef01ba5b3a63674409aaabbc322ffc682fadacd21da37a8ff10f1072bd722bc2c7532047d2bf957f70ae80a1b34feabc21580915281d96b6724b4a43a0fdd639f91e7b3c0849eec3b1849c6d4c01793879f8abf4adb940262470fa4bfc86d29a4f54f92eddb3e6a5f0e2be90cd1ee3d0a4cc2174479016d8ae015c91abdbadea9898855758e54665df58b29249c6583c980905339186cfe1a4af66036fdc49a2b922d7ee38f40342068f478ef9cefd24b3eed23b538853a58b07b02267535db24125bdf201561ffbbe40dadfa418c6aac866ae00279b096d7fa82203309300672adde478ee41abb8d97fb22949cd1a13e4d490f3c70fd58b68132159f70f03b8e5044b0d9881d69ed3fffb57c2de656e0445fefb8256358c50fcc425edeb73e89286c580eef28ccaa5d7199de07ec87e3325f3af1c5c0ef494b95cdbce09c860fd7534560ee1f63cb387f663d632ff669ea4d3deb99b1f26114b93e92fe422269a34bbcece109a9b830d0d8a26c79eb9ccf841a7798dd2bf4e46e7050c170c94f0244a5686052b6aee2ff90be5b083ee06a86879073bdcef19f3585ad97a07f3ce7acda0ee15ae72835174926ec2fa12ca00f53c34de1f392c12b1bdf052b4b66958eb3054deff9d2d52e59694e001be4dba9664b46ecda1c7862d112a6fd81de82ce8ccc87cdc7eeac00afcbc12d53f438ceb6998c9b84c3c5c48c13523fd7dd5ffd4ca83989e1f495585e62341eda89a7eb227ad040d79557e867b1369204e798792a3a719fac4f04070c61e5be94c063087dc5cf5b9a1f50a210fc0ff392e3f1707ae8512fe1b3e2e38577ab71235b5b4d7a2b9e9c7acb5c95714ba2cae6cbc6a3ae5e506d4366b7ee58c1232572d261877b5b1d1a06422691900641e83b058bf2889c8632eed2d18288e4acfee0bf2ea44fd179729ec9447a3494f70946d80de0dba46f2bf685a5dcb10a0c20d6298d0292e002bad0d168e6a752c9b9069661fc4d2723cc34685fe746395a928c86f7507721663f3043a2db858ec3155b3df14953884d04a108ba66f7aa96deb08dc5fa8358bc3c1e04f35c69226775bd8668e09a6e483c03c1182281f7af5afd331a3c8874b7e8619f95164e4f6464a82339327d51f9337619436f7768a668f800ba157eb4c82b33570d2944446eb47562e3c4785a2e12cc27343c8cb279e63734808a4eb26c7dfc3164c907dec52c6524e0846771edd93726a086abaf9df7ca3bf0de72e3d2b14e3601971464519a7b4574fa8951c18721ca9d88550bb4ee4249069cbbc95f5762fa367bb00ca61da6c4cdd8b3087787e3b1d67ffd184e8a732efd430766802c003753be5225c0df85dedb2083b2bff4ce17e6c850adb2ce3efd1be60c84bdffb099ad5aa73f74178d0c60fac26bc4c580b5a7801e1e0a40273f4f3eae8e88de37f0ea90fd94bb0e23c34b0bd3d39aab5c89fdcf829c54db7160ef49e4625e6f01b9a8f4476cfdbcc8d556449bbf4ecf08d63dfca09e26d5295734c802c087f77734f76b403cefc0d6b7f184865ddba45d72b5db0d0c581a7f8eed87e6c443444bf676151c1fb48321026188fb80b309a3f958dcc54ec09f13a943d9053779bafc2f5b11dffd2a07d8cd8fd3136d2b6d3955c453624a0aa278c6eb3f782d2babc6fae5e82e3f39c712108e837609f165a278462d536588fddcaa856b193fe554d90b46b45fde4907fc9c6deacea6145aa62f5e79fb8944832b96c0e7cdd967d253e30d15a3311a9efcdf0541aed7b24e512e4a52f7fb3b37c012742bf54750d635f721470747740382c5ccbb32deba997065b735c44cdb3c386f8978ade9a57ca5fff62ae805487021efd333b88dbecb79133925bac9540e674fa55247c8a174c306e4925c65e20fe193981b130680eda6d2274a9e5149d94b5fe748b7cf94f1a3182a3aaec64e1eb855455b0f130b843368b9e14d9f49089bcd8b7019f0b667e9443eaa65d3ad5864bcd966ba761be9452085431a1d56c46ca03f7ae2b6a4b703f4e5752dd448882de5885ad8294514770209058b1aa0fe1c9fcb9b97f838ba3bb7314e8e3ba050f7ba2af80ecc153ca42c94ffd245f72b1ddddc5195739ce2523afe3ac56f23493857522d23990aad8ac6ac93b286196a158301e751d90fd8524715d52a49e4b86e7d84a1f2d125f714da5f6adaa74543cfc5533e244c422eba545ae4bb4eba66e87e7b2a91a05fdd75ea7e782ea3b65054a034dbea511669a137605e5f8be1553544013c1ba7e0ae1bb6a49592243f1fa975145c7f371254e61a68e28f30fe7c1d6607a6ac35291d1e0a3c03969682acd5ee1f784e6928dcd75433531f3e8cb9095c91da181f03d55ecaeacaa360b5029a9420ca621ae589dba9bb77e0f086bcd6e4a07b5958881a71431c33fb631ed5255c56ce5b53c834bbbf12f9294416156732505d1434d7f05e080842434279d4f94c9bb4151f2040310428a401572ae52b35c557fa6c531817ab3611f051f2da7e2a0b299c123ffcd239c9762725e029bd5485204095afbd503f57bbecf5a8aaff850722ce8229bdd30f860fd5fe3292c212fd9172dc372e1f9776443e601f725d4fabe203b92d11c4b6e33ab22f010c87d073fb8b591e5a34950e567d101e7378f0957d5040d078082aa1bbbbfbcec13b1e6eefbd6439851322b1fca0a6e3d036bdc50586fe283011df27cc2d9f35c24262e5cdb016bbd6cf406538ae4c32951cccb8f96936acf43ff09a00d9b20b76be5e3e1beba8b5a63196ad01a15967ff0f6ed72b998f2331b7b6d1c4b183cb2d0e8eb10e7887cad8bd29377c6b7ead39ef1253d09a8b7e2ca5a8a945e3eb14aa967e1b090d7535de200e4b3d5843e681b7aee10dcf410500ccc6d6b2c7770eb19a2eb6d0d73a002f468f1f42b6ba042d7c79ffae387ea4e7159a551ad3202b50dc7d7ea0421cff5b6cd3e105bb6162af78debec2e9344b19ddbf1775455d8522f83f2029dcc480f6d7de29e52b2f31dd3ef03626a5d20634c105327d5ef3aa332955a4e0b33c18ebda3958758c43b7b4b3690f2eda1fd19c45bcaa618277ce9b598a05b5ba4122719651a3c0c007eb806cc9ba1d7834d18cbd6efc53ae75cef54abcd400135a963e275173196a020a2db1eec5aad5be9add12f03847ba317ccf259bea0845d87ed90ecd2df18d517fe603ab59cc3283b3ec88b6a5e3a5cadde9a6b5502950a920a5d2b782f76a52a1eb9fa3bb2eec39385803ae3fa1d087e62565d49e2d7a70603b17d21d093d322a5a3e75d66ac2505528e3e4d3690aefa0dc28ecbd88c1a5eedde3a641cc6c44c26d678865acfafc53a3db6439ca9cbbdbd26d4f61a8c319bfbc6532505183d2d979d8241087769f8c8bb5955f34a0166fd39f8d52ea95a423a2dacf472f18444d8bc07bf5ff54ba27351e78a9fe501617a820f1daac4551b477e067a26fa068ce7e00d246ec5db18f718120ce02c4ef94ad169ee41ced0af02356cac5ac042e9b932c9b3547abe30d4d8c71e424feb36bc9a8145810ccf61ccc33e47875850caa4d840e3372c9598a9024462bedbba1498648642f0517fab38a8b7abc00ba0c11b0e94eca471fd8ffb62d89039e1f00ca84f6ac34167d9d99fc8531873a4c4d48918ae68dd8ed281791e0df56087fad03f5bb03c1056947c44617eadce7f1abae27de561343044f122b805a83948e32d98318711cb3e63c5e8138273046838c074d20365a1dc6a3f38b8885775f8e28fe93927d9ee8bb99d0bab9b40cc6ceba9b1b376b7e0a274593e18a30e0726158fbdec0b990410e56f5a44549f233cb0807c1aba3eba78b8b2d73b161b3f368eb0defcb685a217bc2340ca71aac382f4e9a0e2a17e20f3063a317bd7c3448f3fd8d08f062c849244cf0685ebfd6e1479d5d4bff7cfae77c1d9a3715d8b0bb64c8d3c0ceff650e679c9200b6a93c8780517b58a256195c6f84f678bc13925ba67919ceba5bbf7abb49d2caeda95b4adf4f0b054026ea7839c85be6af34a7e9e3954f01de9ea6ac04153ada94116dcaa893fbef50dc85d4fdfaecdf7b10e99caa08dd985a1d6195ccd9e6f349991ce2b40b09246866c9773180a19f9e49f1f2ed8fc77f38f5e574f03590ad8a99ec81a87a538e1cfcd3fb1db3db95c8712e9ef324cfdb21ad2caadc93a2974e6a5ccd0332432f6da01da91a39e05847fd3b826c52885583cd9e5a7d09882818d108672539e82b673cb5f65331d662fd3f4411d5117dc99b6cd4a9aaf43a3ea6286f1fa3063ec138f35b86fcf5e50693af008b351d24c4489ef3a5e3c3a81bbbdd04cc144d18ac1f07292b06d679aa37e8a5b33c350225a0135e1f4ecdbc70aac5b1e08a88d82a109565dc3523ae77817efd51ffc9a767815bbc98fb0d25d930b3b09f0b94886a9bbbb4cbb373f45f566a6ae65c036cd644cf12791c91cad7d672b9363dae070d5f332971d19f671a96f9083c6653a494f1a8bcd91ed039eaf8a1c35d8377f626ec0564e9fb0c5a8ee2a2a12732748995faaba638a1a97d8509e77d10dd37a0abfe1aabb11d1654b28b58daf38e4c254ea6cd9331f6304d95c5f18eaad44c22c5b28278ed69e55134cbdfd4056d37c1b7a38ba641890330497433ad510bbaf35a184b8f5b227416440697e1639518aa4b4bef12b4b5244b13cd5a9dc970464dff109fff34ec11c211e2626645546083813a2b2dbe7c18b13c7f352d0050c4f01b89214e0010f77e91189c983764c56abcd8ff54d610fd82f6179db30d1214cfefd3e37912637a5cf3738258abc29510776934a5dc9e8e97e6a8102d02efcb240e743649ffdbc758f7903f554d3acb6a56f09d3f0feb35088b549e7c42b2d082cd1fdeecbcd68ca8709b31174648e4da6b6ea0d49ca7636daabf823a704e9d76358f169c9beda8ef7a989acf8a401bbb5648baad567b7085d705297051421894cd99757812c4a80410177f2a5fa1b9ac993008c0f6bc27685b96f9ec6ac8327f3d4"
+      }
+    ]
+  },
+  "backups": [
+    {
+      "type": "sr25519",
+      "mnemonic": "lens exchange drum inside current bullet include stamp purity decline absurd play",
+      "password": "pass",
+      "public_key_hex": "ce911291b77c904d198a2209421927e2b2dead6260b76c70ed349a5c8a398c46",
+      "address_32": "4GrxER5EWUyBiHep8jYFs6PmeLE3dD4YkpbxAYPGN1AYgPZL",
+      "json": {
+        "encoded": "VLW9BUZJO/1aE+YyXT88Wqvdot3sfX0UzODVtawxVxwAAAIAAQAAAAgAAAAG+mjJxciK0pUvaC4+u/cS2DA1sagj0DJqQVXPueAc7emM1QK/Q8NzAUg4WNf9qbHG/7qBmrhjXgM7e0DPJ8y6ho367Xb2TzSwc502gXwDgIRyiwSf0a2cE2afpkVDgXoIzVtgYDndkK+de0KnP7qxxodpM2FV+ZhtrNPB+gIdf1aPK3hnGObGDHmkXjgOGKHcepolQEcVbbudfE+d",
+        "encoding": {
+          "content": [
+            "pkcs8",
+            "sr25519"
+          ],
+          "type": [
+            "scrypt",
+            "xsalsa20-poly1305"
+          ],
+          "version": "3"
+        },
+        "address": "4GrxER5EWUyBiHep8jYFs6PmeLE3dD4YkpbxAYPGN1AYgPZL",
+        "meta": {
+          "name": "vector"
+        }
+      }
+    },
+    {
+      "type": "sr25519",
+      "mnemonic": "lens exchange drum inside current bullet include stamp purity decline absurd play",
+      "password": "пароль 🔑",
+      "public_key_hex": "ce911291b77c904d198a2209421927e2b2dead6260b76c70ed349a5c8a398c46",
+      "address_32": "4GrxER5EWUyBiHep8jYFs6PmeLE3dD4YkpbxAYPGN1AYgPZL",
+      "json": {
+        "encoded": "htXn3WaJQ0pdJRAWspLV+an/d6l/vW5CJwzV6wddrLgAAAIAAQAAAAgAAADEa0bQz6XArI+Mo5t9hX32SKP4F948SczrpY3Bswt+KqzzoBbTPTZindfsw530+CxoZYVBEhzrv4v5q17auT6dF1Fos7PgKyy+emImyK76ihi7GjIMmzNTBwHMCWJPmCh/VWVH6CMkGD8bQhc/AOjvJ+kKRBfdngQJ6IM0fHb7Fh++oc7SMK/mpfuVgEV/TaqxaHCCT/eUCQMV/cJS",
+        "encoding": {
+          "content": [
+            "pkcs8",
+            "sr25519"
+          ],
+          "type": [
+            "scrypt",
+            "xsalsa20-poly1305"
+          ],
+          "version": "3"
+        },
+        "address": "4GrxER5EWUyBiHep8jYFs6PmeLE3dD4YkpbxAYPGN1AYgPZL",
+        "meta": {
+          "name": "vector"
+        }
+      }
+    },
+    {
+      "type": "sr25519",
+      "mnemonic": "lens exchange drum inside current bullet include stamp purity decline absurd play",
+      "password": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "public_key_hex": "ce911291b77c904d198a2209421927e2b2dead6260b76c70ed349a5c8a398c46",
+      "address_32": "4GrxER5EWUyBiHep8jYFs6PmeLE3dD4YkpbxAYPGN1AYgPZL",
+      "json": {
+        "encoded": "Z7on+amERiLmqw41pIOcT/dHo4l9k6xQ+ukFxt7CmsIAAAIAAQAAAAgAAAAS7asVty+gTDSHJKtVUhS8AiAaTu0ppLCZSydpWlgv2WzncPynbuSsl2OH/OX6O1mWRlPOwuwx7RptUnhtZvM9nCHipJj0MxXkCjDDF8zuAiAd2ZfFMZSqiDrnQOWTZE1peLZzKI4TXvXjUOGo6SDCX4dkwpMgNtyI9a1uCR5gHldEXhBxJ2KV8ufM8kbflslxrJMYs+IPK+DeSLG1",
+        "encoding": {
+          "content": [
+            "pkcs8",
+            "sr25519"
+          ],
+          "type": [
+            "scrypt",
+            "xsalsa20-poly1305"
+          ],
+          "version": "3"
+        },
+        "address": "4GrxER5EWUyBiHep8jYFs6PmeLE3dD4YkpbxAYPGN1AYgPZL",
+        "meta": {
+          "name": "vector"
+        }
+      }
+    },
+    {
+      "type": "ed25519",
+      "mnemonic": "lens exchange drum inside current bullet include stamp purity decline absurd play",
+      "password": "pass",
+      "public_key_hex": "34756c6d1d167a0aa0f50c385b5ced4a9ac59996f02e8e844cd3d078288fefbb",
+      "address_32": "4DNteL1am4a3JBt2XE4cwrZ4YYxQztjMFUUdkrv24EgSvXfz",
+      "json": {
+        "encoded": "bIRvuz7DLM1uncB00khuh8kWgnXT/7XnXhZo5EMTyGwAAAIAAQAAAAgAAADgLGgtdGfGlSa3xHTQpI5xCuJxR+1nhGqIud6tPXRI9GNFsOVM2C6Fyj6P/iOhCYn1QF2DGLTa7hfGsq5dI+8ApYMgRE1n546kwNETvpJohKn/byNEzkGk9d3FrkX59OaBxYGk1hH7ONe/Ra11jEsaeupVExCG+bARuNNAoCoK/SF3ttYhLbWNCt2DPZ9yzoASojBQler8lKa/gpl4",
+        "encoding": {
+          "content": [
+            "pkcs8",
+            "ed25519"
+          ],
+          "type": [
+            "scrypt",
+            "xsalsa20-poly1305"
+          ],
+          "version": "3"
+        },
+        "address": "4DNteL1am4a3JBt2XE4cwrZ4YYxQztjMFUUdkrv24EgSvXfz",
+        "meta": {
+          "name": "vector"
+        }
+      }
+    },
+    {
+      "type": "ed25519",
+      "mnemonic": "lens exchange drum inside current bullet include stamp purity decline absurd play",
+      "password": "пароль 🔑",
+      "public_key_hex": "34756c6d1d167a0aa0f50c385b5ced4a9ac59996f02e8e844cd3d078288fefbb",
+      "address_32": "4DNteL1am4a3JBt2XE4cwrZ4YYxQztjMFUUdkrv24EgSvXfz",
+      "json": {
+        "encoded": "Q7z2LIndiZpncezZ6Uq+LB675YcDd05RFvb8exzRlB4AAAIAAQAAAAgAAACVSoxGwQRKFlY3O/j4FEK7frABfdpigZvwm+4Y5zfizzq0sGT51yvRG+qg3pyH51SxtIT7A2OYxcdmT1w2gns4f3PAJ3pVS4Qyt79cHpEP9bLjYyyfw0qRGJJ1O/OnkOHRPR85qxMFCivxES1+TTqKAE1v7aKfTb4aySgrXwjbpzlQOTAcQORBJ+cJRqny48GBiB6GbcYhRHUNwgx/",
+        "encoding": {
+          "content": [
+            "pkcs8",
+            "ed25519"
+          ],
+          "type": [
+            "scrypt",
+            "xsalsa20-poly1305"
+          ],
+          "version": "3"
+        },
+        "address": "4DNteL1am4a3JBt2XE4cwrZ4YYxQztjMFUUdkrv24EgSvXfz",
+        "meta": {
+          "name": "vector"
+        }
+      }
+    },
+    {
+      "type": "ed25519",
+      "mnemonic": "lens exchange drum inside current bullet include stamp purity decline absurd play",
+      "password": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      "public_key_hex": "34756c6d1d167a0aa0f50c385b5ced4a9ac59996f02e8e844cd3d078288fefbb",
+      "address_32": "4DNteL1am4a3JBt2XE4cwrZ4YYxQztjMFUUdkrv24EgSvXfz",
+      "json": {
+        "encoded": "0WIaPqgwpBnOE5IKiGXtVkenNrdXHdeYdFNDDMQjHz8AAAIAAQAAAAgAAABVdJnjq/54hFGExCDad3ZA93hcmOiNTdvHfJYzOZFbflD4aIlMmi8hiuds/2Jw9QtePrxVUYBLzN6tXFkgN36IIYNSIJmqMrplsHqZcNrRAVMBREcQz9TcXnoqhqAYyew6Tlu1sg2HknmuhKc1fWPfAjZqYg7n/R1I6yB5AULHbjIcuCCDzfVA68NgedFol2R+LqUVxaPyDGmisKXH",
+        "encoding": {
+          "content": [
+            "pkcs8",
+            "ed25519"
+          ],
+          "type": [
+            "scrypt",
+            "xsalsa20-poly1305"
+          ],
+          "version": "3"
+        },
+        "address": "4DNteL1am4a3JBt2XE4cwrZ4YYxQztjMFUUdkrv24EgSvXfz",
+        "meta": {
+          "name": "vector"
+        }
+      }
+    }
+  ],
+  "unencrypted_backup": {
+    "encoded": "MFMCAQEwBQYDK2VwBCIEIJjeJcsQegIFbEvsCJEux4w6TiKBCKd83k9jbfDQ009+kd3pXZSi4fydLQ0Sif8zLqYxzTp2DcQDra2tHRY6VhqhIwMhAM6REpG3fJBNGYoiCUIZJ+Ky3q1iYLdscO00mlyKOYxG",
+    "encoding": {
+      "content": [
+        "pkcs8",
+        "sr25519"
+      ],
+      "type": [
+        "none"
+      ],
+      "version": "3"
+    },
+    "address": "4GrxER5EWUyBiHep8jYFs6PmeLE3dD4YkpbxAYPGN1AYgPZL",
+    "meta": {
+      "name": "vector"
+    }
+  }
+}

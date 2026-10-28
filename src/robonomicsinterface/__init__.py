@@ -37,7 +37,7 @@ from .errors import (
     UnsupportedExtension,
 )
 from .extrinsic import Call, Era, Event, ExtrinsicResult, SignedExtrinsic
-from .keys import DEV_PHRASE, ED25519, Keypair
+from .keys import DEV_PHRASE, ED25519, SR25519, Keypair
 from .pallets import (
     MAX_RECORD_BYTES,
     XRT,
@@ -68,6 +68,7 @@ __all__ = [
     "MAX_RECORD_BYTES",
     "ROBONOMICS_GENESIS_HASH",
     "ROBONOMICS_SS58_FORMAT",
+    "SR25519",
     "XRT",
     "AccountInfo",
     "AllEndpointsFailed",

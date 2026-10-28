@@ -20,7 +20,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .errors import EncodeError, MetadataError, UnsupportedExtension
-from .keys import Keypair
+from .keys import ED25519, SR25519, Keypair
 from .runtime import Runtime
 
 __all__ = [
@@ -315,6 +315,10 @@ class SignedExtrinsic:
         return "0x" + self.data.hex()
 
 
+# The MultiSignature variant for each key type.
+_SIGNATURE_VARIANTS = {ED25519: "Ed25519", SR25519: "Sr25519"}
+
+
 def sign_extrinsic(
     runtime: Runtime, call: Call, keypair: Keypair, context: SigningContext
 ) -> SignedExtrinsic:
@@ -334,7 +338,9 @@ def sign_extrinsic(
     )
     signature_bytes = runtime.encode(
         f"scale_info::{runtime.extrinsic_param_type('Signature')}",
-        _adapt_multi(runtime, "Signature", {"Ed25519": "0x" + signature.hex()}),
+        _adapt_multi(
+            runtime, "Signature", {_SIGNATURE_VARIANTS[keypair.crypto_type]: "0x" + signature.hex()}
+        ),
     )
     body = bytes([_SIGNED_BIT | 4]) + address + signature_bytes + explicit + call.data
     data = _compact(len(body)) + body
@@ -353,6 +359,9 @@ def _adapt_multi(runtime: Runtime, param: str, value: dict[str, str]) -> Any:
 
     definition = runtime.type_info(runtime.extrinsic_param_type(param))["def"]
     if "variant" in definition:
+        (name,) = value
+        if name not in {variant["name"] for variant in definition["variant"]["variants"]}:
+            raise MetadataError(f"this runtime's {param} type has no {name} variant")
         return value
     return next(iter(value.values()))
 

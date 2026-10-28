@@ -11,10 +11,13 @@ import os
 import pytest
 
 from robonomicsinterface import (
+    ED25519,
     ROBONOMICS_GENESIS_HASH,
+    SR25519,
     InvalidTransaction,
     Keypair,
     RobonomicsClient,
+    generate_mnemonic,
 )
 
 pytestmark = [
@@ -47,9 +50,11 @@ async def test_mainnet_reads_and_signature_check() -> None:
 
         # Sign for real and let the runtime check it, without sending: an account
         # that does not exist gets Payment, which proves the signature and every
-        # signed extension were accepted (a bad one would be BadProof).
-        ghost = Keypair.from_uri("//Alice")
+        # signed extension were accepted (a bad one would be BadProof). A fresh
+        # key cannot exist on chain; both key types are checked.
         call = await client.compose_call("Datalog", "record", {"record": b"smoke"})
-        with pytest.raises(InvalidTransaction) as error:
-            await client.validate(await client.sign(call, ghost))
-        assert error.value.kind == "Payment"
+        for crypto_type in (ED25519, SR25519):
+            ghost = Keypair.from_mnemonic(generate_mnemonic(), crypto_type=crypto_type)
+            with pytest.raises(InvalidTransaction) as error:
+                await client.validate(await client.sign(call, ghost))
+            assert error.value.kind == "Payment", crypto_type

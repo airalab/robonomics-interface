@@ -6,8 +6,8 @@
 #
 # Downloads pinned, checksum-verified releases into $DEVCHAIN_DIR (default
 # .devchain): polkadot-omni-node and chain-spec-builder from Parity, and the
-# Robonomics runtime that runs on mainnet. Builds the `development` chain spec
-# and patches it for ED25519 dev accounts (scripts/dev_chain_spec.py).
+# Robonomics runtime that runs on mainnet. Builds the `development` chain spec,
+# whose preset funds the well-known sr25519 dev accounts and makes //Alice sudo.
 set -euo pipefail
 
 POLKADOT_SDK="polkadot-stable2606-2"
@@ -61,6 +61,5 @@ fetch "https://github.com/airalab/robonomics/releases/download/$RUNTIME_TAG/$RUN
 SPEC="$DIR/spec.json"
 "$DIR/chain-spec-builder" -c "$SPEC" create -t development -r "$DIR/$RUNTIME" \
   --relay-chain rococo-local --para-id 2048 named-preset development
-(cd "$ROOT" && ${PYTHON:-uv run python} scripts/dev_chain_spec.py "$SPEC")
 
 exec "$DIR/polkadot-omni-node" --chain "$SPEC" --dev --rpc-port "$PORT" --dev-block-time 1000

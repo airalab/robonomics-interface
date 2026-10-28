@@ -23,3 +23,17 @@ def report_service_vectors() -> Any:
     """The contract rrs-ha-integration was built against, copied with a warning header."""
 
     return load_fixture("substrate_vectors.json")
+
+
+@pytest.fixture(scope="session")
+def sr25519_old_stack() -> Any:
+    """Produced by substrate-interface 1.7 and py-sr25519-encryption (see its generator)."""
+
+    return load_fixture("sr25519_old_stack.json")
+
+
+@pytest.fixture(scope="session")
+def sr25519_js() -> Any:
+    """Produced by polkadot.js (generate_sr25519_js.mjs)."""
+
+    return load_fixture("sr25519_js.json")
