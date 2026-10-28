@@ -4,9 +4,9 @@ Run a node first (see scripts/devchain.sh) and point the tests at it:
 
     ROBONOMICS_DEV_URL=ws://127.0.0.1:9944 uv run pytest -m integration
 
-The chain spec must be patched by scripts/dev_chain_spec.py: ED25519 //Alice
-is sudo and //Alice..//Dave are endowed. Every test derives fresh accounts
-from them, so the tests can run repeatedly against one node.
+The development preset funds the sr25519 dev accounts and makes sr25519 //Alice
+sudo. Every test derives fresh accounts of both key types from it and funds them
+by transfer, so the tests can run repeatedly against one node.
 """
 
 import asyncio
@@ -18,13 +18,18 @@ from urllib.parse import urlsplit
 import pytest
 
 from robonomicsinterface import (
+    ED25519,
     ROBONOMICS_GENESIS_HASH,
+    SR25519,
     XRT,
     ExtrinsicFailed,
     InvalidTransaction,
     Keypair,
     RobonomicsClient,
     RobonomicsSync,
+    decrypt_package,
+    encrypt_for_recipients,
+    parse_decrypted,
 )
 
 URL = os.environ.get("ROBONOMICS_DEV_URL")
@@ -34,7 +39,10 @@ pytestmark = [
     pytest.mark.skipif(not URL, reason="ROBONOMICS_DEV_URL is not set"),
 ]
 
-SUDO = Keypair.from_uri("//Alice")
+SUDO = Keypair.from_uri("//Alice", crypto_type=SR25519)
+both_key_types = pytest.mark.parametrize(
+    "crypto_type", [SR25519, ED25519], ids=["sr25519", "ed25519"]
+)
 LOOPBACK = {"127.0.0.1", "localhost", "::1", "[::1]"}
 PRODUCTION_GENESIS = {
     ROBONOMICS_GENESIS_HASH,
@@ -60,10 +68,10 @@ def only_a_development_chain() -> None:
         pytest.fail(f"{URL} is a production Robonomics chain; these tests send transactions")
 
 
-def fresh(name: str) -> Keypair:
+def fresh(name: str, crypto_type: int = SR25519) -> Keypair:
     """An account nobody has used yet, derived from a known dev account."""
 
-    return Keypair.from_uri(f"//{name}//{secrets.token_hex(4)}")
+    return Keypair.from_uri(f"//{name}//{secrets.token_hex(4)}", crypto_type=crypto_type)
 
 
 @pytest.fixture
@@ -101,8 +109,9 @@ async def test_chain_is_the_current_runtime(client: RobonomicsClient) -> None:
     assert await client.constant("Datalog", "WindowSize") == 128
 
 
-async def test_transfer(client: RobonomicsClient) -> None:
-    receiver = fresh("Bob")
+@both_key_types
+async def test_transfer(client: RobonomicsClient, crypto_type: int) -> None:
+    receiver = fresh("Bob", crypto_type)
     assert not await client.system.exists(receiver)
     result = await client.balances.transfer_keep_alive(SUDO, receiver, 5 * XRT)
     assert result.find("Balances", "Transfer") is not None
@@ -111,8 +120,9 @@ async def test_transfer(client: RobonomicsClient) -> None:
     assert info.free == 5 * XRT
 
 
-async def test_account_that_does_not_exist(client: RobonomicsClient) -> None:
-    ghost = fresh("Eve")
+@both_key_types
+async def test_account_that_does_not_exist(client: RobonomicsClient, crypto_type: int) -> None:
+    ghost = fresh("Eve", crypto_type)
     with pytest.raises(InvalidTransaction) as error:
         await client.datalog.record(ghost, b"hello")
     assert error.value.kind == "Payment"
@@ -122,8 +132,9 @@ async def test_account_that_does_not_exist(client: RobonomicsClient) -> None:
 # Datalog
 
 
-async def test_datalog_round_trip(client: RobonomicsClient) -> None:
-    site = fresh("Charlie")
+@both_key_types
+async def test_datalog_round_trip(client: RobonomicsClient, crypto_type: int) -> None:
+    site = fresh("Charlie", crypto_type)
     await fund(client, site)
     for data in (b"\x00\x01binary", "текст", "0x12"):
         await client.datalog.record(site, data)
@@ -141,11 +152,32 @@ async def test_datalog_round_trip(client: RobonomicsClient) -> None:
     assert await client.datalog.items(site) == []
 
 
+@both_key_types
+async def test_encrypted_report_round_trip(client: RobonomicsClient, crypto_type: int) -> None:
+    """A site's report, as Report Service does it: the package goes off chain (IPFS stands
+    in), its address goes into the datalog, and the integrator reads and opens it."""
+
+    site, integrator = fresh("Charlie", crypto_type), fresh("Dave", crypto_type)
+    await fund(client, site)
+    report = "2026-10-28 13:00:00 ERROR (MainThread) [zha] Failed to connect\n"
+    meta = {"orig_file_name": "home-assistant.log"}
+    off_chain = {"QmReport": encrypt_for_recipients(report, site, [integrator.address], meta)}
+
+    await client.datalog.record(site, "QmReport")
+
+    latest = await client.datalog.latest(site)
+    assert latest is not None
+    opened = decrypt_package(off_chain[latest.text], integrator, site.address)
+    assert parse_decrypted(opened) == (report, meta)
+
+
 # RWS
 
 
-async def test_rws_subscription_flow(client: RobonomicsClient) -> None:
-    owner, device, stranger = fresh("Bob"), fresh("Charlie"), fresh("Dave")
+@both_key_types
+async def test_rws_subscription_flow(client: RobonomicsClient, crypto_type: int) -> None:
+    owner = fresh("Bob", crypto_type)
+    device, stranger = fresh("Charlie", crypto_type), fresh("Dave", crypto_type)
     await fund(client, owner, device, stranger)
     await make_oracle(client)
     await subscribe(client, owner, {"Lifetime": {"tps": 10**9}})
@@ -173,8 +205,11 @@ async def test_rws_subscription_flow(client: RobonomicsClient) -> None:
     assert (error.value.pallet, error.value.error) == ("RWS", "NotLinkedDevice")
 
 
-async def test_fresh_daily_subscription_has_no_allowance(client: RobonomicsClient) -> None:
-    owner, device = fresh("Bob"), fresh("Charlie")
+@both_key_types
+async def test_fresh_daily_subscription_has_no_allowance(
+    client: RobonomicsClient, crypto_type: int
+) -> None:
+    owner, device = fresh("Bob", crypto_type), fresh("Charlie", crypto_type)
     await fund(client, owner, device)
     await make_oracle(client)
     await subscribe(client, owner, {"Daily": {"days": 30}})

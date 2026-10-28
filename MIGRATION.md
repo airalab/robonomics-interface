@@ -390,5 +390,5 @@ the Kusama legacy handling (see CHANGELOG).
 - [ ] Home Assistant: the integration installs in `python:3.13-alpine` on aarch64
       and HA logs no "Detected blocking call".
 - [ ] Integration tests against a development node, if the project has any:
-      `scripts/devchain.sh` in this repository starts one with funded ED25519
-      accounts.
+      `scripts/devchain.sh` in this repository starts one; fund your test accounts,
+      ED25519 or sr25519, by a transfer from the sr25519 `//Alice`.

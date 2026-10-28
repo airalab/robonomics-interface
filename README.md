@@ -177,7 +177,8 @@ uv run ruff check . && uv run ruff format --check . && uv run mypy
 Integration tests run against a development node with the runtime that runs on
 mainnet. `scripts/devchain.sh` downloads pinned, checksum-verified
 `polkadot-omni-node` and `chain-spec-builder` (Parity) and the Robonomics runtime,
-builds a development chain spec with funded ED25519 dev accounts, and starts the node:
+builds the development chain spec (funded sr25519 dev accounts, `//Alice` is sudo), and starts
+the node:
 
 ```bash
 scripts/devchain.sh &                          # ws://127.0.0.1:9944
