@@ -459,12 +459,14 @@ uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w">     
 uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>.<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>format<span class="w"> </span>--check<span class="w"> </span>.<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>mypy
 </pre></div>
 </div>
-<p>Integration tests run against a development node with the runtime that runs on
-mainnet. <code class="docutils literal notranslate"><span class="pre">scripts/devchain.sh</span></code> downloads pinned, checksum-verified
-<code class="docutils literal notranslate"><span class="pre">polkadot-omni-node</span></code> and <code class="docutils literal notranslate"><span class="pre">chain-spec-builder</span></code> (Parity) and the Robonomics runtime,
-builds the development chain spec (funded sr25519 dev accounts, <code class="docutils literal notranslate"><span class="pre">//Alice</span></code> is sudo), and starts
-the node. The tests run on the runtime v50 wasm, which still has Sudo; mainnet is newer
-(see the changelog):</p>
+<p>Integration tests run against a development node with the newest Robonomics runtime
+that ships its wasm in a GitHub release (v52; mainnet runs 53). <code class="docutils literal notranslate"><span class="pre">scripts/devchain.sh</span></code>
+downloads pinned, checksum-verified <code class="docutils literal notranslate"><span class="pre">polkadot-omni-node</span></code> and <code class="docutils literal notranslate"><span class="pre">chain-spec-builder</span></code> (Parity)
+and that runtime, builds the development chain spec (funded sr25519 dev accounts, <code class="docutils literal notranslate"><span class="pre">//Alice</span></code>
+among them), seeds RWS auctions into its genesis (the runtime has no Sudo), and starts the
+node. The RWS tests tell one user story: a new account is funded by transfer, wins an
+auction, sets its devices and writes through the subscription. A won auction is spent, so a
+node serves four runs of the suite; restart it for more:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scripts/devchain.sh<span class="w"> </span><span class="p">&amp;</span><span class="w">                          </span><span class="c1"># ws://127.0.0.1:9944</span>
 <span class="nv">ROBONOMICS_DEV_URL</span><span class="o">=</span>ws://127.0.0.1:9944<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>integration
 <span class="nv">ROBONOMICS_MAINNET_SMOKE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>mainnet<span class="w">   </span><span class="c1"># read-only, sends nothing</span>
