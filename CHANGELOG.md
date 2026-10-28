@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.1.0] — 2026-10-28
+
+The release of the 3.1 line; the code is that of 3.1.0rc1 (see below for what 3.1 adds).
+
+### Checked
+- On Polkadot with 3.1.0rc1 installed from PyPI: an sr25519 account wrote two datalog
+  records, read them back, and an sr25519 integrator opened an encrypted report whose
+  id it read from the datalog. A report for a recipient of the other key type is refused.
+- CI installs the wheel with `[sr25519]` in `python:3.13-alpine` on aarch64 and x86_64
+  without a compiler, and runs the core without the extra.
+
 ## [3.1.0rc1] — 2026-10-28
 
 sr25519 next to ED25519. The 3.0 API only grows; `Keypair.from_mnemonic(m)` and every
