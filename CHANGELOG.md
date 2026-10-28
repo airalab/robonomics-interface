@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
-## [3.1.0] — unreleased
+## [3.1.0rc1] — 2026-10-28
 
 sr25519 next to ED25519. The 3.0 API only grows; `Keypair.from_mnemonic(m)` and every
 ED25519 package, signature and extrinsic are byte for byte what 3.0.0 produced. The core
