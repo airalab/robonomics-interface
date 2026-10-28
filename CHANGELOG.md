@@ -4,6 +4,42 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [3.1.0] — unreleased
+
+sr25519 next to ED25519. The 3.0 API only grows; `Keypair.from_mnemonic(m)` and every
+ED25519 package, signature and extrinsic are byte for byte what 3.0.0 produced. The core
+installs and works without the new extra.
+
+### Added
+- The `[sr25519]` extra (`py-sr25519-bindings`, `rbcl`; wheels for musl and aarch64,
+  no compiler), imported lazily: without it, an sr25519 key raises an `ImportError`
+  that names the extra.
+- `SR25519` next to `ED25519`, `Keypair.crypto_type`, and a keyword-only
+  `crypto_type=` (the constant or `"sr25519"`) on `from_seed`, `from_mnemonic`,
+  `from_uri`, `from_secret`, `from_public_key` and `from_address`. Addresses, derivation
+  paths (`//`, `/`, `///password`) and signatures match substrate-interface and
+  polkadot.js. The default stays ED25519.
+- Extrinsics signed with sr25519 keys; the `MultiSignature` variant comes from the key.
+- `Keypair.encrypt_message` / `decrypt_message` for sr25519: the ECIES scheme of
+  `py-sr25519-encryption` (Ivan Berman) and SubMessage, the same bytes, so blobs open in
+  both and in polkadot.js. Every failure is a `DecryptionError`; the MAC is checked
+  before decrypting. The scheme does not authenticate the sender.
+- The report envelope for sr25519: the type of a package is the type of the sender's
+  key; a mixed recipient list raises `RecipientError`, and opening with a key of the
+  wrong type raises `PayloadError` that names the mismatch.
+- `Keypair.from_json(backup, password)`: import of a polkadot.js keyring backup
+  (version 3), ED25519 or sr25519 as the file says. Scrypt parameters are limited to
+  those polkadot.js accepts.
+
+### Changed
+- The development-chain tests run for both key types and include an encrypted report
+  end to end. They still use the runtime v50 wasm (Sudo is needed to set the RWS
+  oracle); mainnet runs spec 53, where Sudo is gone, OpenGov and CPS v1.1 are in, and
+  Datalog, RWS, System, Balances and the signed extensions are unchanged. The mainnet
+  smoke test passes on 53 for both key types.
+- CI runs the tests with and without the extra, and in `python:3.13-alpine` on aarch64
+  and x86_64 without a compiler.
+
 ## [3.0.0] — 2026-10-27
 
 The release of the 3.0 line; the API is the one of 3.0.0rc2.

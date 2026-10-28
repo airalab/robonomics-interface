@@ -63,6 +63,17 @@ def test_keys_addresses_and_envelope() -> None:
         assert callable(getattr(r, name)), name
 
 
+def test_key_types_since_3_1() -> None:
+    """Added in 3.1; the names and the default are part of the contract."""
+
+    assert (r.ED25519, r.SR25519) == (0, 1)
+    assert callable(r.Keypair.from_json)
+    assert hasattr(r.Keypair, "crypto_type")  # a slot, read on instances
+    for constructor in ("from_seed", "from_mnemonic", "from_uri", "from_secret"):
+        assert "crypto_type" in parameters(getattr(r.Keypair, constructor)), constructor
+    assert r.Keypair.from_mnemonic(r.generate_mnemonic()).crypto_type == r.ED25519
+
+
 def test_value_types() -> None:
     assert {"index", "timestamp_ms", "data"} <= {f.name for f in fields(r.DatalogItem)}
     assert isinstance(inspect.getattr_static(r.DatalogItem, "text"), property)

@@ -15,7 +15,7 @@ The API listed in section 8 is the same as in the release candidates.
 | | 2.x | 3.0 |
 | --- | --- | --- |
 | Dependencies | `substrate-interface` (Rust bindings, `ecdsa`, Ethereum libs, `smoldot-light`) | `pynacl`, `scalecodec`, `websockets`, `xxhash`; installs on musl/aarch64 with no compiler |
-| Keys | sr25519 by default, ed25519 optional | ED25519 only (sr25519 returns as an extra in 3.1) |
+| Keys | sr25519 by default, ed25519 optional | ED25519 by default; sr25519 with the `[sr25519]` extra (3.1) |
 | Connection | hidden, per object, synchronous, no request timeout | explicit `RobonomicsClient` (asyncio) or `RobonomicsSync`; timeout on every request; endpoints in priority order with health checks and failover |
 | Types | hand-written type registry | the chain's own metadata |
 | Writes | returns a hash; failure inside the block goes unnoticed | reads the block's events; a failed call raises `ExtrinsicFailed` naming the pallet error |
@@ -24,11 +24,11 @@ The API listed in section 8 is the same as in the release candidates.
 ## 2. Dependencies
 
 Remove `substrate-interface`, `websocket-client` and any copy of the `chain/`
-package. Add `robonomics-interface==3.0.0rc1`. It brings `pynacl`, `scalecodec`,
+package. Add `robonomics-interface==3.0.0`. It brings `pynacl`, `scalecodec`,
 `websockets` and `xxhash`; do not list them separately unless the project uses
 them directly.
 
-Home Assistant: the manifest `requirements` becomes `["robonomics-interface==3.0.0rc1", ...]`
+Home Assistant: the manifest `requirements` becomes `["robonomics-interface==3.0.0", ...]`
 (plus the project's own, e.g. `pinatapy-vourhey`). HA already constrains
 `websockets>=15`, which 3.0 accepts. No `aiohttp` session is needed: the library
 has its own WebSocket client.
@@ -211,9 +211,10 @@ Every write returns an `ExtrinsicResult` (`.block_hash`, `.block_number`,
     decoded a `str` starting with `0x` as hex first.
 11. **Keypairs keep secrets to themselves:** `repr()` shows the address, errors
     never include the input, pickling raises `TypeError`.
-12. **One key type.** Accounts must be ED25519 — which report encryption
-    already required. A mnemonic that was used with sr25519 gives a different
-    address here.
+12. **ED25519 is the default key type.** `Keypair.from_mnemonic(m)` gives the ED25519
+    address, as report encryption required in 2.x. A mnemonic that was used with
+    sr25519 gives a different address unless you say `crypto_type="sr25519"` (3.1,
+    section 10).
 
 ## 7. Per project
 
@@ -361,7 +362,10 @@ release candidates and 3.0.0; if one ever has to, the change is written here, an
 - `client.datalog.items`, `.record(..., subscription_owner=)`, `.window_size`;
   `client.rws.devices`, `.ledger`, `.set_devices`; `client.system.account`, `.exists`.
 - `Keypair.from_secret`, `.from_mnemonic`, `.address`, `.public_key`, `.verify`,
-  `.encrypt_message`, `.decrypt_message`; `generate_mnemonic`, `is_valid_address`,
+  `.encrypt_message`, `.decrypt_message`; since 3.1 also `ED25519`, `SR25519`,
+  `Keypair.from_json`, `Keypair.crypto_type` and the keyword-only `crypto_type=` of
+  `from_seed`, `from_mnemonic`, `from_uri`, `from_secret` (default ED25519);
+  `generate_mnemonic`, `is_valid_address`,
   `decode_address`, `encode_address`, `address_format`.
 - `encrypt_for_recipients`, `decrypt_package`, `parse_decrypted`.
 - `DatalogItem(index, timestamp_ms, data, text)`, `Ledger(kind, days, issued_at,
@@ -373,9 +377,38 @@ release candidates and 3.0.0; if one ever has to, the change is written here, an
   `EnvelopeError`.
 
 Changes since rc1: none to this list. rc2 adds the TLS fix, block hash checks and
-the Kusama legacy handling (see CHANGELOG).
+the Kusama legacy handling; 3.1 only adds names (see CHANGELOG).
 
-## 9. Checklist
+## 9. sr25519 (3.1)
+
+Optional: existing objects stay on ED25519; new ones may be created on sr25519, the
+default of Polkadot wallets. Install `robonomics-interface[sr25519]==3.1.0` (wheels for
+musl and aarch64, no compiler); without the extra everything else works as in 3.0.
+
+```python
+from robonomicsinterface import SR25519, Keypair
+
+Keypair.from_mnemonic(m)                          # ED25519, as before
+Keypair.from_mnemonic(m, crypto_type=SR25519)     # or "sr25519", e.g. from a config
+Keypair.from_json(backup_json, password)          # polkadot.js wallet backup; type from the file
+```
+
+- **Where the type lives.** In the object's settings (the HA config entry, the connector's
+  senders and integrators), next to the secret. Nothing in an address tells it, and a
+  wrong guess is not always caught (`PayloadError` names the mismatch when opening a
+  package). Existing entries without the field mean ED25519.
+- **One type per package.** The sender and all recipients share a type; the package
+  has the sender's. A mixed recipient list raises `RecipientError`. Keep the integrators
+  of an sr25519 object on sr25519 keys.
+- **Signing and datalog** work the same: the extrinsic carries the signature variant of
+  the key's type. The account must exist on chain (fund it), as for ED25519.
+- **Encryption** is ECIES, compatible with `py-sr25519-encryption` and SubMessage, so a
+  browser can decrypt with polkadot.js. It does not authenticate the sender; the connector
+  trusts the datalog author (its senders registry), not the cipher.
+- **`from_json`** needs the backup password and runs scrypt (128 MiB; seconds on a
+  Raspberry Pi): call it in a thread, not on the event loop.
+
+## 10. Checklist
 
 - [ ] No `substrateinterface`, `websocket`, `robonomicsinterface.Account` or
       `chain.` import left (`grep -rn "substrateinterface\|from websocket\|Account\b\|\.chain" src`).
@@ -389,6 +422,9 @@ the Kusama legacy handling (see CHANGELOG).
       device outside the list raises `ExtrinsicFailed` `RWS.NotLinkedDevice`.
 - [ ] Home Assistant: the integration installs in `python:3.13-alpine` on aarch64
       and HA logs no "Detected blocking call".
+- [ ] sr25519 (3.1), if used: the key type is a setting of the object; a report from an
+      sr25519 site opens with an sr25519 integrator key, and the connector reads it by
+      the datalog author.
 - [ ] Integration tests against a development node, if the project has any:
       `scripts/devchain.sh` in this repository starts one; fund your test accounts,
       ED25519 or sr25519, by a transfer from the sr25519 `//Alice`.

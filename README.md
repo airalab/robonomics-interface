@@ -1,7 +1,7 @@
 # robonomics-interface
 
 Python client for the [Robonomics](https://robonomics.network/) parachain on Polkadot:
-ED25519 accounts, the multi-recipient report envelope, storage queries, Datalog and
+ED25519 and sr25519 accounts, the multi-recipient report envelope, storage queries, Datalog and
 RWS subscriptions.
 
 > [!IMPORTANT]
@@ -21,7 +21,7 @@ RWS subscriptions.
 | Extrinsics with events and readable errors | ready |
 | Datalog, RWS, System, Balances helpers | ready |
 | Synchronous wrapper | ready |
-| sr25519 (`[sr25519]` extra) | next release |
+| sr25519 keys, encryption and wallet-backup import (`[sr25519]` extra) | ready |
 
 ## Installation
 
@@ -31,10 +31,21 @@ pip install robonomics-interface
 
 Python 3.12 or newer. Core dependencies: `pynacl`, `scalecodec`, `websockets`, `xxhash`.
 
+sr25519 accounts (the default of Polkadot wallets) need an extra, which also installs
+from wheels without a compiler on musl and aarch64:
+
+```bash
+pip install 'robonomics-interface[sr25519]'
+```
+
+Without it the core works as before, and asking for an sr25519 key raises an
+`ImportError` that says what to install.
+
 ## Keys
 
-Only ED25519 accounts are supported in 3.0. The same mnemonic gives the same address
-as polkadot.js and substrate-interface.
+ED25519 is the default: the same mnemonic gives the same address as polkadot.js and
+substrate-interface, and existing code keeps its addresses. sr25519 is chosen
+explicitly, with `crypto_type=SR25519` or `"sr25519"` (a string fits a config file).
 
 ```python
 from robonomicsinterface import Keypair, generate_mnemonic
@@ -47,6 +58,21 @@ Keypair.from_secret("0x<32-byte hex seed>")  # what a person pastes: mnemonic or
 Keypair.from_uri("//Alice")  # development keys and hard paths
 integrator = Keypair.from_address("4F...")  # public only: verify and encrypt to
 ```
+
+```python
+from robonomicsinterface import SR25519, Keypair
+
+site = Keypair.from_mnemonic(mnemonic, crypto_type=SR25519)  # also from_seed, from_uri, from_secret
+site.crypto_type  # 1; ED25519 is 0
+
+# A backup exported by a polkadot.js wallet: the file says which type the account is.
+site = Keypair.from_json(backup_json, password)
+```
+
+`Keypair.from_json` takes the keyring JSON (version 3) as a string, bytes or dict.
+Decrypting it uses scrypt with 128 MiB: about 0.2 s on a laptop and seconds on a
+Raspberry Pi, so call it off the event loop (`await asyncio.to_thread(...)`). ECDSA and
+Ethereum backups, a backup without a password and a wrong password are refused.
 
 A keypair never exposes its secret: `repr()` shows the address only, exceptions
 never contain the input, and pickling is refused.
@@ -62,6 +88,23 @@ from robonomicsinterface import decrypt_package, encrypt_for_recipients, parse_d
 package = encrypt_for_recipients(log_text, site, [integrator_address], {"orig_file_name": "ha.log"})
 payload, meta = parse_decrypted(decrypt_package(package, integrator_keypair, site.address))
 ```
+
+### sr25519 in the Report Service
+
+- **One key type per package.** The sender and every recipient of a package have the
+  same type, sr25519 to sr25519 or ED25519 to ED25519; the type of a package is the
+  type of the sender's key. A mixed list raises `RecipientError`.
+- **The type is a setting of the object, not a guess.** An address does not say what
+  type of key it belongs to, so the Home Assistant config (and the connector's list of
+  integrators) carries it. Opening a package with a key of the wrong type raises
+  `PayloadError` that names the mismatch; sometimes a wrong-type address is refused
+  already when encrypting, but not always.
+- **sr25519 encryption does not authenticate the sender.** It is the ECIES scheme of
+  [py-sr25519-encryption](https://github.com/Fingerling42/py-sr25519-encryption) by
+  Ivan Berman and of SubMessage (the same bytes, so a browser can decrypt with
+  polkadot.js), and the sender's key does not enter it. In the Report Service the
+  chain provides authenticity: the connector reads datalog records only from the
+  addresses in its senders registry. ED25519 packages are unchanged.
 
 ## Connecting
 
@@ -178,7 +221,8 @@ Integration tests run against a development node with the runtime that runs on
 mainnet. `scripts/devchain.sh` downloads pinned, checksum-verified
 `polkadot-omni-node` and `chain-spec-builder` (Parity) and the Robonomics runtime,
 builds the development chain spec (funded sr25519 dev accounts, `//Alice` is sudo), and starts
-the node:
+the node. The tests run on the runtime v50 wasm, which still has Sudo; mainnet is newer
+(see the changelog):
 
 ```bash
 scripts/devchain.sh &                          # ws://127.0.0.1:9944
@@ -189,8 +233,15 @@ ROBONOMICS_MAINNET_SMOKE=1 uv run pytest -m mainnet   # read-only, sends nothing
 `tests/fixtures/compat_vectors.json` pins what the 2.x stack produced (addresses,
 ciphertexts, signatures); `tests/fixtures/generate_compat_vectors.py` regenerates it.
 `scripts/fetch_chain_fixtures.py` re-records mainnet metadata and storage samples after
-a runtime upgrade. CI also installs the wheel in `python:3.13-alpine` on aarch64
-without a compiler.
+a runtime upgrade. CI also installs the wheel in `python:3.13-alpine` on aarch64 and
+x86_64 without a compiler, with and without the `[sr25519]` extra, and runs the tests
+on a core install that has no sr25519 packages.
+
+`tests/fixtures/generate_sr25519_old_stack.py` and `generate_sr25519_js.mjs` regenerate
+the sr25519 vectors from the 2.x stack and polkadot.js; the tests check against them
+and do not compare signature bytes, which sr25519 randomizes. To also check our blobs
+in polkadot.js, point `ROBONOMICS_JS_DIR` at a directory with the script and its
+`node_modules`.
 
 ### Documentation
 
