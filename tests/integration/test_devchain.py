@@ -4,14 +4,17 @@ Run a node first (see scripts/devchain.sh) and point the tests at it:
 
     ROBONOMICS_DEV_URL=ws://127.0.0.1:9944 uv run pytest -m integration
 
-The development preset funds the sr25519 dev accounts and makes sr25519 //Alice
-sudo. Every test derives fresh accounts of both key types from it and funds them
-by transfer, so the tests can run repeatedly against one node.
+The development preset funds the sr25519 dev accounts, //Alice among them; the runtime
+has no Sudo. Every test derives fresh accounts of both key types from //Alice and
+funds them by transfer. The RWS tests bid in auctions that scripts/seed_auctions.py
+wrote into the genesis, as a referendum would have started them: a won auction is
+spent, so a node serves a few runs of the suite (restart it for more).
 """
 
 import asyncio
 import os
 import secrets
+import time
 from collections.abc import AsyncIterator
 from urllib.parse import urlsplit
 
@@ -40,7 +43,7 @@ pytestmark = [
 ]
 
 pytest.importorskip("sr25519")  # //Alice and half the cases are sr25519
-SUDO = Keypair.from_uri("//Alice", crypto_type=SR25519)
+ALICE = Keypair.from_uri("//Alice", crypto_type=SR25519)
 both_key_types = pytest.mark.parametrize(
     "crypto_type", [SR25519, ED25519], ids=["sr25519", "ed25519"]
 )
@@ -84,21 +87,29 @@ async def client() -> AsyncIterator[RobonomicsClient]:
 
 async def fund(client: RobonomicsClient, *accounts: Keypair, amount: int = 100 * XRT) -> None:
     for account in accounts:
-        await client.balances.transfer_keep_alive(SUDO, account, amount)
+        await client.balances.transfer_keep_alive(ALICE, account, amount)
 
 
-async def make_oracle(client: RobonomicsClient) -> None:
-    set_oracle = await client.compose_call("RWS", "set_oracle", {"new": {"Id": SUDO.address}})
-    sudo = await client.compose_call("Sudo", "sudo", {"call": set_oracle})
-    result = await client.submit(sudo, SUDO)
-    assert result.find("Sudo", "Sudid") is not None
+async def free_auction(client: RobonomicsClient, kind: str) -> int:
+    """The first auction of this kind nobody has bid in."""
+
+    for index in await client.rws.auction_queue():
+        auction = await client.rws.auction(index)
+        if auction is not None and auction["winner"] is None and kind in auction["kind"]:
+            return index
+    pytest.fail(f"no free {kind} auction left; restart the node")
 
 
-async def subscribe(client: RobonomicsClient, owner: Keypair, kind: dict[str, object]) -> None:
-    call = await client.compose_call(
-        "RWS", "set_subscription", {"target": owner.address, "subscription": kind}
-    )
-    await client.submit(call, SUDO)
+async def win_subscription(client: RobonomicsClient, bidder: Keypair, kind: str) -> None:
+    """Bid in a free auction and wait for the rotation that turns the win into a ledger."""
+
+    index = await free_auction(client, kind)
+    result = await client.rws.bid(bidder, index, 2 * XRT)
+    assert result.find("RWS", "NewBid") is not None
+    deadline = time.monotonic() + 60  # rotates every AuctionDuration (10) blocks
+    while await client.rws.ledger(bidder) is None:
+        assert time.monotonic() < deadline, f"auction {index} did not close"
+        await asyncio.sleep(0.5)
 
 
 # Accounts and balances
@@ -114,7 +125,7 @@ async def test_chain_is_the_current_runtime(client: RobonomicsClient) -> None:
 async def test_transfer(client: RobonomicsClient, crypto_type: int) -> None:
     receiver = fresh("Bob", crypto_type)
     assert not await client.system.exists(receiver)
-    result = await client.balances.transfer_keep_alive(SUDO, receiver, 5 * XRT)
+    result = await client.balances.transfer_keep_alive(ALICE, receiver, 5 * XRT)
     assert result.find("Balances", "Transfer") is not None
     info = await client.system.account(receiver)
     assert info.exists
@@ -172,17 +183,26 @@ async def test_encrypted_report_round_trip(client: RobonomicsClient, crypto_type
     assert parse_decrypted(opened) == (report, meta)
 
 
-# RWS
+# RWS: the way to a subscription, as a user goes it
 
 
 @both_key_types
-async def test_rws_subscription_flow(client: RobonomicsClient, crypto_type: int) -> None:
+async def test_user_story(client: RobonomicsClient, crypto_type: int) -> None:
+    """A new account with no XRT ends up with devices that write through its subscription."""
+
     owner = fresh("Bob", crypto_type)
     device, stranger = fresh("Charlie", crypto_type), fresh("Dave", crypto_type)
-    await fund(client, owner, device, stranger)
-    await make_oracle(client)
-    await subscribe(client, owner, {"Lifetime": {"tps": 10**9}})
+    with pytest.raises(InvalidTransaction) as invalid:
+        await client.rws.set_devices(owner, [device])
+    assert invalid.value.kind == "Payment"
 
+    await fund(client, owner, device, stranger)
+    index = await free_auction(client, "Lifetime")
+    with pytest.raises(ExtrinsicFailed) as error:
+        await client.rws.bid(owner, index, 1 * XRT)  # the minimal bid must be beaten
+    assert (error.value.pallet, error.value.error) == ("RWS", "TooSmallBid")
+
+    await win_subscription(client, owner, "Lifetime")
     ledger = await client.rws.ledger(owner)
     assert ledger is not None
     assert ledger.kind == "Lifetime"
@@ -194,8 +214,7 @@ async def test_rws_subscription_flow(client: RobonomicsClient, crypto_type: int)
 
     await asyncio.sleep(2)  # let the subscription accrue free weight
     result = await client.datalog.record(device, b"via subscription", subscription_owner=owner)
-    new_call = result.find("RWS", "NewCall")
-    assert new_call is not None
+    assert result.find("RWS", "NewCall") is not None
     assert result.find("Datalog", "NewRecord") is not None
     latest = await client.datalog.latest(device)
     assert latest is not None
@@ -212,8 +231,10 @@ async def test_fresh_daily_subscription_has_no_allowance(
 ) -> None:
     owner, device = fresh("Bob", crypto_type), fresh("Charlie", crypto_type)
     await fund(client, owner, device)
-    await make_oracle(client)
-    await subscribe(client, owner, {"Daily": {"days": 30}})
+    await win_subscription(client, owner, "Daily")
+    ledger = await client.rws.ledger(owner)
+    assert ledger is not None
+    assert ledger.kind == "Daily"
     await client.rws.set_devices(owner, [device])
 
     with pytest.raises(ExtrinsicFailed) as error:
@@ -228,7 +249,7 @@ def test_sync_wrapper() -> None:
     assert URL is not None
     site = fresh("Charlie")
     with RobonomicsSync(URL, genesis_hash=None, require_healthy=False) as client:
-        client.balances.transfer_keep_alive(SUDO, site, 10 * XRT)
+        client.balances.transfer_keep_alive(ALICE, site, 10 * XRT)
         client.datalog.record(site, b"sync")
         latest = client.datalog.latest(site)
         assert latest is not None
