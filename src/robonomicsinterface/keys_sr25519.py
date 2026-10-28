@@ -6,8 +6,9 @@ where a JSON backup is read, not here.
 """
 
 from ._extras import require
+from .errors import InvalidKey
 
-__all__ = ["derive", "pair_from_seed", "sign", "verify"]
+__all__ = ["derive", "pair_from_polkadot_js", "pair_from_seed", "sign", "verify"]
 
 
 def pair_from_seed(seed: bytes) -> tuple[bytes, bytes]:
@@ -15,6 +16,16 @@ def pair_from_seed(seed: bytes) -> tuple[bytes, bytes]:
 
     public, secret = require("sr25519").pair_from_seed(seed)
     return bytes(public), bytes(secret)
+
+
+def pair_from_polkadot_js(secret: bytes) -> tuple[bytes, bytes]:
+    """The public key and the secret, from the 64 bytes as polkadot.js keeps them."""
+
+    try:
+        public, converted = require("sr25519").pair_from_ed25519_secret_key(secret)
+    except ValueError:
+        raise InvalidKey("the sr25519 secret in the backup is not valid") from None
+    return bytes(public), bytes(converted)
 
 
 def derive(public: bytes, secret: bytes, chain_code: bytes, *, hard: bool) -> tuple[bytes, bytes]:

@@ -11,7 +11,8 @@ from __future__ import annotations
 
 import hashlib
 import re
-from typing import NoReturn, Self
+from collections.abc import Mapping
+from typing import Any, NoReturn, Self
 
 import nacl.bindings
 import nacl.exceptions
@@ -19,6 +20,7 @@ import nacl.public
 import nacl.signing
 
 from . import ecies_sr25519, keys_sr25519
+from .backup import open_backup
 from .bip39 import generate_mnemonic, mnemonic_to_mini_secret
 from .errors import DecryptionError, InvalidKey, NoSecretKey
 from .ss58 import ROBONOMICS_SS58_FORMAT, address_format, decode_address, encode_address
@@ -238,6 +240,34 @@ class Keypair:
         if secret.startswith("0x"):
             return cls.from_seed(secret, ss58_format, crypto_type=crypto_type)
         return cls.from_mnemonic(secret, ss58_format=ss58_format, crypto_type=crypto_type)
+
+    @classmethod
+    def from_json(
+        cls,
+        backup: str | bytes | Mapping[str, Any],
+        password: str,
+        ss58_format: int = ROBONOMICS_SS58_FORMAT,
+    ) -> Self:
+        """From the JSON backup a wallet exports (polkadot.js version 3) and its password.
+
+        The file says whether the account is ED25519 or sr25519, so nothing else
+        is needed. The address in the file may be in any network's format; the
+        keypair gets ``ss58_format``. Opening it takes a few seconds on a small
+        board: call it off an event loop.
+
+        :raises InvalidKey: not a usable backup, or the wrong password.
+        """
+
+        key_type, secret, public_key = open_backup(backup, password)
+        if key_type == "sr25519":
+            restored, converted = keys_sr25519.pair_from_polkadot_js(secret)
+            if restored != public_key:
+                raise InvalidKey("the key in the wallet backup does not match its public key")
+            return cls._build(SR25519, None, converted, restored, ss58_format)
+        keypair = cls.from_seed(secret[:_SEED_BYTES], ss58_format)
+        if keypair.public_key != public_key or secret[_SEED_BYTES:] != public_key:
+            raise InvalidKey("the key in the wallet backup does not match its public key")
+        return keypair
 
     @classmethod
     def from_public_key(
