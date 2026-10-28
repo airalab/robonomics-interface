@@ -109,7 +109,7 @@ jobs:
             test_="/venv/bin/python -m pytest -p no:cacheprovider --rootdir=/src /src/tests"
             wheel=$(ls dist/*.whl)
             $pip "$wheel" pytest pytest-asyncio
-            /venv/bin/python -c "import importlib.util as u; raise SystemExit(any(u.find_spec(m) for m in ('sr25519', 'rbcl')))"
+            /venv/bin/python -c "import importlib.util as u, sys; raise SystemExit(any(map(u.find_spec, sys.argv[1:])))" sr25519 rbcl
             (cd /tmp && $test_ -rs)
             $pip "$wheel[sr25519]"
             (cd /tmp && $test_ -rs)

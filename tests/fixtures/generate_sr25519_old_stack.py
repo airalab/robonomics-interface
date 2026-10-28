@@ -8,7 +8,7 @@ ECIES messages:
     git clone https://github.com/Fingerling42/py-sr25519-encryption ecies
     git -C ecies checkout bf06b3b7351f969c990c65af5fe620928facb9ed
     oldstack/bin/python tests/fixtures/generate_sr25519_old_stack.py ecies \\
-        > tests/fixtures/sr25519_old_stack.json
+        tests/fixtures/sr25519_old_stack.json
 
 The ECIES messages come from Ivan Berman's py-sr25519-encryption (Apache-2.0) at the
 commit above, unchanged. sr25519 signatures are randomized, so they are stored to be
@@ -62,7 +62,7 @@ def sr25519(**kwargs):
 
 
 def main():
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         sys.exit(__doc__)
     sys.path.insert(0, str(Path(sys.argv[1]).resolve()))
     from sr25519_ecies_decrypt import sr25519_decrypt
@@ -121,7 +121,7 @@ def main():
                 }
             )
 
-    print(
+    Path(sys.argv[2]).write_text(
         json.dumps(
             {
                 "warning": WARNING,
@@ -135,6 +135,8 @@ def main():
             indent=2,
             ensure_ascii=False,
         )
+        + "\n",
+        encoding="utf-8",
     )
 
 
