@@ -4,15 +4,15 @@
 // exports, so 3.1 can prove it reads the same accounts, JSON backups and ECIES
 // messages as a wallet or a browser would produce:
 //
-//   mkdir jsgen && cp tests/fixtures/generate_sr25519_js.mjs jsgen/ && cd jsgen
+//   mkdir jsgen && cp tests/fixtures/*.mjs jsgen/ && cd jsgen
 //   npm install @polkadot/util-crypto@13.5.9 @polkadot/keyring@13.5.9
 //   node generate_sr25519_js.mjs ../tests/fixtures/sr25519_old_stack.json \
 //     > ../tests/fixtures/sr25519_js.json
 //
-// The ECIES here is built from polkadot.js primitives exactly as the SubMessage fork
-// of util-crypto does it (Polkadot-DevCamp-2022/submessage-dapp, sr25519/encrypt.js,
-// Unlicense): upstream @polkadot/util-crypto has no sr25519Encrypt. The messages the
-// old Python stack made (the file in argv[2]) must open here, or this script fails.
+// The ECIES (ecies_sr25519.mjs, next to this file) is built from polkadot.js primitives
+// as the SubMessage fork of util-crypto does it: upstream @polkadot/util-crypto has no
+// sr25519Encrypt. The messages the old Python stack made (the file in argv[2]) must open
+// here, or this script fails.
 //
 // All mnemonics are public test phrases; never put a real account here.
 
@@ -21,17 +21,14 @@ import { readFileSync } from 'node:fs';
 import { Keyring } from '@polkadot/keyring';
 import {
   cryptoWaitReady,
-  hmacSha256AsU8a,
   mnemonicToMiniSecret,
-  naclDecrypt,
-  naclEncrypt,
-  pbkdf2Encode,
-  randomAsU8a,
   sr25519Agreement,
   sr25519PairFromSeed,
   sr25519Sign
 } from '@polkadot/util-crypto';
-import { hexToU8a, stringToU8a, u8aConcat } from '@polkadot/util';
+import { hexToU8a, stringToU8a } from '@polkadot/util';
+
+import { eciesDecrypt, eciesEncrypt } from './ecies_sr25519.mjs';
 
 const MNEMONICS = [
   'bottom drive obey lake curtain smoke basket hold race lonely fit walk',
@@ -67,38 +64,6 @@ const WARNING =
 
 const hex = (bytes) => Buffer.from(bytes).toString('hex');
 const SS58 = 32;
-
-// ECIES, as SubMessage's util-crypto does it.
-const MAC = 32;
-const ROUNDS = 2048;
-
-function eciesKeys(secretKey, publicKey, masterPublicKey, salt) {
-  const master = u8aConcat(masterPublicKey, sr25519Agreement(secretKey, publicKey));
-  const { password } = pbkdf2Encode(master, salt, ROUNDS);
-  return { macKey: password.slice(0, MAC), encryptionKey: password.slice(MAC, MAC + 32) };
-}
-
-function eciesEncrypt(message, receiverPublicKey) {
-  const ephemeral = sr25519PairFromSeed(randomAsU8a(32));
-  const salt = randomAsU8a(32);
-  const { macKey, encryptionKey } = eciesKeys(
-    ephemeral.secretKey, receiverPublicKey, ephemeral.publicKey, salt);
-  const { encrypted, nonce } = naclEncrypt(message, encryptionKey, randomAsU8a(24));
-  const mac = hmacSha256AsU8a(macKey, u8aConcat(nonce, ephemeral.publicKey, encrypted));
-  return { blob: u8aConcat(nonce, salt, ephemeral.publicKey, mac, encrypted), ephemeral };
-}
-
-function eciesDecrypt(blob, secretKey) {
-  const nonce = blob.slice(0, 24);
-  const salt = blob.slice(24, 56);
-  const ephemeralPublicKey = blob.slice(56, 88);
-  const mac = blob.slice(88, 120);
-  const sealed = blob.slice(120);
-  const { macKey, encryptionKey } = eciesKeys(secretKey, ephemeralPublicKey, ephemeralPublicKey, salt);
-  const expected = hmacSha256AsU8a(macKey, u8aConcat(nonce, ephemeralPublicKey, sealed));
-  if (hex(expected) !== hex(mac)) throw new Error("Mac values don't match");
-  return naclDecrypt(sealed, nonce, encryptionKey);
-}
 
 function account(pair, extra) {
   return {
@@ -159,7 +124,7 @@ async function main() {
 
   const ecies = [];
   for (const message of MESSAGES) {
-    const { blob } = eciesEncrypt(stringToU8a(message), receiverPair.publicKey);
+    const blob = eciesEncrypt(stringToU8a(message), receiverPair.publicKey);
     if (Buffer.from(eciesDecrypt(blob, receiverPair.secretKey)).toString('utf8') !== message) {
       throw new Error('ECIES round trip failed');
     }

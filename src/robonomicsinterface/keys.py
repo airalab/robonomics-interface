@@ -18,7 +18,7 @@ import nacl.exceptions
 import nacl.public
 import nacl.signing
 
-from . import keys_sr25519
+from . import ecies_sr25519, keys_sr25519
 from .bip39 import generate_mnemonic, mnemonic_to_mini_secret
 from .errors import DecryptionError, InvalidKey, NoSecretKey
 from .ss58 import ROBONOMICS_SS58_FORMAT, address_format, decode_address, encode_address
@@ -351,8 +351,6 @@ class Keypair:
     # Encryption
 
     def _box(self, counterparty_public_key: bytes) -> nacl.public.Box:
-        if self.crypto_type != ED25519:
-            raise NotImplementedError("sr25519 encryption is not implemented yet")
         signing_key = self._secret()
         own = nacl.bindings.crypto_sign_ed25519_sk_to_curve25519(
             bytes(signing_key) + self._public_key
@@ -368,17 +366,35 @@ class Keypair:
     def encrypt_message(
         self, message: bytes | str, recipient_public_key: bytes, nonce: bytes | None = None
     ) -> bytes:
-        """Encrypt for one recipient: a NaCl box with the 24-byte nonce in front.
+        """Encrypt for one recipient.
 
-        :param nonce: for test vectors only; a random nonce is used otherwise.
+        An ED25519 keypair makes a NaCl box with the 24-byte nonce in front; the
+        recipient needs this keypair's public key to open it. An sr25519 keypair
+        makes an ECIES message (:mod:`.ecies_sr25519`) from a one-time key, so
+        its own key plays no part: nothing in the message names the sender, and
+        a public-only keypair can encrypt too.
+
+        :param nonce: for ED25519 test vectors only; a random nonce is used otherwise.
         """
 
+        if self.crypto_type == SR25519:
+            if nonce is not None:
+                raise TypeError("a nonce can be given for ED25519 only")
+            return ecies_sr25519.encrypt(_as_bytes(message), bytes(recipient_public_key))
         box = self._box(recipient_public_key)
         return bytes(box.encrypt(_as_bytes(message), nonce))
 
     def decrypt_message(self, encrypted_message: bytes, sender_public_key: bytes) -> bytes:
-        """Open a box produced by :meth:`encrypt_message` (or by substrate-interface)."""
+        """Open what :meth:`encrypt_message` made (an ED25519 box may be from substrate-interface).
 
+        ``sender_public_key`` opens an ED25519 box; an sr25519 message carries
+        its own one-time key, so the argument is not used.
+        """
+
+        if self.crypto_type == SR25519:
+            if self._sr25519_secret is None:
+                raise NoSecretKey(f"{self.address} is a public key only")
+            return ecies_sr25519.decrypt(bytes(encrypted_message), self._sr25519_secret)
         box = self._box(sender_public_key)
         try:
             return bytes(box.decrypt(bytes(encrypted_message)))
