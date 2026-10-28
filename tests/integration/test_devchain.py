@@ -39,6 +39,7 @@ pytestmark = [
     pytest.mark.skipif(not URL, reason="ROBONOMICS_DEV_URL is not set"),
 ]
 
+pytest.importorskip("sr25519")  # //Alice and half the cases are sr25519
 SUDO = Keypair.from_uri("//Alice", crypto_type=SR25519)
 both_key_types = pytest.mark.parametrize(
     "crypto_type", [SR25519, ED25519], ids=["sr25519", "ed25519"]

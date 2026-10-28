@@ -9,6 +9,8 @@ from robonomicsinterface._extras import require
 
 
 def test_installed_module_is_returned() -> None:
+    pytest.importorskip("rbcl")
+    pytest.importorskip("sr25519")
     assert require("rbcl").__name__ == "rbcl"
     assert require("sr25519").__name__ == "sr25519"
 
