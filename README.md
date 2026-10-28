@@ -217,12 +217,14 @@ uv run pytest                                  # offline: recorded mainnet data,
 uv run ruff check . && uv run ruff format --check . && uv run mypy
 ```
 
-Integration tests run against a development node with the runtime that runs on
-mainnet. `scripts/devchain.sh` downloads pinned, checksum-verified
-`polkadot-omni-node` and `chain-spec-builder` (Parity) and the Robonomics runtime,
-builds the development chain spec (funded sr25519 dev accounts, `//Alice` is sudo), and starts
-the node. The tests run on the runtime v50 wasm, which still has Sudo; mainnet is newer
-(see the changelog):
+Integration tests run against a development node with the newest Robonomics runtime
+that ships its wasm in a GitHub release (v52; mainnet runs 53). `scripts/devchain.sh`
+downloads pinned, checksum-verified `polkadot-omni-node` and `chain-spec-builder` (Parity)
+and that runtime, builds the development chain spec (funded sr25519 dev accounts, `//Alice`
+among them), seeds RWS auctions into its genesis (the runtime has no Sudo), and starts the
+node. The RWS tests tell one user story: a new account is funded by transfer, wins an
+auction, sets its devices and writes through the subscription. A won auction is spent, so a
+node serves four runs of the suite; restart it for more:
 
 ```bash
 scripts/devchain.sh &                          # ws://127.0.0.1:9944

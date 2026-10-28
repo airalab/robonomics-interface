@@ -59,8 +59,8 @@ jobs:
       - run: uv run --no-sync python -c "import importlib.util as u; raise SystemExit(any(u.find_spec(m) for m in ('sr25519', 'rbcl')))"
       - run: uv run --no-sync pytest -rs
 
-  # End to end against a development node running the mainnet runtime:
-  # transfers, datalog, sudo, RWS subscriptions and their failures.
+  # End to end against a development node on a recent mainnet runtime: transfers,
+  # datalog, and the user story from a funded account to an RWS subscription.
   integration:
     runs-on: ubuntu-latest
     steps:

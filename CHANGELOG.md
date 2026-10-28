@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+- The development-chain tests (`scripts/devchain.sh`, `-m integration`) run on the Robonomics
+  runtime v52 wasm, the newest release that ships one, instead of v50. It has no Sudo, so
+  `scripts/seed_auctions.py` writes RWS auctions into the genesis state, and the RWS tests
+  are rebuilt around one user story: a new account without XRT is funded by transfer, bids
+  in an auction, waits for the rotation, sets devices and writes datalog through the
+  subscription, for both key types. The para id of the dev spec is now 2000, the one the
+  preset writes into the genesis; with another one v52 panics on the first block.
+  The library itself is unchanged.
+
 ## [3.1.0] — 2026-10-28
 
 The release of the 3.1 line; the code is that of 3.1.0rc1 (see below for what 3.1 adds).
