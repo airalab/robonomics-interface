@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Changelog" href="CHANGELOG.html"><link rel="prev" title="Migrating to robonomics-interface 3.0" href="MIGRATION.html">
 
     <!-- Generated with Sphinx 9.1.1 and Furo 2025.12.19 -->
-        <title>API reference - robonomics-interface 3.0.0 documentation</title>
+        <title>API reference - robonomics-interface 3.1.0rc1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">robonomics-interface 3.0.0 documentation</div></a>
+      <a href="index.html"><div class="brand">robonomics-interface 3.1.0rc1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">robonomics-interface 3.0.0 documentation</span>
+  <span class="sidebar-brand-text">robonomics-interface 3.1.0rc1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -1343,31 +1343,34 @@ not fit its type.</p>
 </section>
 <section id="module-robonomicsinterface.keys">
 <span id="keys-and-addresses"></span><h2>Keys and addresses<a class="headerlink" href="#module-robonomicsinterface.keys" title="Link to this heading">¶</a></h2>
-<p>ED25519 accounts: key derivation, signatures and message encryption on PyNaCl.</p>
-<p>Wire formats match substrate-interface byte for byte: the same mini secret
+<p>ED25519 and sr25519 accounts: key derivation, signatures and message encryption.</p>
+<p>ED25519 runs on PyNaCl, sr25519 on the <code class="docutils literal notranslate"><span class="pre">[sr25519]</span></code> extra (<code class="xref py py-mod docutils literal notranslate"><span class="pre">keys_sr25519</span></code>).
+Wire formats match substrate-interface byte for byte: the same mini secret
 from a mnemonic, the same ed25519 → curve25519 conversion and the same NaCl
 box with the nonce in front. Reports already encrypted by the 2.x stack stay
 readable, and the ones produced here open with the old tools.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="robonomicsinterface.keys.Keypair">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">robonomicsinterface.keys.</span></span><span class="sig-name descname"><span class="pre">Keypair</span></span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair" title="Link to this definition">¶</a></dt>
-<dd><p>An ED25519 account, with or without its secret key.</p>
-<p>Build one with a <code class="docutils literal notranslate"><span class="pre">from_*</span></code> class method. A keypair built from a public key
-or an address can verify signatures and be encrypted to, but not sign or
-decrypt. The secret is held only inside PyNaCl’s signing key: the mnemonic
-or URI it came from is not kept, and neither <a class="reference external" href="https://docs.python.org/3/builtins/functions.html#repr" title="(in Python v3.15)"><code class="xref py py-func docutils literal notranslate"><span class="pre">repr()</span></code></a> nor exceptions
-ever show it.</p>
+<dd><p>An ED25519 or sr25519 account, with or without its secret key.</p>
+<p>Build one with a <code class="docutils literal notranslate"><span class="pre">from_*</span></code> class method; <code class="docutils literal notranslate"><span class="pre">crypto_type</span></code> picks the kind
+(<code class="docutils literal notranslate"><span class="pre">ED25519</span></code> by default, so an existing mnemonic keeps its address). A
+keypair built from a public key or an address can verify signatures and be
+encrypted to, but not sign or decrypt. The secret is held only inside the
+signing key: the mnemonic or URI it came from is not kept, and neither
+<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#repr" title="(in Python v3.15)"><code class="xref py py-func docutils literal notranslate"><span class="pre">repr()</span></code></a> nor exceptions ever show it.</p>
 <dl class="field-list simple">
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="robonomicsinterface.keys.Keypair.from_seed">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ss58_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.from_seed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.from_seed" title="Link to this definition">¶</a></dt>
-<dd><p>From a 32-byte ED25519 seed (the Substrate “mini secret”), raw or as 0x hex.</p>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_seed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ss58_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">crypto_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.from_seed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.from_seed" title="Link to this definition">¶</a></dt>
+<dd><p>From a 32-byte seed (the Substrate “mini secret”), raw or as 0x hex.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>seed</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.15)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
 <li><p><strong>ss58_format</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>)</p></li>
+<li><p><strong>crypto_type</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1378,7 +1381,7 @@ ever show it.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="robonomicsinterface.keys.Keypair.from_mnemonic">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_mnemonic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mnemonic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ss58_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.from_mnemonic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.from_mnemonic" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_mnemonic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mnemonic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ss58_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">crypto_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.from_mnemonic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.from_mnemonic" title="Link to this definition">¶</a></dt>
 <dd><p>From a BIP39 English mnemonic, as polkadot.js and substrate-interface derive it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1386,6 +1389,7 @@ ever show it.</p>
 <li><p><strong>mnemonic</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
 <li><p><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
 <li><p><strong>ss58_format</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>)</p></li>
+<li><p><strong>crypto_type</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1396,8 +1400,8 @@ ever show it.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="robonomicsinterface.keys.Keypair.from_uri">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_uri</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ss58_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.from_uri"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.from_uri" title="Link to this definition">¶</a></dt>
-<dd><p>From a Substrate secret URI: <code class="docutils literal notranslate"><span class="pre">&lt;phrase</span> <span class="pre">or</span> <span class="pre">0x</span> <span class="pre">seed&gt;//hard//path///password</span></code>.</p>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_uri</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uri</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ss58_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">crypto_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.from_uri"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.from_uri" title="Link to this definition">¶</a></dt>
+<dd><p>From a Substrate secret URI: <code class="docutils literal notranslate"><span class="pre">&lt;phrase</span> <span class="pre">or</span> <span class="pre">0x</span> <span class="pre">seed&gt;//hard/soft///password</span></code>.</p>
 <p>An empty phrase means the development phrase, so <code class="docutils literal notranslate"><span class="pre">//Alice</span></code> gives the
 well-known development account. ED25519 has hard derivation only; a
 soft junction (<code class="docutils literal notranslate"><span class="pre">/path</span></code>) is refused. Use this for development and
@@ -1407,6 +1411,7 @@ tests; for keys that people paste, use <a class="reference internal" href="#robo
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>uri</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
 <li><p><strong>ss58_format</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>)</p></li>
+<li><p><strong>crypto_type</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1417,7 +1422,7 @@ tests; for keys that people paste, use <a class="reference internal" href="#robo
 
 <dl class="py method">
 <dt class="sig sig-object py" id="robonomicsinterface.keys.Keypair.from_secret">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_secret</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">secret</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ss58_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.from_secret"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.from_secret" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_secret</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">secret</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ss58_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">crypto_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.from_secret"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.from_secret" title="Link to this definition">¶</a></dt>
 <dd><p>From what a person may paste: a mnemonic or a raw 0x seed.</p>
 <p>Derivation paths, and development keys such as <code class="docutils literal notranslate"><span class="pre">//Alice</span></code> with them,
 are refused on purpose: those secrets are public.</p>
@@ -1426,6 +1431,7 @@ are refused on purpose: those secrets are public.</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>secret</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
 <li><p><strong>ss58_format</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>)</p></li>
+<li><p><strong>crypto_type</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1435,14 +1441,40 @@ are refused on purpose: those secrets are public.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="robonomicsinterface.keys.Keypair.from_json">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">backup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ss58_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.from_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.from_json" title="Link to this definition">¶</a></dt>
+<dd><p>From the JSON backup a wallet exports (polkadot.js version 3) and its password.</p>
+<p>The file says whether the account is ED25519 or sr25519, so nothing else
+is needed. The address in the file may be in any network’s format; the
+keypair gets <code class="docutils literal notranslate"><span class="pre">ss58_format</span></code>. Opening it takes a few seconds on a small
+board: call it off an event loop.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#robonomicsinterface.errors.InvalidKey" title="robonomicsinterface.errors.InvalidKey"><strong>InvalidKey</strong></a> – not a usable backup, or the wrong password.</p>
+</dd>
+<dt class="field-even">Parameters<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>backup</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.15)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Mapping" title="(in Python v3.15)"><em>Mapping</em></a><em>[</em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.15)"><em>Any</em></a><em>]</em>)</p></li>
+<li><p><strong>password</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>ss58_format</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Self" title="(in Python v3.15)"><em>Self</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="robonomicsinterface.keys.Keypair.from_public_key">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_public_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ss58_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.from_public_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.from_public_key" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_public_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">public_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ss58_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">crypto_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.from_public_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.from_public_key" title="Link to this definition">¶</a></dt>
 <dd><p>A counterparty known by its public key: can verify and be encrypted to.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>public_key</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.15)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
 <li><p><strong>ss58_format</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a>)</p></li>
+<li><p><strong>crypto_type</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -1453,7 +1485,7 @@ are refused on purpose: those secrets are public.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="robonomicsinterface.keys.Keypair.from_address">
-<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ss58_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.from_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.from_address" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_address</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">address</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ss58_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">crypto_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.from_address"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.from_address" title="Link to this definition">¶</a></dt>
 <dd><p>A counterparty known by its SS58 address.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1461,14 +1493,15 @@ are refused on purpose: those secrets are public.</p>
 <li><p><strong>ss58_format</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em> | </em><em>None</em>) – when given, an address of another network is
 refused; otherwise the address’s own format is kept.</p></li>
 <li><p><strong>address</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
+<li><p><strong>crypto_type</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.15)"><em>int</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Self" title="(in Python v3.15)"><em>Self</em></a></p>
 </dd>
 </dl>
-<p>An address carries no key type, so an SR25519 account cannot be told
-apart here: it only fails later, when a signature does not verify or a
+<p>An address carries no key type: say which it is with <code class="docutils literal notranslate"><span class="pre">crypto_type</span></code>.
+A wrong one only shows later, when a signature does not verify or a
 message does not decrypt.</p>
 </dd></dl>
 
@@ -1495,7 +1528,9 @@ message does not decrypt.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="robonomicsinterface.keys.Keypair.sign">
 <span class="sig-name descname"><span class="pre">sign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.sign"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.sign" title="Link to this definition">¶</a></dt>
-<dd><p>A 64-byte ED25519 signature. A <code class="docutils literal notranslate"><span class="pre">str</span></code> is signed as its UTF-8 bytes.</p>
+<dd><p>A 64-byte signature. A <code class="docutils literal notranslate"><span class="pre">str</span></code> is signed as its UTF-8 bytes.</p>
+<p>An sr25519 signature is randomized: signing twice gives different
+bytes, and both verify.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.15)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p>
@@ -1509,11 +1544,16 @@ message does not decrypt.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="robonomicsinterface.keys.Keypair.encrypt_message">
 <span class="sig-name descname"><span class="pre">encrypt_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recipient_public_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonce</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.encrypt_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.encrypt_message" title="Link to this definition">¶</a></dt>
-<dd><p>Encrypt for one recipient: a NaCl box with the 24-byte nonce in front.</p>
+<dd><p>Encrypt for one recipient.</p>
+<p>An ED25519 keypair makes a NaCl box with the 24-byte nonce in front; the
+recipient needs this keypair’s public key to open it. An sr25519 keypair
+makes an ECIES message (<code class="xref py py-mod docutils literal notranslate"><span class="pre">ecies_sr25519</span></code>) from a one-time key, so
+its own key plays no part: nothing in the message names the sender, and
+a public-only keypair can encrypt too.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>nonce</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.15)"><em>bytes</em></a><em> | </em><em>None</em>) – for test vectors only; a random nonce is used otherwise.</p></li>
+<li><p><strong>nonce</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.15)"><em>bytes</em></a><em> | </em><em>None</em>) – for ED25519 test vectors only; a random nonce is used otherwise.</p></li>
 <li><p><strong>message</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.15)"><em>bytes</em></a><em> | </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>)</p></li>
 <li><p><strong>recipient_public_key</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#bytes" title="(in Python v3.15)"><em>bytes</em></a>)</p></li>
 </ul>
@@ -1527,7 +1567,9 @@ message does not decrypt.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="robonomicsinterface.keys.Keypair.decrypt_message">
 <span class="sig-name descname"><span class="pre">decrypt_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encrypted_message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender_public_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/keys.html#Keypair.decrypt_message"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.keys.Keypair.decrypt_message" title="Link to this definition">¶</a></dt>
-<dd><p>Open a box produced by <a class="reference internal" href="#robonomicsinterface.keys.Keypair.encrypt_message" title="robonomicsinterface.keys.Keypair.encrypt_message"><code class="xref py py-meth docutils literal notranslate"><span class="pre">encrypt_message()</span></code></a> (or by substrate-interface).</p>
+<dd><p>Open what <a class="reference internal" href="#robonomicsinterface.keys.Keypair.encrypt_message" title="robonomicsinterface.keys.Keypair.encrypt_message"><code class="xref py py-meth docutils literal notranslate"><span class="pre">encrypt_message()</span></code></a> made (an ED25519 box may be from substrate-interface).</p>
+<p><code class="docutils literal notranslate"><span class="pre">sender_public_key</span></code> opens an ED25519 box; an sr25519 message carries
+its own one-time key, so the argument is not used.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1656,10 +1698,16 @@ Robonomics Report Service:</p>
 </div>
 <p>Optional metadata travels inside the encrypted payload as
 <code class="docutils literal notranslate"><span class="pre">{&quot;payload&quot;:</span> <span class="pre">&lt;data&gt;,</span> <span class="pre">&quot;meta&quot;:</span> <span class="pre">{...}}</span></code>; <a class="reference internal" href="#robonomicsinterface.envelope.parse_decrypted" title="robonomicsinterface.envelope.parse_decrypted"><code class="xref py py-func docutils literal notranslate"><span class="pre">parse_decrypted()</span></code></a> splits it.</p>
+<p>A package has one key type, the sender’s: ED25519 senders wrap the key in NaCl
+boxes for ED25519 recipients, sr25519 senders in ECIES messages for sr25519
+recipients. An address does not say which kind it is, so every recipient is
+taken to be of the sender’s kind; the recipient’s own key says how to open it.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="robonomicsinterface.envelope.decrypt_package">
 <span class="sig-prename descclassname"><span class="pre">robonomicsinterface.envelope.</span></span><span class="sig-name descname"><span class="pre">decrypt_package</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recipient</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender_address</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/envelope.html#decrypt_package"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.envelope.decrypt_package" title="Link to this definition">¶</a></dt>
 <dd><p>Unwrap the key addressed to <code class="docutils literal notranslate"><span class="pre">recipient</span></code>, then decrypt the payload.</p>
+<p><code class="docutils literal notranslate"><span class="pre">sender_address</span></code> opens an ED25519 box; an sr25519 message carries its own
+one-time key, so it is not used for an sr25519 recipient.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -1685,7 +1733,8 @@ Robonomics Report Service:</p>
 <span class="sig-prename descclassname"><span class="pre">robonomicsinterface.envelope.</span></span><span class="sig-name descname"><span class="pre">encrypt_for_recipients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recipients</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">metadata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/robonomicsinterface/envelope.html#encrypt_for_recipients"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#robonomicsinterface.envelope.encrypt_for_recipients" title="Link to this definition">¶</a></dt>
 <dd><p>Encrypt <code class="docutils literal notranslate"><span class="pre">data</span></code> once and wrap its key for each recipient address.</p>
 <p>The sender is always added as a recipient, so it can read back what it
-sent. Returns the JSON package.</p>
+sent. Every recipient is taken to have the sender’s key type. Returns the
+JSON package.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -2184,6 +2233,7 @@ by <code class="docutils literal notranslate"><span class="pre">extrinsic_hash</
 <li><a class="reference internal" href="#robonomicsinterface.keys.Keypair.from_mnemonic"><code class="docutils literal notranslate"><span class="pre">Keypair.from_mnemonic()</span></code></a></li>
 <li><a class="reference internal" href="#robonomicsinterface.keys.Keypair.from_uri"><code class="docutils literal notranslate"><span class="pre">Keypair.from_uri()</span></code></a></li>
 <li><a class="reference internal" href="#robonomicsinterface.keys.Keypair.from_secret"><code class="docutils literal notranslate"><span class="pre">Keypair.from_secret()</span></code></a></li>
+<li><a class="reference internal" href="#robonomicsinterface.keys.Keypair.from_json"><code class="docutils literal notranslate"><span class="pre">Keypair.from_json()</span></code></a></li>
 <li><a class="reference internal" href="#robonomicsinterface.keys.Keypair.from_public_key"><code class="docutils literal notranslate"><span class="pre">Keypair.from_public_key()</span></code></a></li>
 <li><a class="reference internal" href="#robonomicsinterface.keys.Keypair.from_address"><code class="docutils literal notranslate"><span class="pre">Keypair.from_address()</span></code></a></li>
 <li><a class="reference internal" href="#robonomicsinterface.keys.Keypair.generate_mnemonic"><code class="docutils literal notranslate"><span class="pre">Keypair.generate_mnemonic()</span></code></a></li>
@@ -2250,7 +2300,7 @@ by <code class="docutils literal notranslate"><span class="pre">extrinsic_hash</
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=acc74ff5"></script>
+</div><script src="_static/documentation_options.js?v=111a04e8"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

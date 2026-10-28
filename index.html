@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Migrating to robonomics-interface 3.0" href="MIGRATION.html">
 
     <!-- Generated with Sphinx 9.1.1 and Furo 2025.12.19 -->
-        <title>robonomics-interface 3.0.0 documentation</title>
+        <title>robonomics-interface 3.1.0rc1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">robonomics-interface 3.0.0 documentation</div></a>
+      <a href="#"><div class="brand">robonomics-interface 3.1.0rc1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
-  <span class="sidebar-brand-text">robonomics-interface 3.0.0 documentation</span>
+  <span class="sidebar-brand-text">robonomics-interface 3.1.0rc1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -235,7 +235,7 @@
           <section id="robonomics-interface">
 <h1>robonomics-interface<a class="headerlink" href="#robonomics-interface" title="Link to this heading">¶</a></h1>
 <p>Python client for the <a class="reference external" href="https://robonomics.network/">Robonomics</a> parachain on Polkadot:
-ED25519 accounts, the multi-recipient report envelope, storage queries, Datalog and
+ED25519 and sr25519 accounts, the multi-recipient report envelope, storage queries, Datalog and
 RWS subscriptions.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
@@ -273,8 +273,8 @@ platform, including Home Assistant on Raspberry Pi and HA Green (musl, aarch64).
 <tr class="row-odd"><td><p>Synchronous wrapper</p></td>
 <td><p>ready</p></td>
 </tr>
-<tr class="row-even"><td><p>sr25519 (<code class="docutils literal notranslate"><span class="pre">[sr25519]</span></code> extra)</p></td>
-<td><p>next release</p></td>
+<tr class="row-even"><td><p>sr25519 keys, encryption and wallet-backup import (<code class="docutils literal notranslate"><span class="pre">[sr25519]</span></code> extra)</p></td>
+<td><p>ready</p></td>
 </tr>
 </tbody>
 </table>
@@ -286,11 +286,19 @@ platform, including Home Assistant on Raspberry Pi and HA Green (musl, aarch64).
 </pre></div>
 </div>
 <p>Python 3.12 or newer. Core dependencies: <code class="docutils literal notranslate"><span class="pre">pynacl</span></code>, <code class="docutils literal notranslate"><span class="pre">scalecodec</span></code>, <code class="docutils literal notranslate"><span class="pre">websockets</span></code>, <code class="docutils literal notranslate"><span class="pre">xxhash</span></code>.</p>
+<p>sr25519 accounts (the default of Polkadot wallets) need an extra, which also installs
+from wheels without a compiler on musl and aarch64:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">'robonomics-interface[sr25519]'</span>
+</pre></div>
+</div>
+<p>Without it the core works as before, and asking for an sr25519 key raises an
+<code class="docutils literal notranslate"><span class="pre">ImportError</span></code> that says what to install.</p>
 </section>
 <section id="keys">
 <h2>Keys<a class="headerlink" href="#keys" title="Link to this heading">¶</a></h2>
-<p>Only ED25519 accounts are supported in 3.0. The same mnemonic gives the same address
-as polkadot.js and substrate-interface.</p>
+<p>ED25519 is the default: the same mnemonic gives the same address as polkadot.js and
+substrate-interface, and existing code keeps its addresses. sr25519 is chosen
+explicitly, with <code class="docutils literal notranslate"><span class="pre">crypto_type=SR25519</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;sr25519&quot;</span></code> (a string fits a config file).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">robonomicsinterface</span><span class="w"> </span><span class="kn">import</span> <span class="n">Keypair</span><span class="p">,</span> <span class="n">generate_mnemonic</span>
 
 <span class="n">mnemonic</span> <span class="o">=</span> <span class="n">generate_mnemonic</span><span class="p">()</span>
@@ -302,6 +310,19 @@ as polkadot.js and substrate-interface.</p>
 <span class="n">integrator</span> <span class="o">=</span> <span class="n">Keypair</span><span class="o">.</span><span class="n">from_address</span><span class="p">(</span><span class="s2">"4F..."</span><span class="p">)</span>  <span class="c1"># public only: verify and encrypt to</span>
 </pre></div>
 </div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">robonomicsinterface</span><span class="w"> </span><span class="kn">import</span> <span class="n">SR25519</span><span class="p">,</span> <span class="n">Keypair</span>
+
+<span class="n">site</span> <span class="o">=</span> <span class="n">Keypair</span><span class="o">.</span><span class="n">from_mnemonic</span><span class="p">(</span><span class="n">mnemonic</span><span class="p">,</span> <span class="n">crypto_type</span><span class="o">=</span><span class="n">SR25519</span><span class="p">)</span>  <span class="c1"># also from_seed, from_uri, from_secret</span>
+<span class="n">site</span><span class="o">.</span><span class="n">crypto_type</span>  <span class="c1"># 1; ED25519 is 0</span>
+
+<span class="c1"># A backup exported by a polkadot.js wallet: the file says which type the account is.</span>
+<span class="n">site</span> <span class="o">=</span> <span class="n">Keypair</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">backup_json</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Keypair.from_json</span></code> takes the keyring JSON (version 3) as a string, bytes or dict.
+Decrypting it uses scrypt with 128 MiB: about 0.2 s on a laptop and seconds on a
+Raspberry Pi, so call it off the event loop (<code class="docutils literal notranslate"><span class="pre">await</span> <span class="pre">asyncio.to_thread(...)</span></code>). ECDSA and
+Ethereum backups, a backup without a password and a wrong password are refused.</p>
 <p>A keypair never exposes its secret: <code class="docutils literal notranslate"><span class="pre">repr()</span></code> shows the address only, exceptions
 never contain the input, and pickling is refused.</p>
 </section>
@@ -315,6 +336,25 @@ The format is the one Robonomics Report Service already publishes.</p>
 <span class="n">payload</span><span class="p">,</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">parse_decrypted</span><span class="p">(</span><span class="n">decrypt_package</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">integrator_keypair</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">address</span><span class="p">))</span>
 </pre></div>
 </div>
+<section id="sr25519-in-the-report-service">
+<h3>sr25519 in the Report Service<a class="headerlink" href="#sr25519-in-the-report-service" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>One key type per package.</strong> The sender and every recipient of a package have the
+same type, sr25519 to sr25519 or ED25519 to ED25519; the type of a package is the
+type of the sender’s key. A mixed list raises <code class="docutils literal notranslate"><span class="pre">RecipientError</span></code>.</p></li>
+<li><p><strong>The type is a setting of the object, not a guess.</strong> An address does not say what
+type of key it belongs to, so the Home Assistant config (and the connector’s list of
+integrators) carries it. Opening a package with a key of the wrong type raises
+<code class="docutils literal notranslate"><span class="pre">PayloadError</span></code> that names the mismatch; sometimes a wrong-type address is refused
+already when encrypting, but not always.</p></li>
+<li><p><strong>sr25519 encryption does not authenticate the sender.</strong> It is the ECIES scheme of
+<a class="reference external" href="https://github.com/Fingerling42/py-sr25519-encryption">py-sr25519-encryption</a> by
+Ivan Berman and of SubMessage (the same bytes, so a browser can decrypt with
+polkadot.js), and the sender’s key does not enter it. In the Report Service the
+chain provides authenticity: the connector reads datalog records only from the
+addresses in its senders registry. ED25519 packages are unchanged.</p></li>
+</ul>
+</section>
 </section>
 <section id="connecting">
 <h2>Connecting<a class="headerlink" href="#connecting" title="Link to this heading">¶</a></h2>
@@ -422,7 +462,9 @@ uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span
 <p>Integration tests run against a development node with the runtime that runs on
 mainnet. <code class="docutils literal notranslate"><span class="pre">scripts/devchain.sh</span></code> downloads pinned, checksum-verified
 <code class="docutils literal notranslate"><span class="pre">polkadot-omni-node</span></code> and <code class="docutils literal notranslate"><span class="pre">chain-spec-builder</span></code> (Parity) and the Robonomics runtime,
-builds a development chain spec with funded ED25519 dev accounts, and starts the node:</p>
+builds the development chain spec (funded sr25519 dev accounts, <code class="docutils literal notranslate"><span class="pre">//Alice</span></code> is sudo), and starts
+the node. The tests run on the runtime v50 wasm, which still has Sudo; mainnet is newer
+(see the changelog):</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scripts/devchain.sh<span class="w"> </span><span class="p">&amp;</span><span class="w">                          </span><span class="c1"># ws://127.0.0.1:9944</span>
 <span class="nv">ROBONOMICS_DEV_URL</span><span class="o">=</span>ws://127.0.0.1:9944<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>integration
 <span class="nv">ROBONOMICS_MAINNET_SMOKE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-m<span class="w"> </span>mainnet<span class="w">   </span><span class="c1"># read-only, sends nothing</span>
@@ -431,8 +473,14 @@ builds a development chain spec with funded ED25519 dev accounts, and starts the
 <p><code class="docutils literal notranslate"><span class="pre">tests/fixtures/compat_vectors.json</span></code> pins what the 2.x stack produced (addresses,
 ciphertexts, signatures); <code class="docutils literal notranslate"><span class="pre">tests/fixtures/generate_compat_vectors.py</span></code> regenerates it.
 <code class="docutils literal notranslate"><span class="pre">scripts/fetch_chain_fixtures.py</span></code> re-records mainnet metadata and storage samples after
-a runtime upgrade. CI also installs the wheel in <code class="docutils literal notranslate"><span class="pre">python:3.13-alpine</span></code> on aarch64
-without a compiler.</p>
+a runtime upgrade. CI also installs the wheel in <code class="docutils literal notranslate"><span class="pre">python:3.13-alpine</span></code> on aarch64 and
+x86_64 without a compiler, with and without the <code class="docutils literal notranslate"><span class="pre">[sr25519]</span></code> extra, and runs the tests
+on a core install that has no sr25519 packages.</p>
+<p><code class="docutils literal notranslate"><span class="pre">tests/fixtures/generate_sr25519_old_stack.py</span></code> and <code class="docutils literal notranslate"><span class="pre">generate_sr25519_js.mjs</span></code> regenerate
+the sr25519 vectors from the 2.x stack and polkadot.js; the tests check against them
+and do not compare signature bytes, which sr25519 randomizes. To also check our blobs
+in polkadot.js, point <code class="docutils literal notranslate"><span class="pre">ROBONOMICS_JS_DIR</span></code> at a directory with the script and its
+<code class="docutils literal notranslate"><span class="pre">node_modules</span></code>.</p>
 <section id="documentation">
 <h3>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">¶</a></h3>
 <p>The API reference is built from the docstrings with Sphinx and published to
@@ -509,7 +557,10 @@ the <code class="docutils literal notranslate"><span class="pre">pypi</span></co
 <li><a class="reference internal" href="#status">Status</a></li>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#keys">Keys</a></li>
-<li><a class="reference internal" href="#report-envelope">Report envelope</a></li>
+<li><a class="reference internal" href="#report-envelope">Report envelope</a><ul>
+<li><a class="reference internal" href="#sr25519-in-the-report-service">sr25519 in the Report Service</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#connecting">Connecting</a></li>
 <li><a class="reference internal" href="#datalog-rws-and-accounts">Datalog, RWS and accounts</a></li>
 <li><a class="reference internal" href="#without-asyncio">Without asyncio</a></li>
@@ -534,7 +585,7 @@ the <code class="docutils literal notranslate"><span class="pre">pypi</span></co
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=acc74ff5"></script>
+</div><script src="_static/documentation_options.js?v=111a04e8"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

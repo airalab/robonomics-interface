@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 9.1.1 and Furo 2025.12.19 -->
-        <title>robonomicsinterface.envelope - robonomics-interface 3.0.0 documentation</title>
+        <title>robonomicsinterface.envelope - robonomics-interface 3.1.0rc1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -160,7 +160,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">robonomics-interface 3.0.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">robonomics-interface 3.1.0rc1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">robonomics-interface 3.0.0 documentation</span>
+  <span class="sidebar-brand-text">robonomics-interface 3.1.0rc1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -237,6 +237,11 @@
 
 <span class="sd">Optional metadata travels inside the encrypted payload as</span>
 <span class="sd">``{"payload": &lt;data&gt;, "meta": {...}}``; :func:`parse_decrypted` splits it.</span>
+
+<span class="sd">A package has one key type, the sender's: ED25519 senders wrap the key in NaCl</span>
+<span class="sd">boxes for ED25519 recipients, sr25519 senders in ECIES messages for sr25519</span>
+<span class="sd">recipients. An address does not say which kind it is, so every recipient is</span>
+<span class="sd">taken to be of the sender's kind; the recipient's own key says how to open it.</span>
 <span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
@@ -255,11 +260,15 @@
     <span class="n">PayloadError</span><span class="p">,</span>
     <span class="n">RecipientError</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.keys</span><span class="w"> </span><span class="kn">import</span> <span class="n">Keypair</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.keys</span><span class="w"> </span><span class="kn">import</span> <span class="n">ED25519</span><span class="p">,</span> <span class="n">SR25519</span><span class="p">,</span> <span class="n">Keypair</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"decrypt_package"</span><span class="p">,</span> <span class="s2">"encrypt_for_recipients"</span><span class="p">,</span> <span class="s2">"parse_decrypted"</span><span class="p">]</span>
 
 <span class="n">_SECRET_KEY_BYTES</span> <span class="o">=</span> <span class="mi">32</span>
+<span class="n">_KEY_TYPE_NAMES</span> <span class="o">=</span> <span class="p">{</span><span class="n">ED25519</span><span class="p">:</span> <span class="s2">"ED25519"</span><span class="p">,</span> <span class="n">SR25519</span><span class="p">:</span> <span class="s2">"sr25519"</span><span class="p">}</span>
+<span class="c1"># What a wrapped payload key measures: a NaCl box (nonce, authenticator) or an ECIES message</span>
+<span class="c1"># (nonce, salt, one-time key, mac, authenticator) around the 32 bytes.</span>
+<span class="n">_WRAPPED_LENGTH</span> <span class="o">=</span> <span class="p">{</span><span class="mi">24</span> <span class="o">+</span> <span class="n">_SECRET_KEY_BYTES</span> <span class="o">+</span> <span class="mi">16</span><span class="p">:</span> <span class="n">ED25519</span><span class="p">,</span> <span class="mi">120</span> <span class="o">+</span> <span class="n">_SECRET_KEY_BYTES</span> <span class="o">+</span> <span class="mi">16</span><span class="p">:</span> <span class="n">SR25519</span><span class="p">}</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_hex</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -281,7 +290,8 @@
 <span class="w">    </span><span class="sd">"""Encrypt ``data`` once and wrap its key for each recipient address.</span>
 
 <span class="sd">    The sender is always added as a recipient, so it can read back what it</span>
-<span class="sd">    sent. Returns the JSON package.</span>
+<span class="sd">    sent. Every recipient is taken to have the sender's key type. Returns the</span>
+<span class="sd">    JSON package.</span>
 <span class="sd">    """</span>
 
     <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -293,13 +303,16 @@
     <span class="n">keys</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">recipients</span><span class="p">)</span> <span class="o">|</span> <span class="p">{</span><span class="n">sender</span><span class="o">.</span><span class="n">address</span><span class="p">}):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">recipient</span> <span class="o">=</span> <span class="n">Keypair</span><span class="o">.</span><span class="n">from_address</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+            <span class="n">recipient</span> <span class="o">=</span> <span class="n">Keypair</span><span class="o">.</span><span class="n">from_address</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">crypto_type</span><span class="o">=</span><span class="n">sender</span><span class="o">.</span><span class="n">crypto_type</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">InvalidAddress</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">RecipientError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">: invalid address"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">keys</span><span class="p">[</span><span class="n">address</span><span class="p">]</span> <span class="o">=</span> <span class="n">_hex</span><span class="p">(</span><span class="n">sender</span><span class="o">.</span><span class="n">encrypt_message</span><span class="p">(</span><span class="n">secret_key</span><span class="p">,</span> <span class="n">recipient</span><span class="o">.</span><span class="n">public_key</span><span class="p">))</span>
         <span class="k">except</span> <span class="n">InvalidKey</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">RecipientError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">: not an ED25519 public key"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+            <span class="n">kind</span> <span class="o">=</span> <span class="n">_KEY_TYPE_NAMES</span><span class="p">[</span><span class="n">sender</span><span class="o">.</span><span class="n">crypto_type</span><span class="p">]</span>
+            <span class="k">raise</span> <span class="n">RecipientError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">address</span><span class="si">}</span><span class="s2">: not a valid </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> public key (a package takes the sender's key type)"</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
     <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">"data"</span><span class="p">:</span> <span class="n">_hex</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">encrypted_data</span><span class="p">)),</span> <span class="s2">"keys"</span><span class="p">:</span> <span class="n">keys</span><span class="p">})</span></div>
 
@@ -309,6 +322,9 @@
 <a class="viewcode-back" href="../../api.html#robonomicsinterface.envelope.decrypt_package">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">decrypt_package</span><span class="p">(</span><span class="n">package</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">recipient</span><span class="p">:</span> <span class="n">Keypair</span><span class="p">,</span> <span class="n">sender_address</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Unwrap the key addressed to ``recipient``, then decrypt the payload.</span>
+
+<span class="sd">    ``sender_address`` opens an ED25519 box; an sr25519 message carries its own</span>
+<span class="sd">    one-time key, so it is not used for an sr25519 recipient.</span>
 
 <span class="sd">    :raises PackageError: the package is malformed or has no key for this recipient.</span>
 <span class="sd">    :raises PayloadError: the key or the payload does not decrypt.</span>
@@ -328,16 +344,35 @@
         <span class="k">raise</span> <span class="n">PackageError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"the package is not addressed to </span><span class="si">{</span><span class="n">recipient</span><span class="o">.</span><span class="n">address</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">sender</span> <span class="o">=</span> <span class="n">Keypair</span><span class="o">.</span><span class="n">from_address</span><span class="p">(</span><span class="n">sender_address</span><span class="p">)</span>
-        <span class="n">secret_key</span> <span class="o">=</span> <span class="n">recipient</span><span class="o">.</span><span class="n">decrypt_message</span><span class="p">(</span><span class="n">_unhex</span><span class="p">(</span><span class="n">wrapped_key</span><span class="p">),</span> <span class="n">sender</span><span class="o">.</span><span class="n">public_key</span><span class="p">)</span>
+        <span class="n">sender_key</span> <span class="o">=</span> <span class="sa">b</span><span class="s2">""</span>
+        <span class="k">if</span> <span class="n">recipient</span><span class="o">.</span><span class="n">crypto_type</span> <span class="o">==</span> <span class="n">ED25519</span><span class="p">:</span>
+            <span class="n">sender_key</span> <span class="o">=</span> <span class="n">Keypair</span><span class="o">.</span><span class="n">from_address</span><span class="p">(</span><span class="n">sender_address</span><span class="p">)</span><span class="o">.</span><span class="n">public_key</span>
+        <span class="n">secret_key</span> <span class="o">=</span> <span class="n">recipient</span><span class="o">.</span><span class="n">decrypt_message</span><span class="p">(</span><span class="n">_unhex</span><span class="p">(</span><span class="n">wrapped_key</span><span class="p">),</span> <span class="n">sender_key</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="n">InvalidAddress</span><span class="p">,</span> <span class="n">InvalidKey</span><span class="p">,</span> <span class="n">DecryptionError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">PayloadError</span><span class="p">(</span><span class="s2">"cannot unwrap the secret key"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+        <span class="k">raise</span> <span class="n">PayloadError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"cannot unwrap the secret key</span><span class="si">{</span><span class="n">_wrong_kind</span><span class="p">(</span><span class="n">wrapped_key</span><span class="p">,</span><span class="w"> </span><span class="n">recipient</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">SecretBox</span><span class="p">(</span><span class="n">secret_key</span><span class="p">)</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">_unhex</span><span class="p">(</span><span class="n">encrypted_data</span><span class="p">))</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="n">nacl</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">CryptoError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">PayloadError</span><span class="p">(</span><span class="s2">"cannot decrypt the payload"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_wrong_kind</span><span class="p">(</span><span class="n">wrapped_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">recipient</span><span class="p">:</span> <span class="n">Keypair</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A hint when the key was wrapped for the other key type: usually a misconfigured type."""</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">wrapped_for</span> <span class="o">=</span> <span class="n">_WRAPPED_LENGTH</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">_unhex</span><span class="p">(</span><span class="n">wrapped_key</span><span class="p">)))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">""</span>
+    <span class="k">if</span> <span class="n">wrapped_for</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">wrapped_for</span> <span class="o">==</span> <span class="n">recipient</span><span class="o">.</span><span class="n">crypto_type</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">""</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">": it is wrapped for an </span><span class="si">{</span><span class="n">_KEY_TYPE_NAMES</span><span class="p">[</span><span class="n">wrapped_for</span><span class="p">]</span><span class="si">}</span><span class="s2"> account, "</span>
+        <span class="sa">f</span><span class="s2">"and </span><span class="si">{</span><span class="n">recipient</span><span class="o">.</span><span class="n">address</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">_KEY_TYPE_NAMES</span><span class="p">[</span><span class="n">recipient</span><span class="o">.</span><span class="n">crypto_type</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
 
 
 <div class="viewcode-block" id="parse_decrypted">
@@ -386,7 +421,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=acc74ff5"></script>
+</div><script src="../../_static/documentation_options.js?v=111a04e8"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

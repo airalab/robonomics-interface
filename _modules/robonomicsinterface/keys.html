@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 9.1.1 and Furo 2025.12.19 -->
-        <title>robonomicsinterface.keys - robonomics-interface 3.0.0 documentation</title>
+        <title>robonomicsinterface.keys - robonomics-interface 3.1.0rc1 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -160,7 +160,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">robonomics-interface 3.0.0 documentation</div></a>
+      <a href="../../index.html"><div class="brand">robonomics-interface 3.1.0rc1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -181,7 +181,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
-  <span class="sidebar-brand-text">robonomics-interface 3.0.0 documentation</span>
+  <span class="sidebar-brand-text">robonomics-interface 3.1.0rc1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -226,8 +226,9 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for robonomicsinterface.keys</h1><div class="highlight"><pre>
-<span></span><span class="sd">"""ED25519 accounts: key derivation, signatures and message encryption on PyNaCl.</span>
+<span></span><span class="sd">"""ED25519 and sr25519 accounts: key derivation, signatures and message encryption.</span>
 
+<span class="sd">ED25519 runs on PyNaCl, sr25519 on the ``[sr25519]`` extra (:mod:`.keys_sr25519`).</span>
 <span class="sd">Wire formats match substrate-interface byte for byte: the same mini secret</span>
 <span class="sd">from a mnemonic, the same ed25519 → curve25519 conversion and the same NaCl</span>
 <span class="sd">box with the nonce in front. Reports already encrypted by the 2.x stack stay</span>
@@ -238,21 +239,27 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Self</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">NoReturn</span><span class="p">,</span> <span class="n">Self</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">nacl.bindings</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">nacl.exceptions</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">nacl.public</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">nacl.signing</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">.</span><span class="w"> </span><span class="kn">import</span> <span class="n">ecies_sr25519</span><span class="p">,</span> <span class="n">keys_sr25519</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.backup</span><span class="w"> </span><span class="kn">import</span> <span class="n">open_backup</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.bip39</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_mnemonic</span><span class="p">,</span> <span class="n">mnemonic_to_mini_secret</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecryptionError</span><span class="p">,</span> <span class="n">InvalidKey</span><span class="p">,</span> <span class="n">NoSecretKey</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.ss58</span><span class="w"> </span><span class="kn">import</span> <span class="n">ROBONOMICS_SS58_FORMAT</span><span class="p">,</span> <span class="n">address_format</span><span class="p">,</span> <span class="n">decode_address</span><span class="p">,</span> <span class="n">encode_address</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"DEV_PHRASE"</span><span class="p">,</span> <span class="s2">"ED25519"</span><span class="p">,</span> <span class="s2">"Keypair"</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"DEV_PHRASE"</span><span class="p">,</span> <span class="s2">"ED25519"</span><span class="p">,</span> <span class="s2">"SR25519"</span><span class="p">,</span> <span class="s2">"Keypair"</span><span class="p">]</span>
 
 <span class="c1"># Substrate's MultiSignature ordering; also the signature tag in an extrinsic.</span>
 <span class="n">ED25519</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">SR25519</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">_KEY_TYPES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"ed25519"</span><span class="p">:</span> <span class="n">ED25519</span><span class="p">,</span> <span class="s2">"sr25519"</span><span class="p">:</span> <span class="n">SR25519</span><span class="p">}</span>
+<span class="n">_KEY_NAMES</span> <span class="o">=</span> <span class="p">{</span><span class="n">value</span><span class="p">:</span> <span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">_KEY_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
 
 <span class="c1"># The well-known development phrase behind //Alice, //Bob and friends.</span>
 <span class="n">DEV_PHRASE</span> <span class="o">=</span> <span class="s2">"bottom drive obey lake curtain smoke basket hold race lonely fit walk"</span>
@@ -307,25 +314,37 @@
     <span class="k">return</span> <span class="n">message</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_key_type</span><span class="p">(</span><span class="n">crypto_type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``ED25519``/``SR25519``, or their names as a config file would hold them."""</span>
+
+    <span class="n">kind</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_KEY_TYPES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">crypto_type</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">crypto_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">crypto_type</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_KEY_NAMES</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">InvalidKey</span><span class="p">(</span><span class="s2">"the key type must be ED25519 or SR25519 (or 'ed25519', 'sr25519')"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">kind</span>
+
+
 <div class="viewcode-block" id="Keypair">
 <a class="viewcode-back" href="../../api.html#robonomicsinterface.keys.Keypair">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Keypair</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""An ED25519 account, with or without its secret key.</span>
+<span class="w">    </span><span class="sd">"""An ED25519 or sr25519 account, with or without its secret key.</span>
 
-<span class="sd">    Build one with a ``from_*`` class method. A keypair built from a public key</span>
-<span class="sd">    or an address can verify signatures and be encrypted to, but not sign or</span>
-<span class="sd">    decrypt. The secret is held only inside PyNaCl's signing key: the mnemonic</span>
-<span class="sd">    or URI it came from is not kept, and neither :func:`repr` nor exceptions</span>
-<span class="sd">    ever show it.</span>
+<span class="sd">    Build one with a ``from_*`` class method; ``crypto_type`` picks the kind</span>
+<span class="sd">    (``ED25519`` by default, so an existing mnemonic keeps its address). A</span>
+<span class="sd">    keypair built from a public key or an address can verify signatures and be</span>
+<span class="sd">    encrypted to, but not sign or decrypt. The secret is held only inside the</span>
+<span class="sd">    signing key: the mnemonic or URI it came from is not kept, and neither</span>
+<span class="sd">    :func:`repr` nor exceptions ever show it.</span>
 <span class="sd">    """</span>
 
-    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"_public_key"</span><span class="p">,</span> <span class="s2">"_signing_key"</span><span class="p">,</span> <span class="s2">"ss58_format"</span><span class="p">)</span>
+    <span class="vm">__slots__</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"_public_key"</span><span class="p">,</span> <span class="s2">"_signing_key"</span><span class="p">,</span> <span class="s2">"_sr25519_secret"</span><span class="p">,</span> <span class="s2">"crypto_type"</span><span class="p">,</span> <span class="s2">"ss58_format"</span><span class="p">)</span>
 
     <span class="n">_public_key</span><span class="p">:</span> <span class="nb">bytes</span>
     <span class="n">_signing_key</span><span class="p">:</span> <span class="n">nacl</span><span class="o">.</span><span class="n">signing</span><span class="o">.</span><span class="n">SigningKey</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">_sr25519_secret</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span>
+    <span class="n">crypto_type</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">ss58_format</span><span class="p">:</span> <span class="nb">int</span>
-
-    <span class="n">crypto_type</span> <span class="o">=</span> <span class="n">ED25519</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"use Keypair.from_mnemonic(), from_seed(), from_uri() or from_address()"</span><span class="p">)</span>
@@ -333,12 +352,16 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_build</span><span class="p">(</span>
         <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">crypto_type</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">signing_key</span><span class="p">:</span> <span class="n">nacl</span><span class="o">.</span><span class="n">signing</span><span class="o">.</span><span class="n">SigningKey</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">sr25519_secret</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">public_key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span>
         <span class="n">ss58_format</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
         <span class="n">keypair</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__new__</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
+        <span class="n">keypair</span><span class="o">.</span><span class="n">crypto_type</span> <span class="o">=</span> <span class="n">crypto_type</span>
         <span class="n">keypair</span><span class="o">.</span><span class="n">_signing_key</span> <span class="o">=</span> <span class="n">signing_key</span>
+        <span class="n">keypair</span><span class="o">.</span><span class="n">_sr25519_secret</span> <span class="o">=</span> <span class="n">sr25519_secret</span>
         <span class="n">keypair</span><span class="o">.</span><span class="n">_public_key</span> <span class="o">=</span> <span class="n">public_key</span>
         <span class="n">keypair</span><span class="o">.</span><span class="n">ss58_format</span> <span class="o">=</span> <span class="n">ss58_format</span>
         <span class="k">return</span> <span class="n">keypair</span>
@@ -348,15 +371,25 @@
 <div class="viewcode-block" id="Keypair.from_seed">
 <a class="viewcode-back" href="../../api.html#robonomicsinterface.keys.Keypair.from_seed">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_seed</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ss58_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ROBONOMICS_SS58_FORMAT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""From a 32-byte ED25519 seed (the Substrate "mini secret"), raw or as 0x hex."""</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_seed</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">seed</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">ss58_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ROBONOMICS_SS58_FORMAT</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">crypto_type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ED25519</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""From a 32-byte seed (the Substrate "mini secret"), raw or as 0x hex."""</span>
 
+        <span class="n">kind</span> <span class="o">=</span> <span class="n">_key_type</span><span class="p">(</span><span class="n">crypto_type</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="n">seed</span> <span class="o">=</span> <span class="n">_seed_from_hex</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span> <span class="o">!=</span> <span class="n">_SEED_BYTES</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">InvalidKey</span><span class="p">(</span><span class="sa">f</span><span class="s2">"a seed is </span><span class="si">{</span><span class="n">_SEED_BYTES</span><span class="si">}</span><span class="s2"> bytes, not </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">SR25519</span><span class="p">:</span>
+            <span class="n">public_key</span><span class="p">,</span> <span class="n">secret</span> <span class="o">=</span> <span class="n">keys_sr25519</span><span class="o">.</span><span class="n">pair_from_seed</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">secret</span><span class="p">,</span> <span class="n">public_key</span><span class="p">,</span> <span class="n">ss58_format</span><span class="p">)</span>
         <span class="n">signing_key</span> <span class="o">=</span> <span class="n">nacl</span><span class="o">.</span><span class="n">signing</span><span class="o">.</span><span class="n">SigningKey</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">signing_key</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">signing_key</span><span class="o">.</span><span class="n">verify_key</span><span class="p">),</span> <span class="n">ss58_format</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">signing_key</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">signing_key</span><span class="o">.</span><span class="n">verify_key</span><span class="p">),</span> <span class="n">ss58_format</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Keypair.from_mnemonic">
@@ -367,17 +400,27 @@
         <span class="n">mnemonic</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">password</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
         <span class="n">ss58_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ROBONOMICS_SS58_FORMAT</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">crypto_type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ED25519</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""From a BIP39 English mnemonic, as polkadot.js and substrate-interface derive it."""</span>
 
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_seed</span><span class="p">(</span><span class="n">mnemonic_to_mini_secret</span><span class="p">(</span><span class="n">mnemonic</span><span class="p">,</span> <span class="n">password</span><span class="p">),</span> <span class="n">ss58_format</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_seed</span><span class="p">(</span>
+            <span class="n">mnemonic_to_mini_secret</span><span class="p">(</span><span class="n">mnemonic</span><span class="p">,</span> <span class="n">password</span><span class="p">),</span> <span class="n">ss58_format</span><span class="p">,</span> <span class="n">crypto_type</span><span class="o">=</span><span class="n">crypto_type</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Keypair.from_uri">
 <a class="viewcode-back" href="../../api.html#robonomicsinterface.keys.Keypair.from_uri">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_uri</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ss58_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ROBONOMICS_SS58_FORMAT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""From a Substrate secret URI: ``&lt;phrase or 0x seed&gt;//hard//path///password``.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_uri</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">uri</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">ss58_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ROBONOMICS_SS58_FORMAT</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">crypto_type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ED25519</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""From a Substrate secret URI: ``&lt;phrase or 0x seed&gt;//hard/soft///password``.</span>
 
 <span class="sd">        An empty phrase means the development phrase, so ``//Alice`` gives the</span>
 <span class="sd">        well-known development account. ED25519 has hard derivation only; a</span>
@@ -385,6 +428,7 @@
 <span class="sd">        tests; for keys that people paste, use :meth:`from_secret`.</span>
 <span class="sd">        """</span>
 
+        <span class="n">kind</span> <span class="o">=</span> <span class="n">_key_type</span><span class="p">(</span><span class="n">crypto_type</span><span class="p">)</span>
         <span class="n">match</span> <span class="o">=</span> <span class="n">_URI</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">uri</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">match</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">InvalidKey</span><span class="p">(</span><span class="s2">"the secret URI is malformed"</span><span class="p">)</span>
@@ -398,7 +442,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">seed</span> <span class="o">=</span> <span class="n">mnemonic_to_mini_secret</span><span class="p">(</span><span class="n">phrase</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
 
-        <span class="k">for</span> <span class="n">separator</span><span class="p">,</span> <span class="n">junction</span> <span class="ow">in</span> <span class="n">_JUNCTION</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="s2">"path"</span><span class="p">]):</span>
+        <span class="n">junctions</span> <span class="o">=</span> <span class="n">_JUNCTION</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">match</span><span class="p">[</span><span class="s2">"path"</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">SR25519</span><span class="p">:</span>
+            <span class="n">public_key</span><span class="p">,</span> <span class="n">secret</span> <span class="o">=</span> <span class="n">keys_sr25519</span><span class="o">.</span><span class="n">pair_from_seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">separator</span><span class="p">,</span> <span class="n">junction</span> <span class="ow">in</span> <span class="n">junctions</span><span class="p">:</span>
+                <span class="n">public_key</span><span class="p">,</span> <span class="n">secret</span> <span class="o">=</span> <span class="n">keys_sr25519</span><span class="o">.</span><span class="n">derive</span><span class="p">(</span>
+                    <span class="n">public_key</span><span class="p">,</span> <span class="n">secret</span><span class="p">,</span> <span class="n">_chain_code</span><span class="p">(</span><span class="n">junction</span><span class="p">),</span> <span class="n">hard</span><span class="o">=</span><span class="n">separator</span> <span class="o">==</span> <span class="s2">"//"</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">secret</span><span class="p">,</span> <span class="n">public_key</span><span class="p">,</span> <span class="n">ss58_format</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">separator</span><span class="p">,</span> <span class="n">junction</span> <span class="ow">in</span> <span class="n">junctions</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">separator</span> <span class="o">==</span> <span class="s2">"/"</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">InvalidKey</span><span class="p">(</span><span class="s2">"ED25519 supports hard derivation (//path) only"</span><span class="p">)</span>
             <span class="n">seed</span> <span class="o">=</span> <span class="n">_derive_hard</span><span class="p">(</span><span class="n">seed</span><span class="p">,</span> <span class="n">junction</span><span class="p">)</span>
@@ -409,7 +462,13 @@
 <div class="viewcode-block" id="Keypair.from_secret">
 <a class="viewcode-back" href="../../api.html#robonomicsinterface.keys.Keypair.from_secret">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_secret</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ss58_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ROBONOMICS_SS58_FORMAT</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_secret</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">ss58_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ROBONOMICS_SS58_FORMAT</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">crypto_type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ED25519</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""From what a person may paste: a mnemonic or a raw 0x seed.</span>
 
 <span class="sd">        Derivation paths, and development keys such as ``//Alice`` with them,</span>
@@ -420,18 +479,54 @@
         <span class="k">if</span> <span class="s2">"/"</span> <span class="ow">in</span> <span class="n">secret</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">InvalidKey</span><span class="p">(</span><span class="s2">"derivation paths are not accepted here; use Keypair.from_uri()"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">secret</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"0x"</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_seed</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="n">ss58_format</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_mnemonic</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="n">ss58_format</span><span class="o">=</span><span class="n">ss58_format</span><span class="p">)</span></div>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_seed</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="n">ss58_format</span><span class="p">,</span> <span class="n">crypto_type</span><span class="o">=</span><span class="n">crypto_type</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_mnemonic</span><span class="p">(</span><span class="n">secret</span><span class="p">,</span> <span class="n">ss58_format</span><span class="o">=</span><span class="n">ss58_format</span><span class="p">,</span> <span class="n">crypto_type</span><span class="o">=</span><span class="n">crypto_type</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Keypair.from_json">
+<a class="viewcode-back" href="../../api.html#robonomicsinterface.keys.Keypair.from_json">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_json</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">backup</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">password</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">ss58_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ROBONOMICS_SS58_FORMAT</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""From the JSON backup a wallet exports (polkadot.js version 3) and its password.</span>
+
+<span class="sd">        The file says whether the account is ED25519 or sr25519, so nothing else</span>
+<span class="sd">        is needed. The address in the file may be in any network's format; the</span>
+<span class="sd">        keypair gets ``ss58_format``. Opening it takes a few seconds on a small</span>
+<span class="sd">        board: call it off an event loop.</span>
+
+<span class="sd">        :raises InvalidKey: not a usable backup, or the wrong password.</span>
+<span class="sd">        """</span>
+
+        <span class="n">key_type</span><span class="p">,</span> <span class="n">secret</span><span class="p">,</span> <span class="n">public_key</span> <span class="o">=</span> <span class="n">open_backup</span><span class="p">(</span><span class="n">backup</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">key_type</span> <span class="o">==</span> <span class="s2">"sr25519"</span><span class="p">:</span>
+            <span class="n">restored</span><span class="p">,</span> <span class="n">converted</span> <span class="o">=</span> <span class="n">keys_sr25519</span><span class="o">.</span><span class="n">pair_from_polkadot_js</span><span class="p">(</span><span class="n">secret</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">restored</span> <span class="o">!=</span> <span class="n">public_key</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">InvalidKey</span><span class="p">(</span><span class="s2">"the key in the wallet backup does not match its public key"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">SR25519</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">converted</span><span class="p">,</span> <span class="n">restored</span><span class="p">,</span> <span class="n">ss58_format</span><span class="p">)</span>
+        <span class="n">keypair</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_seed</span><span class="p">(</span><span class="n">secret</span><span class="p">[:</span><span class="n">_SEED_BYTES</span><span class="p">],</span> <span class="n">ss58_format</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">keypair</span><span class="o">.</span><span class="n">public_key</span> <span class="o">!=</span> <span class="n">public_key</span> <span class="ow">or</span> <span class="n">secret</span><span class="p">[</span><span class="n">_SEED_BYTES</span><span class="p">:]</span> <span class="o">!=</span> <span class="n">public_key</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">InvalidKey</span><span class="p">(</span><span class="s2">"the key in the wallet backup does not match its public key"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">keypair</span></div>
 
 
 <div class="viewcode-block" id="Keypair.from_public_key">
 <a class="viewcode-back" href="../../api.html#robonomicsinterface.keys.Keypair.from_public_key">[docs]</a>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">from_public_key</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">public_key</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ss58_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ROBONOMICS_SS58_FORMAT</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">public_key</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">ss58_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">ROBONOMICS_SS58_FORMAT</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">crypto_type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ED25519</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""A counterparty known by its public key: can verify and be encrypted to."""</span>
 
+        <span class="n">kind</span> <span class="o">=</span> <span class="n">_key_type</span><span class="p">(</span><span class="n">crypto_type</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">public_key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">public_key</span> <span class="o">=</span> <span class="nb">bytes</span><span class="o">.</span><span class="n">fromhex</span><span class="p">(</span><span class="n">public_key</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">"0x"</span><span class="p">))</span>
@@ -439,25 +534,32 @@
                 <span class="k">raise</span> <span class="n">InvalidKey</span><span class="p">(</span><span class="s2">"a public key must be 0x-prefixed hex"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span> <span class="o">!=</span> <span class="n">_PUBLIC_KEY_BYTES</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">InvalidKey</span><span class="p">(</span><span class="sa">f</span><span class="s2">"a public key is </span><span class="si">{</span><span class="n">_PUBLIC_KEY_BYTES</span><span class="si">}</span><span class="s2"> bytes, not </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">public_key</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">public_key</span><span class="p">),</span> <span class="n">ss58_format</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">public_key</span><span class="p">),</span> <span class="n">ss58_format</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Keypair.from_address">
 <a class="viewcode-back" href="../../api.html#robonomicsinterface.keys.Keypair.from_address">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_address</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ss58_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_address</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">address</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">ss58_format</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">crypto_type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">ED25519</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""A counterparty known by its SS58 address.</span>
 
 <span class="sd">        :param ss58_format: when given, an address of another network is</span>
 <span class="sd">            refused; otherwise the address's own format is kept.</span>
 
-<span class="sd">        An address carries no key type, so an SR25519 account cannot be told</span>
-<span class="sd">        apart here: it only fails later, when a signature does not verify or a</span>
+<span class="sd">        An address carries no key type: say which it is with ``crypto_type``.</span>
+<span class="sd">        A wrong one only shows later, when a signature does not verify or a</span>
 <span class="sd">        message does not decrypt.</span>
 <span class="sd">        """</span>
 
+        <span class="n">kind</span> <span class="o">=</span> <span class="n">_key_type</span><span class="p">(</span><span class="n">crypto_type</span><span class="p">)</span>
         <span class="n">public_key</span> <span class="o">=</span> <span class="n">decode_address</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">ss58_format</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">public_key</span><span class="p">,</span> <span class="n">address_format</span><span class="p">(</span><span class="n">address</span><span class="p">))</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_build</span><span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">public_key</span><span class="p">,</span> <span class="n">address_format</span><span class="p">(</span><span class="n">address</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="Keypair.generate_mnemonic">
@@ -483,19 +585,19 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_secret</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_signing_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_signing_key</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sr25519_secret</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="n">kind</span> <span class="o">=</span> <span class="s2">""</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_secret</span> <span class="k">else</span> <span class="s2">", public only"</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">"&lt;Keypair ed25519 </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="si">}{</span><span class="n">kind</span><span class="si">}</span><span class="s2">&gt;"</span>
+        <span class="n">public_only</span> <span class="o">=</span> <span class="s2">""</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_secret</span> <span class="k">else</span> <span class="s2">", public only"</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"&lt;Keypair </span><span class="si">{</span><span class="n">_KEY_NAMES</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">crypto_type</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="si">}{</span><span class="n">public_only</span><span class="si">}</span><span class="s2">&gt;"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Keypair</span><span class="p">):</span>
             <span class="k">return</span> <span class="bp">NotImplemented</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_public_key</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">_public_key</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crypto_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_public_key</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">crypto_type</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">_public_key</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_public_key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">crypto_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_public_key</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">NoReturn</span><span class="p">:</span>
         <span class="c1"># Pickling would write the secret key out; refuse rather than leak.</span>
@@ -511,12 +613,22 @@
 <div class="viewcode-block" id="Keypair.sign">
 <a class="viewcode-back" href="../../api.html#robonomicsinterface.keys.Keypair.sign">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">sign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""A 64-byte ED25519 signature. A ``str`` is signed as its UTF-8 bytes."""</span>
+<span class="w">        </span><span class="sd">"""A 64-byte signature. A ``str`` is signed as its UTF-8 bytes.</span>
 
+<span class="sd">        An sr25519 signature is randomized: signing twice gives different</span>
+<span class="sd">        bytes, and both verify.</span>
+<span class="sd">        """</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crypto_type</span> <span class="o">==</span> <span class="n">SR25519</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sr25519_secret</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">NoSecretKey</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="si">}</span><span class="s2"> is a public key only"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">keys_sr25519</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_public_key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sr25519_secret</span><span class="p">,</span> <span class="n">_as_bytes</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
         <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_secret</span><span class="p">()</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">_as_bytes</span><span class="p">(</span><span class="n">message</span><span class="p">))</span><span class="o">.</span><span class="n">signature</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">signature</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crypto_type</span> <span class="o">==</span> <span class="n">SR25519</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">keys_sr25519</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_public_key</span><span class="p">,</span> <span class="n">_as_bytes</span><span class="p">(</span><span class="n">message</span><span class="p">),</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">signature</span><span class="p">))</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">nacl</span><span class="o">.</span><span class="n">signing</span><span class="o">.</span><span class="n">VerifyKey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_public_key</span><span class="p">)</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">_as_bytes</span><span class="p">(</span><span class="n">message</span><span class="p">),</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">signature</span><span class="p">))</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">nacl</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">BadSignatureError</span><span class="p">,</span> <span class="n">nacl</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
@@ -543,11 +655,21 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">encrypt_message</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">recipient_public_key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">nonce</span><span class="p">:</span> <span class="nb">bytes</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Encrypt for one recipient: a NaCl box with the 24-byte nonce in front.</span>
+<span class="w">        </span><span class="sd">"""Encrypt for one recipient.</span>
 
-<span class="sd">        :param nonce: for test vectors only; a random nonce is used otherwise.</span>
+<span class="sd">        An ED25519 keypair makes a NaCl box with the 24-byte nonce in front; the</span>
+<span class="sd">        recipient needs this keypair's public key to open it. An sr25519 keypair</span>
+<span class="sd">        makes an ECIES message (:mod:`.ecies_sr25519`) from a one-time key, so</span>
+<span class="sd">        its own key plays no part: nothing in the message names the sender, and</span>
+<span class="sd">        a public-only keypair can encrypt too.</span>
+
+<span class="sd">        :param nonce: for ED25519 test vectors only; a random nonce is used otherwise.</span>
 <span class="sd">        """</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crypto_type</span> <span class="o">==</span> <span class="n">SR25519</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">nonce</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"a nonce can be given for ED25519 only"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ecies_sr25519</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">_as_bytes</span><span class="p">(</span><span class="n">message</span><span class="p">),</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">))</span>
         <span class="n">box</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_box</span><span class="p">(</span><span class="n">recipient_public_key</span><span class="p">)</span>
         <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">_as_bytes</span><span class="p">(</span><span class="n">message</span><span class="p">),</span> <span class="n">nonce</span><span class="p">))</span></div>
 
@@ -555,8 +677,16 @@
 <div class="viewcode-block" id="Keypair.decrypt_message">
 <a class="viewcode-back" href="../../api.html#robonomicsinterface.keys.Keypair.decrypt_message">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">decrypt_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encrypted_message</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">,</span> <span class="n">sender_public_key</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Open a box produced by :meth:`encrypt_message` (or by substrate-interface)."""</span>
+<span class="w">        </span><span class="sd">"""Open what :meth:`encrypt_message` made (an ED25519 box may be from substrate-interface).</span>
 
+<span class="sd">        ``sender_public_key`` opens an ED25519 box; an sr25519 message carries</span>
+<span class="sd">        its own one-time key, so the argument is not used.</span>
+<span class="sd">        """</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">crypto_type</span> <span class="o">==</span> <span class="n">SR25519</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sr25519_secret</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">NoSecretKey</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="si">}</span><span class="s2"> is a public key only"</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ecies_sr25519</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">encrypted_message</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sr25519_secret</span><span class="p">)</span>
         <span class="n">box</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_box</span><span class="p">(</span><span class="n">sender_public_key</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">bytes</span><span class="p">(</span><span class="n">box</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="n">encrypted_message</span><span class="p">)))</span>
@@ -596,7 +726,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=acc74ff5"></script>
+</div><script src="../../_static/documentation_options.js?v=111a04e8"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

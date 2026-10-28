@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="prev" title="API reference" href="api.html">
 
     <!-- Generated with Sphinx 9.1.1 and Furo 2025.12.19 -->
-        <title>Changelog - robonomics-interface 3.0.0 documentation</title>
+        <title>Changelog - robonomics-interface 3.1.0rc1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">robonomics-interface 3.0.0 documentation</div></a>
+      <a href="index.html"><div class="brand">robonomics-interface 3.1.0rc1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">robonomics-interface 3.0.0 documentation</span>
+  <span class="sidebar-brand-text">robonomics-interface 3.1.0rc1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -237,6 +237,48 @@
 <p>All notable changes to this project are documented here. The format follows
 <a class="reference external" href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>, and the project uses
 <a class="reference external" href="https://semver.org/">Semantic Versioning</a>.</p>
+<section id="rc1-2026-10-28">
+<h2>[3.1.0rc1] — 2026-10-28<a class="headerlink" href="#rc1-2026-10-28" title="Link to this heading">¶</a></h2>
+<p>sr25519 next to ED25519. The 3.0 API only grows; <code class="docutils literal notranslate"><span class="pre">Keypair.from_mnemonic(m)</span></code> and every
+ED25519 package, signature and extrinsic are byte for byte what 3.0.0 produced. The core
+installs and works without the new extra.</p>
+<section id="added">
+<h3>Added<a class="headerlink" href="#added" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">[sr25519]</span></code> extra (<code class="docutils literal notranslate"><span class="pre">py-sr25519-bindings</span></code>, <code class="docutils literal notranslate"><span class="pre">rbcl</span></code>; wheels for musl and aarch64,
+no compiler), imported lazily: without it, an sr25519 key raises an <code class="docutils literal notranslate"><span class="pre">ImportError</span></code>
+that names the extra.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SR25519</span></code> next to <code class="docutils literal notranslate"><span class="pre">ED25519</span></code>, <code class="docutils literal notranslate"><span class="pre">Keypair.crypto_type</span></code>, and a keyword-only
+<code class="docutils literal notranslate"><span class="pre">crypto_type=</span></code> (the constant or <code class="docutils literal notranslate"><span class="pre">&quot;sr25519&quot;</span></code>) on <code class="docutils literal notranslate"><span class="pre">from_seed</span></code>, <code class="docutils literal notranslate"><span class="pre">from_mnemonic</span></code>,
+<code class="docutils literal notranslate"><span class="pre">from_uri</span></code>, <code class="docutils literal notranslate"><span class="pre">from_secret</span></code>, <code class="docutils literal notranslate"><span class="pre">from_public_key</span></code> and <code class="docutils literal notranslate"><span class="pre">from_address</span></code>. Addresses, derivation
+paths (<code class="docutils literal notranslate"><span class="pre">//</span></code>, <code class="docutils literal notranslate"><span class="pre">/</span></code>, <code class="docutils literal notranslate"><span class="pre">///password</span></code>) and signatures match substrate-interface and
+polkadot.js. The default stays ED25519.</p></li>
+<li><p>Extrinsics signed with sr25519 keys; the <code class="docutils literal notranslate"><span class="pre">MultiSignature</span></code> variant comes from the key.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Keypair.encrypt_message</span></code> / <code class="docutils literal notranslate"><span class="pre">decrypt_message</span></code> for sr25519: the ECIES scheme of
+<code class="docutils literal notranslate"><span class="pre">py-sr25519-encryption</span></code> (Ivan Berman) and SubMessage, the same bytes, so blobs open in
+both and in polkadot.js. Every failure is a <code class="docutils literal notranslate"><span class="pre">DecryptionError</span></code>; the MAC is checked
+before decrypting. The scheme does not authenticate the sender.</p></li>
+<li><p>The report envelope for sr25519: the type of a package is the type of the sender’s
+key; a mixed recipient list raises <code class="docutils literal notranslate"><span class="pre">RecipientError</span></code>, and opening with a key of the
+wrong type raises <code class="docutils literal notranslate"><span class="pre">PayloadError</span></code> that names the mismatch.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Keypair.from_json(backup,</span> <span class="pre">password)</span></code>: import of a polkadot.js keyring backup
+(version 3), ED25519 or sr25519 as the file says. Scrypt parameters are limited to
+those polkadot.js accepts.</p></li>
+</ul>
+</section>
+<section id="changed">
+<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>The development-chain tests run for both key types and include an encrypted report
+end to end. They still use the runtime v50 wasm (Sudo is needed to set the RWS
+oracle); mainnet runs spec 53, where Sudo is gone, OpenGov and CPS v1.1 are in, and
+Datalog, RWS, System, Balances and the signed extensions are unchanged. The mainnet
+smoke test passes on 53 for both key types.</p></li>
+<li><p>CI runs the tests with and without the extra, and in <code class="docutils literal notranslate"><span class="pre">python:3.13-alpine</span></code> on aarch64
+and x86_64 without a compiler.</p></li>
+</ul>
+</section>
+</section>
 <section id="id1">
 <h2>[3.0.0] — 2026-10-27<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <p>The release of the 3.0 line; the API is the one of 3.0.0rc2.</p>
@@ -251,15 +293,15 @@ node is raised as <code class="docutils literal notranslate"><span class="pre">R
 answers neither is dropped and failed over as before.</p></li>
 </ul>
 </section>
-<section id="added">
-<h3>Added<a class="headerlink" href="#added" title="Link to this heading">¶</a></h3>
+<section id="id2">
+<h3>Added<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The Sphinx documentation is back: API reference built from the docstrings, plus the
 README, MIGRATION.md and the changelog, published to GitHub Pages from <code class="docutils literal notranslate"><span class="pre">main</span></code>.</p></li>
 </ul>
 </section>
-<section id="changed">
-<h3>Changed<a class="headerlink" href="#changed" title="Link to this heading">¶</a></h3>
+<section id="id3">
+<h3>Changed<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Checked against the Robonomics runtime <code class="docutils literal notranslate"><span class="pre">spec_version</span> <span class="pre">52</span></code> on Polkadot (Sudo removed
 from production, OpenGov, CPS v1.1): the metadata, signed extensions, and the
@@ -272,8 +314,8 @@ runtime v50 wasm, because the production runtime no longer has Sudo.</p></li>
 <section id="rc2-2026-09-27">
 <h2>[3.0.0rc2] — 2026-09-27<a class="headerlink" href="#rc2-2026-09-27" title="Link to this heading">¶</a></h2>
 <p>From three days of rc1 in rrs-connector, rrs-admin and rrs-ha-integration.</p>
-<section id="id2">
-<h3>Fixed<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<section id="id4">
+<h3>Fixed<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The default TLS context for <code class="docutils literal notranslate"><span class="pre">wss://</span></code> endpoints is built once per client, in a worker
 thread, and shared by every connection. Before, asyncio built one per connection on
@@ -281,8 +323,8 @@ the event loop, reading the CA store from disk — Home Assistant reported a blo
 call. Passing <code class="docutils literal notranslate"><span class="pre">ssl=</span></code> works as before.</p></li>
 </ul>
 </section>
-<section id="id3">
-<h3>Added<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<section id="id5">
+<h3>Added<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Block hashes given as <code class="docutils literal notranslate"><span class="pre">at=</span></code> or to <code class="docutils literal notranslate"><span class="pre">client.chain.block_number()</span></code> are checked
 (<code class="docutils literal notranslate"><span class="pre">0x</span></code> + 64 hex digits) before any request; a bad one raises <code class="docutils literal notranslate"><span class="pre">EncodeError</span></code>.</p></li>
@@ -293,8 +335,8 @@ call. Passing <code class="docutils literal notranslate"><span class="pre">ssl=<
 <li><p>A weekly read-only smoke test against mainnet in CI.</p></li>
 </ul>
 </section>
-<section id="id4">
-<h3>Changed<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<section id="id6">
+<h3>Changed<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Robonomics on Kusama is legacy and is shutting down. A client refuses a Kusama node
 by default with “switch to Polkadot” in the reason; with <code class="docutils literal notranslate"><span class="pre">genesis_hash=None</span></code> it
@@ -306,8 +348,8 @@ connects and logs a warning. No Kusama constant is provided.</p></li>
 <h2>[3.0.0rc1] — 2026-09-24<a class="headerlink" href="#rc1-2026-09-24" title="Link to this heading">¶</a></h2>
 <p>A rewrite for the current Robonomics runtime. Not compatible with 2.x: see
 <a class="reference internal" href="MIGRATION.html"><span class="std std-doc">MIGRATION.md</span></a> for the mapping and the behaviour that changed.</p>
-<section id="id5">
-<h3>Added<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<section id="id7">
+<h3>Added<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Keypair</span></code> (ED25519) from a mnemonic (with optional password), a raw seed, a
 Substrate secret URI with hard derivation (<code class="docutils literal notranslate"><span class="pre">//Alice</span></code>, <code class="docutils literal notranslate"><span class="pre">&lt;phrase&gt;//a//b///password</span></code>),
@@ -385,8 +427,8 @@ their failures; a read-only mainnet smoke test.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">py.typed</span></code>.</p></li>
 </ul>
 </section>
-<section id="id6">
-<h3>Changed<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
+<section id="id8">
+<h3>Changed<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>Python 3.12+; built with hatchling.</p></li>
 <li><p>Core dependencies are <code class="docutils literal notranslate"><span class="pre">pynacl</span></code>, <code class="docutils literal notranslate"><span class="pre">scalecodec</span></code>, <code class="docutils literal notranslate"><span class="pre">websockets</span></code> and <code class="docutils literal notranslate"><span class="pre">xxhash</span></code> only;
@@ -463,21 +505,26 @@ to <code class="docutils literal notranslate"><span class="pre">polkadot-omni-no
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Changelog</a><ul>
-<li><a class="reference internal" href="#id1">[3.0.0] — 2026-10-27</a><ul>
-<li><a class="reference internal" href="#fixed">Fixed</a></li>
+<li><a class="reference internal" href="#rc1-2026-10-28">[3.1.0rc1] — 2026-10-28</a><ul>
 <li><a class="reference internal" href="#added">Added</a></li>
 <li><a class="reference internal" href="#changed">Changed</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#id1">[3.0.0] — 2026-10-27</a><ul>
+<li><a class="reference internal" href="#fixed">Fixed</a></li>
+<li><a class="reference internal" href="#id2">Added</a></li>
+<li><a class="reference internal" href="#id3">Changed</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#rc2-2026-09-27">[3.0.0rc2] — 2026-09-27</a><ul>
-<li><a class="reference internal" href="#id2">Fixed</a></li>
-<li><a class="reference internal" href="#id3">Added</a></li>
-<li><a class="reference internal" href="#id4">Changed</a></li>
+<li><a class="reference internal" href="#id4">Fixed</a></li>
+<li><a class="reference internal" href="#id5">Added</a></li>
+<li><a class="reference internal" href="#id6">Changed</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#rc1-2026-09-24">[3.0.0rc1] — 2026-09-24</a><ul>
-<li><a class="reference internal" href="#id5">Added</a></li>
-<li><a class="reference internal" href="#id6">Changed</a></li>
+<li><a class="reference internal" href="#id7">Added</a></li>
+<li><a class="reference internal" href="#id8">Changed</a></li>
 <li><a class="reference internal" href="#removed">Removed</a></li>
 </ul>
 </li>
@@ -492,7 +539,7 @@ to <code class="docutils literal notranslate"><span class="pre">polkadot-omni-no
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=acc74ff5"></script>
+</div><script src="_static/documentation_options.js?v=111a04e8"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

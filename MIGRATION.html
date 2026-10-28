@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="API reference" href="api.html"><link rel="prev" title="robonomics-interface" href="index.html">
 
     <!-- Generated with Sphinx 9.1.1 and Furo 2025.12.19 -->
-        <title>Migrating to robonomics-interface 3.0 - robonomics-interface 3.0.0 documentation</title>
+        <title>Migrating to robonomics-interface 3.0 - robonomics-interface 3.1.0rc1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d111a655" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=8dab3a3b" />
@@ -161,7 +161,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">robonomics-interface 3.0.0 documentation</div></a>
+      <a href="index.html"><div class="brand">robonomics-interface 3.1.0rc1 documentation</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -182,7 +182,7 @@
       
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
-  <span class="sidebar-brand-text">robonomics-interface 3.0.0 documentation</span>
+  <span class="sidebar-brand-text">robonomics-interface 3.1.0rc1 documentation</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -259,7 +259,7 @@ The API listed in section 8 is the same as in the release candidates.</p>
 </tr>
 <tr class="row-odd"><td><p>Keys</p></td>
 <td><p>sr25519 by default, ed25519 optional</p></td>
-<td><p>ED25519 only (sr25519 returns as an extra in 3.1)</p></td>
+<td><p>ED25519 by default; sr25519 with the <code class="docutils literal notranslate"><span class="pre">[sr25519]</span></code> extra (3.1)</p></td>
 </tr>
 <tr class="row-even"><td><p>Connection</p></td>
 <td><p>hidden, per object, synchronous, no request timeout</p></td>
@@ -284,10 +284,10 @@ The API listed in section 8 is the same as in the release candidates.</p>
 <section id="dependencies">
 <h2>2. Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">¶</a></h2>
 <p>Remove <code class="docutils literal notranslate"><span class="pre">substrate-interface</span></code>, <code class="docutils literal notranslate"><span class="pre">websocket-client</span></code> and any copy of the <code class="docutils literal notranslate"><span class="pre">chain/</span></code>
-package. Add <code class="docutils literal notranslate"><span class="pre">robonomics-interface==3.0.0rc1</span></code>. It brings <code class="docutils literal notranslate"><span class="pre">pynacl</span></code>, <code class="docutils literal notranslate"><span class="pre">scalecodec</span></code>,
+package. Add <code class="docutils literal notranslate"><span class="pre">robonomics-interface==3.0.0</span></code>. It brings <code class="docutils literal notranslate"><span class="pre">pynacl</span></code>, <code class="docutils literal notranslate"><span class="pre">scalecodec</span></code>,
 <code class="docutils literal notranslate"><span class="pre">websockets</span></code> and <code class="docutils literal notranslate"><span class="pre">xxhash</span></code>; do not list them separately unless the project uses
 them directly.</p>
-<p>Home Assistant: the manifest <code class="docutils literal notranslate"><span class="pre">requirements</span></code> becomes <code class="docutils literal notranslate"><span class="pre">[&quot;robonomics-interface==3.0.0rc1&quot;,</span> <span class="pre">...]</span></code>
+<p>Home Assistant: the manifest <code class="docutils literal notranslate"><span class="pre">requirements</span></code> becomes <code class="docutils literal notranslate"><span class="pre">[&quot;robonomics-interface==3.0.0&quot;,</span> <span class="pre">...]</span></code>
 (plus the project’s own, e.g. <code class="docutils literal notranslate"><span class="pre">pinatapy-vourhey</span></code>). HA already constrains
 <code class="docutils literal notranslate"><span class="pre">websockets&gt;=15</span></code>, which 3.0 accepts. No <code class="docutils literal notranslate"><span class="pre">aiohttp</span></code> session is needed: the library
 has its own WebSocket client.</p>
@@ -592,9 +592,10 @@ one cannot land an hour later, nor be replayed if the account is ever reaped.</p
 decoded a <code class="docutils literal notranslate"><span class="pre">str</span></code> starting with <code class="docutils literal notranslate"><span class="pre">0x</span></code> as hex first.</p></li>
 <li><p><strong>Keypairs keep secrets to themselves:</strong> <code class="docutils literal notranslate"><span class="pre">repr()</span></code> shows the address, errors
 never include the input, pickling raises <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>.</p></li>
-<li><p><strong>One key type.</strong> Accounts must be ED25519 — which report encryption
-already required. A mnemonic that was used with sr25519 gives a different
-address here.</p></li>
+<li><p><strong>ED25519 is the default key type.</strong> <code class="docutils literal notranslate"><span class="pre">Keypair.from_mnemonic(m)</span></code> gives the ED25519
+address, as report encryption required in 2.x. A mnemonic that was used with
+sr25519 gives a different address unless you say <code class="docutils literal notranslate"><span class="pre">crypto_type=&quot;sr25519&quot;</span></code> (3.1,
+section 10).</p></li>
 </ol>
 </section>
 <section id="per-project">
@@ -751,7 +752,10 @@ release candidates and 3.0.0; if one ever has to, the change is written here, an
 <li><p><code class="docutils literal notranslate"><span class="pre">client.datalog.items</span></code>, <code class="docutils literal notranslate"><span class="pre">.record(...,</span> <span class="pre">subscription_owner=)</span></code>, <code class="docutils literal notranslate"><span class="pre">.window_size</span></code>;
 <code class="docutils literal notranslate"><span class="pre">client.rws.devices</span></code>, <code class="docutils literal notranslate"><span class="pre">.ledger</span></code>, <code class="docutils literal notranslate"><span class="pre">.set_devices</span></code>; <code class="docutils literal notranslate"><span class="pre">client.system.account</span></code>, <code class="docutils literal notranslate"><span class="pre">.exists</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Keypair.from_secret</span></code>, <code class="docutils literal notranslate"><span class="pre">.from_mnemonic</span></code>, <code class="docutils literal notranslate"><span class="pre">.address</span></code>, <code class="docutils literal notranslate"><span class="pre">.public_key</span></code>, <code class="docutils literal notranslate"><span class="pre">.verify</span></code>,
-<code class="docutils literal notranslate"><span class="pre">.encrypt_message</span></code>, <code class="docutils literal notranslate"><span class="pre">.decrypt_message</span></code>; <code class="docutils literal notranslate"><span class="pre">generate_mnemonic</span></code>, <code class="docutils literal notranslate"><span class="pre">is_valid_address</span></code>,
+<code class="docutils literal notranslate"><span class="pre">.encrypt_message</span></code>, <code class="docutils literal notranslate"><span class="pre">.decrypt_message</span></code>; since 3.1 also <code class="docutils literal notranslate"><span class="pre">ED25519</span></code>, <code class="docutils literal notranslate"><span class="pre">SR25519</span></code>,
+<code class="docutils literal notranslate"><span class="pre">Keypair.from_json</span></code>, <code class="docutils literal notranslate"><span class="pre">Keypair.crypto_type</span></code> and the keyword-only <code class="docutils literal notranslate"><span class="pre">crypto_type=</span></code> of
+<code class="docutils literal notranslate"><span class="pre">from_seed</span></code>, <code class="docutils literal notranslate"><span class="pre">from_mnemonic</span></code>, <code class="docutils literal notranslate"><span class="pre">from_uri</span></code>, <code class="docutils literal notranslate"><span class="pre">from_secret</span></code> (default ED25519);
+<code class="docutils literal notranslate"><span class="pre">generate_mnemonic</span></code>, <code class="docutils literal notranslate"><span class="pre">is_valid_address</span></code>,
 <code class="docutils literal notranslate"><span class="pre">decode_address</span></code>, <code class="docutils literal notranslate"><span class="pre">encode_address</span></code>, <code class="docutils literal notranslate"><span class="pre">address_format</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">encrypt_for_recipients</span></code>, <code class="docutils literal notranslate"><span class="pre">decrypt_package</span></code>, <code class="docutils literal notranslate"><span class="pre">parse_decrypted</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">DatalogItem(index,</span> <span class="pre">timestamp_ms,</span> <span class="pre">data,</span> <span class="pre">text)</span></code>, <code class="docutils literal notranslate"><span class="pre">Ledger(kind,</span> <span class="pre">days,</span> <span class="pre">issued_at,</span> <span class="pre">expires_at,</span> <span class="pre">free_weight)</span></code>, <code class="docutils literal notranslate"><span class="pre">AccountInfo(free,</span> <span class="pre">exists)</span></code>, <code class="docutils literal notranslate"><span class="pre">XRT</span></code>, <code class="docutils literal notranslate"><span class="pre">ROBONOMICS_GENESIS_HASH</span></code>.</p></li>
@@ -762,10 +766,39 @@ release candidates and 3.0.0; if one ever has to, the change is written here, an
 <code class="docutils literal notranslate"><span class="pre">EnvelopeError</span></code>.</p></li>
 </ul>
 <p>Changes since rc1: none to this list. rc2 adds the TLS fix, block hash checks and
-the Kusama legacy handling (see CHANGELOG).</p>
+the Kusama legacy handling; 3.1 only adds names (see CHANGELOG).</p>
+</section>
+<section id="sr25519-3-1">
+<h2>9. sr25519 (3.1)<a class="headerlink" href="#sr25519-3-1" title="Link to this heading">¶</a></h2>
+<p>Optional: existing objects stay on ED25519; new ones may be created on sr25519, the
+default of Polkadot wallets. Install <code class="docutils literal notranslate"><span class="pre">robonomics-interface[sr25519]==3.1.0</span></code> (wheels for
+musl and aarch64, no compiler); without the extra everything else works as in 3.0.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">robonomicsinterface</span><span class="w"> </span><span class="kn">import</span> <span class="n">SR25519</span><span class="p">,</span> <span class="n">Keypair</span>
+
+<span class="n">Keypair</span><span class="o">.</span><span class="n">from_mnemonic</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>                          <span class="c1"># ED25519, as before</span>
+<span class="n">Keypair</span><span class="o">.</span><span class="n">from_mnemonic</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">crypto_type</span><span class="o">=</span><span class="n">SR25519</span><span class="p">)</span>     <span class="c1"># or "sr25519", e.g. from a config</span>
+<span class="n">Keypair</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span><span class="n">backup_json</span><span class="p">,</span> <span class="n">password</span><span class="p">)</span>          <span class="c1"># polkadot.js wallet backup; type from the file</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p><strong>Where the type lives.</strong> In the object’s settings (the HA config entry, the connector’s
+senders and integrators), next to the secret. Nothing in an address tells it, and a
+wrong guess is not always caught (<code class="docutils literal notranslate"><span class="pre">PayloadError</span></code> names the mismatch when opening a
+package). Existing entries without the field mean ED25519.</p></li>
+<li><p><strong>One type per package.</strong> The sender and all recipients share a type; the package
+has the sender’s. A mixed recipient list raises <code class="docutils literal notranslate"><span class="pre">RecipientError</span></code>. Keep the integrators
+of an sr25519 object on sr25519 keys.</p></li>
+<li><p><strong>Signing and datalog</strong> work the same: the extrinsic carries the signature variant of
+the key’s type. The account must exist on chain (fund it), as for ED25519.</p></li>
+<li><p><strong>Encryption</strong> is ECIES, compatible with <code class="docutils literal notranslate"><span class="pre">py-sr25519-encryption</span></code> and SubMessage, so a
+browser can decrypt with polkadot.js. It does not authenticate the sender; the connector
+trusts the datalog author (its senders registry), not the cipher.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">from_json</span></code></strong> needs the backup password and runs scrypt (128 MiB; seconds on a
+Raspberry Pi): call it in a thread, not on the event loop.</p></li>
+</ul>
 </section>
 <section id="checklist">
-<h2>9. Checklist<a class="headerlink" href="#checklist" title="Link to this heading">¶</a></h2>
+<h2>10. Checklist<a class="headerlink" href="#checklist" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>[ ] No <code class="docutils literal notranslate"><span class="pre">substrateinterface</span></code>, <code class="docutils literal notranslate"><span class="pre">websocket</span></code>, <code class="docutils literal notranslate"><span class="pre">robonomicsinterface.Account</span></code> or
 <code class="docutils literal notranslate"><span class="pre">chain.</span></code> import left (<code class="docutils literal notranslate"><span class="pre">grep</span> <span class="pre">-rn</span> <span class="pre">&quot;substrateinterface\|from</span> <span class="pre">websocket\|Account\b\|\.chain&quot;</span> <span class="pre">src</span></code>).</p></li>
@@ -779,9 +812,12 @@ with the connector.</p></li>
 device outside the list raises <code class="docutils literal notranslate"><span class="pre">ExtrinsicFailed</span></code> <code class="docutils literal notranslate"><span class="pre">RWS.NotLinkedDevice</span></code>.</p></li>
 <li><p>[ ] Home Assistant: the integration installs in <code class="docutils literal notranslate"><span class="pre">python:3.13-alpine</span></code> on aarch64
 and HA logs no “Detected blocking call”.</p></li>
+<li><p>[ ] sr25519 (3.1), if used: the key type is a setting of the object; a report from an
+sr25519 site opens with an sr25519 integrator key, and the connector reads it by
+the datalog author.</p></li>
 <li><p>[ ] Integration tests against a development node, if the project has any:
-<code class="docutils literal notranslate"><span class="pre">scripts/devchain.sh</span></code> in this repository starts one with funded ED25519
-accounts.</p></li>
+<code class="docutils literal notranslate"><span class="pre">scripts/devchain.sh</span></code> in this repository starts one; fund your test accounts,
+ED25519 or sr25519, by a transfer from the sr25519 <code class="docutils literal notranslate"><span class="pre">//Alice</span></code>.</p></li>
 </ul>
 </section>
 </section>
@@ -866,7 +902,8 @@ accounts.</p></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#stable-api">8. Stable API</a></li>
-<li><a class="reference internal" href="#checklist">9. Checklist</a></li>
+<li><a class="reference internal" href="#sr25519-3-1">9. sr25519 (3.1)</a></li>
+<li><a class="reference internal" href="#checklist">10. Checklist</a></li>
 </ul>
 </li>
 </ul>
@@ -878,7 +915,7 @@ accounts.</p></li>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=acc74ff5"></script>
+</div><script src="_static/documentation_options.js?v=111a04e8"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
